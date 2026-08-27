@@ -33,7 +33,11 @@ implementation
 uses
   Winapi.Messages,
   System.SysUtils,
-  MMDAnimationStudioForm;
+  Vcl.Controls,
+  Vcl.ExtCtrls,
+  DropFile,
+  MMDAnimationStudioForm,
+  MMDAnimationStudioFrame;
 
 const
   MMDWindowClassName: PWideChar = 'MMDAnimationStudio.ExtensionWindow';
@@ -41,6 +45,9 @@ const
 var
   ClientWindow: HWND;
   WindowForm: TFormMMDAnimationStudio;
+  RootPanel: TPanel;
+  WindowFrame: TFrameMMDAnimationStudio;
+  WindowDropFile: TDropFile;
   WindowBrush: HBRUSH;
 
 function ExtensionWindowProc(WindowHandle: HWND; MessageId: UINT;
@@ -49,6 +56,8 @@ begin
   case MessageId of
     WM_SIZE:
       begin
+        if Assigned(RootPanel) then
+          RootPanel.SetBounds(0, 0, LOWORD(LParam), HIWORD(LParam));
         if Assigned(WindowForm) then
           WindowForm.SetBounds(0, 0, LOWORD(LParam), HIWORD(LParam));
         Exit(0);
@@ -77,6 +86,8 @@ begin
 end;
 
 procedure RegisterMMDAnimationStudioWindow(Host: PMMDHostAppTable);
+var
+  ClientRect: TRect;
 begin
   if (Host = nil) or Assigned(WindowForm) then
     Exit;
@@ -94,12 +105,36 @@ begin
 
   WindowForm := TFormMMDAnimationStudio.Create(nil);
   WindowForm.ParentWindow := ClientWindow;
-  WindowForm.SetBounds(0, 0, 640, 480);
+
+  RootPanel := TPanel.Create(WindowForm);
+  RootPanel.Parent := WindowForm;
+  RootPanel.Align := alClient;
+  RootPanel.BevelOuter := bvNone;
+  RootPanel.Caption := '';
+  RootPanel.ParentBackground := False;
+  RootPanel.TabStop := True;
+
+  WindowFrame := TFrameMMDAnimationStudio.Create(WindowForm);
+  WindowFrame.Parent := RootPanel;
+  WindowFrame.Align := alClient;
+  WindowFrame.Visible := True;
+  WindowFrame.Show;
+
+  WindowDropFile := TDropFile.Create;
+  WindowDropFile.Attach(RootPanel, WindowFrame.DropFiles);
+
+  if GetClientRect(ClientWindow, ClientRect) then
+    WindowForm.SetBounds(0, 0, ClientRect.Width, ClientRect.Height)
+  else
+    WindowForm.SetBounds(0, 0, 640, 480);
   WindowForm.Show;
 end;
 
 procedure UnregisterMMDAnimationStudioWindow;
 begin
+  FreeAndNil(WindowDropFile);
+  FreeAndNil(WindowFrame);
+  RootPanel := nil;
   FreeAndNil(WindowForm);
 
   if ClientWindow <> 0 then

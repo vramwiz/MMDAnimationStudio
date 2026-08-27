@@ -21,3 +21,5 @@
 - `Poses`: Git同期するポーズJSON。新規AI候補は重複名を回避し、選択後の微調整は自動保存する
 
 Debug / Releaseとも、拡張プラグインは`C:\ProgramData\aviutl2\Plugin\MMD\MMDAnimationStudio.aux2`へ配置します。
+
+拡張プラグイン画面には表示切替用アイコンツールバーを配置しています。PMX管理ページでは、左に登録モデル、右に選択モデルのポーズを表示し、未登録時は「初期状態」を自動生成します。

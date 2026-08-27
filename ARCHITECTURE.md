@@ -15,7 +15,17 @@
 - `MMDAnimationStudio.dproj`を製品の本命プロジェクトとする。
 - AviUtl2拡張プラグインとして「MMDアニメーションスタジオ」を登録する。
 - `MMD`プラグイングループへ配置し、AviUtl2内に同名のクライアントウィンドウを持つ。
-- 初期実装は空のVCLフォームをホストウィンドウへ埋め込むところまでとし、既存機能はまだ接続しない。
+- VCLフォームへメインフレームを埋め込み、上部に「PMX管理／ポーズ・モーション／表情／セリフ／エクスプローラー／音楽／起動」の表示切替用ツールバーを置く。
+- ツールバーは`Syncroh2_Extension2`と同じサイズ、配色、DPI対応線画アイコン生成方式を使い、対応するページを切り替える。
+- PMX管理ページは`Source\Plugin\Extension\PMX\Catalog`の専用フレームで実装する。拡張ウィンドウのルートでファイルドロップを受け、`.pmx`をPMX管理ページへ振り分ける。
+- 登録したPMXは正規化した絶対パスで識別し、Windowsのパスとして大文字・小文字を区別せず重複を拒否する。画面にはパスと拡張子を除いたファイル名だけを表示する。
+- PMXカタログは`PMX\Catalog.json`に表示順のPmxUIDを保存し、各モデルのパスと表示名は`PMX\Models\<PmxUID>\Model.json`へ分離する。旧`PmxCatalog.txt`は初回読込時にこの構造へ移行する。
+- PMX管理ページは左右の専用一覧で構成する。左はPMX名と標準姿勢の全身画像、右は選択PMXに属するポーズ名とポーズ適用後の全身画像を表示する。
+- ポーズの順序と`defaultPoseId`は`Models\<PmxUID>\Poses\Index.json`、各データは`Poses\Items\<PoseUID>.json`で管理する。個別データはPoseUID、PmxUID、PMX表示名、ポーズ名、種別、版付き姿勢JSONを持つ。ポーズが0件なら正規の空姿勢JSONを持つ「初期状態」を自動生成し、右一覧には常に1件以上表示する。
+- 右一覧のダブルクリックで共通MMDポーズ編集GUIを開く。画面を閉じた時点の姿勢を採用して個別JSONへ保存し、PoseUIDと更新後の姿勢データを含むキーで右サムネイルを再生成する。
+- サムネイルは非表示の単一D3D描画面で1件ずつ生成し、一覧の描画処理内でPMX解析やGPU描画を行わない。骨格・選択オーバーレイは画像へ含めない。
+- PNGキャッシュはモデル用`PMX\Cache\Model`とポーズ用`PMX\Cache\Pose`へ分離する。PMX更新状態、画像寸法、PoseUIDとポーズデータをキーにし、元データ更新時には旧画像を使用しない。
+- PMX登録が0件の場合だけドロップ案内を表示し、1件以上ある場合は専用一覧だけを表示する。
 
 ### モデル表示
 
@@ -69,7 +79,8 @@ Model／Poseプラグインは2段目だけを使用し、Named Pipeユニット
 - MMD共通ライブラリは`..\AviUtl2PluginLib\MMD`、プラグイン固有コードは`Source\Plugin`へ置く。
 - 拡張プラグイン固有コードは`Source\Plugin\Extension`へ置く。
 - 既存のAIプレビュー関連コードは`Source\AI`へ残すが、初期の拡張プラグインには接続しない。
-- MMD共通部は`Core`、`IO`、`IPC`、`AI`、`Editor`、`Editor\D3D`へ責務分割する。
+- MMD共通部の形式固有コードは`MMD\PMX`、`MMD\VMD`、`MMD\VPD`等へ分け、その下を`Model`、`IO`、`Editor`等の責務で分割する。
+- 複数形式にまたがる処理は`MMD\Common`、共有メモリ等は`MMD\IPC`、AI境界は`MMD\AI`へ置く。既存配置は関連コードの変更時に段階的に移行する。
 - Plugin固有部も`Context`、`Input`、`Render`、`Editor`へ分ける。
 - Filter設定項目は`Source\Lib\FilterTable\PluginFilterTable.pas`で登録する。
 - 1ユニットは原則400行未満とし、統括ユニットへ詳細実装を集積しない。
