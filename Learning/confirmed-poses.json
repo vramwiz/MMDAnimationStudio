@@ -1,0 +1,144 @@
+﻿{
+  "schema": "mmd.pose.learning",
+  "version": 1,
+  "model_hint": "ふらすこ式風きりたん_ver0.05",
+  "source": "MMD_POSE_LEARNING.md",
+  "poses": [
+    {
+      "id": "bow_shallow",
+      "name": "日本式の浅いお辞儀（段階1・会釈）",
+      "confirmed": "2026-08-26",
+      "payload": {"mode":"replace","bones":[
+        {"name":"センター","translation":[0,-0.04,0.04],"rotation_euler_degrees":[0,0,0]},
+        {"name":"下半身","rotation_euler_degrees":[-2,0,0]},
+        {"name":"上半身","rotation_euler_degrees":[-17,0,0]},
+        {"name":"上半身2","rotation_euler_degrees":[-11,0,0]},
+        {"name":"首","rotation_euler_degrees":[-4,0,0]},
+        {"name":"頭","rotation_euler_degrees":[-5,0,0]},
+        {"name":"左肩","rotation_euler_degrees":[-5,8,-5]},
+        {"name":"左腕","rotation_euler_degrees":[-9,8,-45]},
+        {"name":"左ひじ","rotation_euler_degrees":[0,0,-18]},
+        {"name":"左手捩","rotation":[-0.3219,0.2063,0.0165,0.92388]},
+        {"name":"左手首","rotation":[-0.3219,0.2063,0.0165,0.92388]},
+        {"name":"右肩","rotation_euler_degrees":[-5,-8,5]},
+        {"name":"右腕","rotation_euler_degrees":[-9,-8,45]},
+        {"name":"右ひじ","rotation_euler_degrees":[0,0,18]},
+        {"name":"右手捩","rotation":[-0.3219,-0.2063,-0.0165,0.92388]},
+        {"name":"右手首","rotation":[-0.3219,-0.2063,-0.0165,0.92388]},
+        {"name":"左ひざ","rotation_euler_degrees":[0,0,0]},
+        {"name":"右ひざ","rotation_euler_degrees":[0,0,0]}
+      ]}
+    },
+    {
+      "id": "bow_normal",
+      "name": "日本式のお辞儀（段階2・通常のお辞儀）",
+      "confirmed": "2026-08-26",
+      "payload": {"mode":"replace","bones":[
+        {"name":"センター","translation":[0,-0.04,0.04],"rotation_euler_degrees":[0,0,0]},
+        {"name":"下半身","rotation_euler_degrees":[-3,0,0]},
+        {"name":"上半身","rotation_euler_degrees":[-24,0,0]},
+        {"name":"上半身2","rotation_euler_degrees":[-15,0,0]},
+        {"name":"首","rotation_euler_degrees":[-6,0,0]},
+        {"name":"頭","rotation_euler_degrees":[-7,0,0]},
+        {"name":"左肩","rotation_euler_degrees":[-5,8,-5]},
+        {"name":"左腕","rotation_euler_degrees":[-9,8,-45]},
+        {"name":"左ひじ","rotation_euler_degrees":[0,0,-18]},
+        {"name":"左手捩","rotation":[-0.3219,0.2063,0.0165,0.92388]},
+        {"name":"左手首","rotation":[-0.3219,0.2063,0.0165,0.92388]},
+        {"name":"右肩","rotation_euler_degrees":[-5,-8,5]},
+        {"name":"右腕","rotation_euler_degrees":[-9,-8,45]},
+        {"name":"右ひじ","rotation_euler_degrees":[0,0,18]},
+        {"name":"右手捩","rotation":[-0.3219,-0.2063,-0.0165,0.92388]},
+        {"name":"右手首","rotation":[-0.3219,-0.2063,-0.0165,0.92388]},
+        {"name":"左ひざ","rotation_euler_degrees":[0,0,0]},
+        {"name":"右ひざ","rotation_euler_degrees":[0,0,0]}
+      ]}
+    },
+    {
+      "id": "bow_deep",
+      "name": "日本式の深いお辞儀（段階3）",
+      "confirmed": "2026-08-26",
+      "payload": {"mode":"replace","bones":[
+        {"name":"センター","translation":[0,-0.04,0.05],"rotation_euler_degrees":[0,0,0]},
+        {"name":"下半身","rotation_euler_degrees":[-4,0,0]},
+        {"name":"上半身","rotation_euler_degrees":[-31,0,0]},
+        {"name":"上半身2","rotation_euler_degrees":[-20,0,0]},
+        {"name":"首","rotation_euler_degrees":[-8,0,0]},
+        {"name":"頭","rotation_euler_degrees":[-9,0,0]},
+        {"name":"左肩","rotation_euler_degrees":[-5,8,-5]},
+        {"name":"左腕","rotation_euler_degrees":[-9,8,-45]},
+        {"name":"左ひじ","rotation_euler_degrees":[0,0,-18]},
+        {"name":"左手捩","rotation":[-0.3219,0.2063,0.0165,0.92388]},
+        {"name":"左手首","rotation":[-0.3219,0.2063,0.0165,0.92388]},
+        {"name":"右肩","rotation_euler_degrees":[-5,-8,5]},
+        {"name":"右腕","rotation_euler_degrees":[-9,-8,45]},
+        {"name":"右ひじ","rotation_euler_degrees":[0,0,18]},
+        {"name":"右手捩","rotation":[-0.3219,-0.2063,-0.0165,0.92388]},
+        {"name":"右手首","rotation":[-0.3219,-0.2063,-0.0165,0.92388]},
+        {"name":"左ひざ","rotation_euler_degrees":[0,0,0]},
+        {"name":"右ひざ","rotation_euler_degrees":[0,0,0]}
+      ]}
+    },
+    {
+      "id": "back_arch_hands_on_waist",
+      "name": "背を反らす（腰に手）",
+      "confirmed": "2026-08-26",
+      "payload": {"mode":"replace","bones":[
+        {"name":"下半身","rotation_euler_degrees":[5,0,0]},
+        {"name":"上半身","rotation_euler_degrees":[13,0,0]},
+        {"name":"上半身2","rotation_euler_degrees":[9,0,0]},
+        {"name":"首","rotation_euler_degrees":[-12,0,0]},
+        {"name":"頭","rotation_euler_degrees":[-15,0,0]},
+        {"name":"左肩","rotation_euler_degrees":[-3,10,-2]},
+        {"name":"左腕","rotation_euler_degrees":[-8,18,-32]},
+        {"name":"左ひじ","rotation_euler_degrees":[0,0,-100]},
+        {"name":"左手首","rotation_euler_degrees":[0,-30,80]},
+        {"name":"右肩","rotation_euler_degrees":[-3,-10,2]},
+        {"name":"右腕","rotation_euler_degrees":[-8,-18,32]},
+        {"name":"右ひじ","rotation_euler_degrees":[0,0,100]},
+        {"name":"右手首","rotation_euler_degrees":[0,30,-80]}
+      ]}
+    },
+    {
+      "id": "proud_hands_on_hips",
+      "name": "威張る",
+      "confirmed": "2026-08-26",
+      "payload": {"mode":"replace","bones":[
+        {"name":"下半身","rotation_euler_degrees":[5,0,0]},
+        {"name":"上半身","rotation_euler_degrees":[13,0,0]},
+        {"name":"上半身2","rotation_euler_degrees":[9,0,0]},
+        {"name":"首","rotation_euler_degrees":[-12,0,0]},
+        {"name":"頭","rotation_euler_degrees":[-15,0,0]},
+        {"name":"左肩","rotation_euler_degrees":[-3,10,-2]},
+        {"name":"左腕","rotation_euler_degrees":[-8,30,-5]},
+        {"name":"左ひじ","rotation_euler_degrees":[0,0,-100]},
+        {"name":"左手首","translation":[0,0,0.15],"rotation_euler_degrees":[0,0,50]},
+        {"name":"右肩","rotation_euler_degrees":[-3,-10,2]},
+        {"name":"右腕","rotation_euler_degrees":[-8,-30,5]},
+        {"name":"右ひじ","rotation_euler_degrees":[0,0,100]},
+        {"name":"右手首","translation":[0,0,0.15],"rotation_euler_degrees":[0,0,-50]}
+      ]}
+    },
+    {
+      "id": "banzai",
+      "name": "万歳",
+      "confirmed": "2026-08-27",
+      "payload": {"mode":"replace","bones":[
+        {"name":"センター","translation":[0,0,0],"rotation_euler_degrees":[0,0,0]},
+        {"name":"下半身","rotation_euler_degrees":[0,0,0]},
+        {"name":"上半身","rotation_euler_degrees":[0,0,0]},
+        {"name":"上半身2","rotation_euler_degrees":[0,0,0]},
+        {"name":"首","rotation_euler_degrees":[0,0,0]},
+        {"name":"頭","rotation_euler_degrees":[0,0,0]},
+        {"name":"左肩","rotation_euler_degrees":[0,5,5]},
+        {"name":"左腕","rotation_euler_degrees":[0,8,75]},
+        {"name":"左ひじ","rotation_euler_degrees":[0,0,-12]},
+        {"name":"左手首","rotation_euler_degrees":[0,0,0]},
+        {"name":"右肩","rotation_euler_degrees":[0,-5,-5]},
+        {"name":"右腕","rotation_euler_degrees":[0,-8,-75]},
+        {"name":"右ひじ","rotation_euler_degrees":[0,0,12]},
+        {"name":"右手首","rotation_euler_degrees":[0,0,0]}
+      ]}
+    }
+  ]
+}

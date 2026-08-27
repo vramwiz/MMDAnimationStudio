@@ -1,0 +1,30 @@
+{
+  "operation": "capture_pose",
+  "model_file": "D:\\DelphiProg\\test\\MMD\\Model\\ふらすこ式風きりたん_ver0.05\\ふらすこ式風きりたん_ver0.05.pmx",
+  "current_pose": "",
+  "capture": {
+    "width": 1024,
+    "height": 1024,
+    "view": "front",
+    "pass": "normal"
+  },
+  "payload": {
+    "mode": "replace",
+    "bones": [
+      {"name": "センター", "translation": [0, 0, 0], "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "下半身", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "上半身", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "上半身2", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "首", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "頭", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "左肩", "rotation_euler_degrees": [0, 5, 5]},
+      {"name": "左腕", "rotation_euler_degrees": [0, 8, 75]},
+      {"name": "左ひじ", "rotation_euler_degrees": [0, 0, -12]},
+      {"name": "左手首", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "右肩", "rotation_euler_degrees": [0, -5, -5]},
+      {"name": "右腕", "rotation_euler_degrees": [0, -8, -75]},
+      {"name": "右ひじ", "rotation_euler_degrees": [0, 0, 12]},
+      {"name": "右手首", "rotation_euler_degrees": [0, 0, 0]}
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{377C014F-63D5-4474-A16D-A21F50DAD0F7}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="MMDAnimationStudio.dproj"><Dependencies/></Projects>
+        <Projects Include="MMD_Model_Filter.dproj"><Dependencies/></Projects>
+        <Projects Include="MMD_Pose_Filter.dproj"><Dependencies/></Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject><Default.Personality/></BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MMDAnimationStudio"><MSBuild Projects="MMDAnimationStudio.dproj"/></Target>
+    <Target Name="MMDAnimationStudio:Clean"><MSBuild Projects="MMDAnimationStudio.dproj" Targets="Clean"/></Target>
+    <Target Name="MMDAnimationStudio:Make"><MSBuild Projects="MMDAnimationStudio.dproj" Targets="Make"/></Target>
+    <Target Name="MMD_Model_Filter"><MSBuild Projects="MMD_Model_Filter.dproj"/></Target>
+    <Target Name="MMD_Model_Filter:Clean"><MSBuild Projects="MMD_Model_Filter.dproj" Targets="Clean"/></Target>
+    <Target Name="MMD_Model_Filter:Make"><MSBuild Projects="MMD_Model_Filter.dproj" Targets="Make"/></Target>
+    <Target Name="MMD_Pose_Filter"><MSBuild Projects="MMD_Pose_Filter.dproj"/></Target>
+    <Target Name="MMD_Pose_Filter:Clean"><MSBuild Projects="MMD_Pose_Filter.dproj" Targets="Clean"/></Target>
+    <Target Name="MMD_Pose_Filter:Make"><MSBuild Projects="MMD_Pose_Filter.dproj" Targets="Make"/></Target>
+    <Target Name="Build"><CallTarget Targets="MMDAnimationStudio;MMD_Model_Filter;MMD_Pose_Filter"/></Target>
+    <Target Name="Clean"><CallTarget Targets="MMDAnimationStudio:Clean;MMD_Model_Filter:Clean;MMD_Pose_Filter:Clean"/></Target>
+    <Target Name="Make"><CallTarget Targets="MMDAnimationStudio:Make;MMD_Model_Filter:Make;MMD_Pose_Filter:Make"/></Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

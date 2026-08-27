@@ -1,0 +1,25 @@
+{
+  "operation": "present_pose",
+  "candidate_id": "placeholder-banzai",
+  "pose_name": "万歳（仮骨格）",
+  "current_pose": "",
+  "payload": {
+    "mode": "replace",
+    "bones": [
+      {"name": "センター", "translation": [0, 0, 0], "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "下半身", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "上半身", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "上半身2", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "首", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "頭", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "左肩", "rotation_euler_degrees": [0, 5, 5]},
+      {"name": "左腕", "rotation_euler_degrees": [0, 8, 75]},
+      {"name": "左ひじ", "rotation_euler_degrees": [0, 0, -12]},
+      {"name": "左手首", "rotation_euler_degrees": [0, 0, 0]},
+      {"name": "右肩", "rotation_euler_degrees": [0, -5, -5]},
+      {"name": "右腕", "rotation_euler_degrees": [0, -8, -75]},
+      {"name": "右ひじ", "rotation_euler_degrees": [0, 0, 12]},
+      {"name": "右手首", "rotation_euler_degrees": [0, 0, 0]}
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "operation": "validate_finger_id",
+  "left_file": "D:\\DelphiProg\\test\\MMDAIPreview\\Win64\\Debug\\banzai-diagnostic-set\\banzai-left_hand-side-finger_id.bmp",
+  "right_file": "D:\\DelphiProg\\test\\MMDAIPreview\\Win64\\Debug\\banzai-diagnostic-set\\banzai-right_hand-opposite_side-finger_id.bmp"
+}
