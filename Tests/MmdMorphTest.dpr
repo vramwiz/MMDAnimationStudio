@@ -3,12 +3,17 @@
 {$APPTYPE CONSOLE}
 
 uses
+  Winapi.Messages,
+  Winapi.Windows,
   System.IOUtils,
   System.Math,
   System.SysUtils,
+  System.Types,
+  Vcl.Controls,
   Vcl.Forms,
   HorizontalTrackBarRenderer in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas',
   HorizontalTrackBarControl in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas',
+  VerticalScrollBarControl in '..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas',
   PmxModel in '..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
   PmxPoseTypes in '..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
   PmxPoseMath in '..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
@@ -22,7 +27,27 @@ uses
   PmxBoneReader in '..\AviUtl2PluginLib\MMD\IO\PmxBoneReader.pas',
   PmxMorphReader in '..\AviUtl2PluginLib\MMD\IO\PmxMorphReader.pas',
   MmdD3DDeform in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDeform.pas',
+  MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\MmdMorphSettingList.pas',
   MmdMorphPreviewPanel in '..\AviUtl2PluginLib\MMD\Editor\MmdMorphPreviewPanel.pas';
+
+type
+  TMmdMorphSettingListAccess = class(TMmdMorphSettingList)
+  public
+    procedure ClickAt(const ClientPoint: TPoint);
+    function WheelAt(WheelDelta: Integer; const ScreenPoint: TPoint): Boolean;
+  end;
+
+procedure TMmdMorphSettingListAccess.ClickAt(const ClientPoint: TPoint);
+begin
+  MouseDown(mbLeft, [], ClientPoint.X, ClientPoint.Y);
+  MouseUp(mbLeft, [], ClientPoint.X, ClientPoint.Y);
+end;
+
+function TMmdMorphSettingListAccess.WheelAt(WheelDelta: Integer;
+  const ScreenPoint: TPoint): Boolean;
+begin
+  Result := DoMouseWheel([], WheelDelta, ScreenPoint);
+end;
 
 procedure CheckNear(Actual, Expected: Single; const Name: string);
 begin
@@ -37,32 +62,73 @@ var
   I: Integer;
   Model: TPmxModel;
   Panel: TMmdMorphPreviewPanel;
-  Track: THorizontalTrackBarControl;
+  List: TMmdMorphSettingList;
+  ScrollBar: TVerticalScrollBarControl;
   Weights: TPmxMorphWeights;
 begin
   Form := TForm.Create(nil);
   Model := TPmxModel.Create;
   try
-    SetLength(Model.Morphs, 1);
-    Model.Morphs[0].Name := 'test';
-    Model.Morphs[0].MorphType := pmtVertex;
+    SetLength(Model.Morphs, 12);
+    for I := 0 to High(Model.Morphs) do
+    begin
+      Model.Morphs[I].Name := 'morph-' + I.ToString;
+      Model.Morphs[I].Panel := (I div 4) + 1;
+      Model.Morphs[I].MorphType := pmtVertex;
+    end;
     Panel := TMmdMorphPreviewPanel.Create(Form);
     Panel.Parent := Form;
+    Panel.SetBounds(0, 0, MulDiv(300, Screen.PixelsPerInch, 96),
+      MulDiv(180, Screen.PixelsPerInch, 96));
+    Form.Show;
+    Application.ProcessMessages;
     Panel.SetModel(Model);
-    Track := nil;
+    List := nil;
     for I := 0 to Panel.ComponentCount - 1 do
-      if Panel.Components[I] is THorizontalTrackBarControl then
-        Track := THorizontalTrackBarControl(Panel.Components[I]);
-    if Track = nil then
-      raise Exception.Create('custom morph preview track bar was not found');
-    Track.SmallChange := 10;
-    Track.Position := 56;
-    if Track.Position <> 60 then
-      raise Exception.Create('custom track bar did not snap to SmallChange');
-    Track.SmallChange := 1;
-    Track.Position := 100;
+      if Panel.Components[I] is TMmdMorphSettingList then
+        List := TMmdMorphSettingList(Panel.Components[I]);
+    if List = nil then
+      raise Exception.Create('virtual morph setting list was not found');
+    ScrollBar := nil;
+    for I := 0 to List.ComponentCount - 1 do
+      if List.Components[I] is TVerticalScrollBarControl then
+        ScrollBar := TVerticalScrollBarControl(List.Components[I]);
+    if (ScrollBar = nil) or not ScrollBar.Visible then
+      raise Exception.Create('custom vertical morph scroll bar was not shown');
+    TMmdMorphSettingListAccess(List).WheelAt(-WHEEL_DELTA,
+      List.ClientToScreen(Point(List.ClientWidth div 2,
+        MulDiv(15, Screen.PixelsPerInch, 96))));
     Panel.CopyWeights(Weights);
-    CheckNear(Weights[0], 1.0, 'morph preview track weight');
+    CheckNear(Weights[0], 0.0, 'track hover wheel must not edit weight');
+    if ScrollBar.Position <= 0 then
+      raise Exception.Create('track hover wheel did not scroll the list');
+    ScrollBar.Position := 0;
+    TMmdMorphSettingListAccess(List).ClickAt(Point(
+      ScrollBar.Left - MulDiv(24, Screen.PixelsPerInch, 96),
+      MulDiv(45, Screen.PixelsPerInch, 96)));
+    Panel.CopyWeights(Weights);
+    CheckNear(Weights[0], 1.0, 'right edge snap');
+    TMmdMorphSettingListAccess(List).ClickAt(Point(
+      Max(MulDiv(82, Screen.PixelsPerInch, 96),
+        (ScrollBar.Left - MulDiv(8, Screen.PixelsPerInch, 96)) div 3) +
+        MulDiv(4, Screen.PixelsPerInch, 96),
+      MulDiv(45, Screen.PixelsPerInch, 96)));
+    Panel.CopyWeights(Weights);
+    CheckNear(Weights[0], 0.0, 'left edge snap');
+    for I := 1 to 60 do
+      SendMessage(List.Handle, WM_KEYDOWN, VK_RIGHT, 0);
+    Panel.CopyWeights(Weights);
+    if (Weights[0] < 0.59) or (Weights[0] > 0.61) then
+      raise Exception.Create('virtual morph track did not update its weight');
+    // 右端の操作方式を2値へ切り替えると、現在値は0または1へ丸める。
+    SendMessage(List.Handle, WM_KEYDOWN, VK_SPACE, 0);
+    Panel.CopyWeights(Weights);
+    CheckNear(Weights[0], 1.0, 'binary morph mode snap');
+    for I := 1 to 4 do
+      SendMessage(List.Handle, WM_KEYDOWN, VK_DOWN, 0);
+    SendMessage(List.Handle, WM_KEYDOWN, VK_RIGHT, 0);
+    Panel.CopyWeights(Weights);
+    CheckNear(Weights[4], 0.01, 'keyboard skips category header');
   finally
     Model.Free;
     Form.Free;

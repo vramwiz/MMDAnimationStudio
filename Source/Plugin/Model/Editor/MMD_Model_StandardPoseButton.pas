@@ -1,6 +1,6 @@
 ﻿unit MMD_Model_StandardPoseButton;
 
-// モデル表示の設定ボタンから標準姿勢GUIを開き、OK時だけJSONを保存する。
+// モデル表示の設定ボタンからポーズGUIを開き、OK時だけJSONを保存する。
 
 interface
 
@@ -20,7 +20,7 @@ uses
 const
   MODEL_EFFECT_NAME = 'モデル表示';
   MODEL_ITEM_MODEL_FILE = 'モデルファイル';
-  MODEL_ITEM_STANDARD_POSE = '標準姿勢データ';
+  MODEL_ITEM_POSE = 'ポーズ';
 
 function GetFocusedItem(Edit: PEDIT_SECTION; Obj: OBJECT_HANDLE;
   const ItemName: string): string;
@@ -53,22 +53,22 @@ begin
     ModelFileName := GetFocusedItem(Edit, Obj, MODEL_ITEM_MODEL_FILE);
     if ModelFileName = '' then
     begin
-      MessageBox(0, '先にモデルファイルを選択してください。', 'MMD 標準ポーズ編集',
+      MessageBox(0, '先にモデルファイルを選択してください。', 'MMD ポーズ編集',
         MB_OK or MB_ICONINFORMATION);
       Exit;
     end;
-    PoseData := GetFocusedItem(Edit, Obj, MODEL_ITEM_STANDARD_POSE);
+    PoseData := GetFocusedItem(Edit, Obj, MODEL_ITEM_POSE);
     if PoseData = '' then
       PoseData := '{"version":1,"bones":[]}';
-    if not EditPose(ModelFileName, PoseData, 'MMD 標準ポーズ編集',
+    if not EditPose(ModelFileName, PoseData, 'MMD ポーズ編集',
       NewPoseData) then
       Exit;
     Utf8PoseData := UTF8String(NewPoseData);
     Edit^.SetObjectItemValue(Obj, MODEL_EFFECT_NAME,
-      MODEL_ITEM_STANDARD_POSE, PAnsiChar(Utf8PoseData));
+      MODEL_ITEM_POSE, PAnsiChar(Utf8PoseData));
   except
     on E: Exception do
-      MessageBox(0, PChar(E.Message), 'MMD 標準ポーズ編集',
+      MessageBox(0, PChar(E.Message), 'MMD ポーズ編集',
         MB_OK or MB_ICONERROR);
   end;
 end;

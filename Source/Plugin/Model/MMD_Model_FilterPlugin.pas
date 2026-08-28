@@ -134,9 +134,9 @@ begin
     RegisterDisplayMode;
     AddTrack(ModelScaleItem, 'MMD倍率', 15.0, 0.1, 100.0, 0.1);
     AddTrack(PoseLayerItem, 'ポーズ参照レイヤー', 0.0, 0.0, 999.0, 1.0);
-    AddString(StandardPoseDataItem, '標準姿勢データ',
+    AddString(StandardPoseDataItem, 'ポーズ',
       '{"version":1,"bones":[]}');
-    AddButton(StandardPoseButtonItem, '標準ポーズ設定',
+    AddButton(StandardPoseButtonItem, 'ポーズ設定',
       StandardPoseButtonCallback);
     AddTrack(BoneOffsetXItem, '比較用骨格Xずらし', 30.0, -100.0, 100.0,
       1.0);

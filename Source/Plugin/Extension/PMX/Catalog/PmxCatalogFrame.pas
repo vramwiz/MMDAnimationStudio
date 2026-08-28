@@ -15,6 +15,7 @@ uses
   PmxPoseCatalogStorage,
   PmxPoseCatalogListView,
   PmxPoseCatalogEditor,
+  DragAgent,
   PmxCatalogThumbnailCache,
   PmxCatalogThumbnailRenderer;
 
@@ -36,12 +37,19 @@ type
     FPoseCatalogListView: TPmxPoseCatalogListView;
     FPoseThumbnailCache: TPmxCatalogThumbnailCache;
     FRightPanel: TPanel;
+    FPoseDrag: TDragShellFile;
+    FDragAliasFileName: string;
     FDropEventCount: Integer;
     FLastDroppedFile: string;
     FOnFilesDropped: TPmxCatalogFilesDroppedEvent;
     FThumbnailCache: TPmxCatalogThumbnailCache;
     FThumbnailRenderer: TPmxCatalogThumbnailRenderer;
+    FLayoutPPI: Integer;
+    procedure ApplyDpiLayout;
     procedure CatalogSelectionChanged(Sender: TObject);
+    function PoseDragCanStart(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer): Boolean;
+    procedure PoseDragRequest(Sender: TObject; FileNames: TStringList);
     procedure PoseListDblClick(Sender: TObject);
     procedure DoFilesDropped(const Files: TArray<string>);
     procedure RefreshList;
@@ -52,6 +60,7 @@ type
     function DropFiles(const Files: TArray<string>): Boolean;
     // 指定した永続化ファイルを読み直す。通常は既定のPMX管理ファイルを使用する。
     procedure OpenCatalog(const FileName: string);
+    procedure Resize; override;
     procedure Show; reintroduce;
     property Catalog: TPmxCatalogStorage read FCatalog;
     property CatalogListView: TPmxCatalogListView read FCatalogListView;
@@ -68,15 +77,45 @@ implementation
 
 uses
   Winapi.Windows,
+  System.Math,
+  System.IOUtils,
   System.SysUtils,
+  System.Types,
   Vcl.Graphics,
-  AppFolderUtils;
+  AppFolderUtils,
+  PmxPoseCatalogDragAlias;
 
 {$R *.dfm}
 
 const
   PmxDropEventCaption = 'PMX'#$30C9#$30ED#$30C3#$30D7#$30A4#$30D9#$30F3#$30C8#$767A#$706B;
   PmxListPaneWidth = 128;
+  PmxThumbnailSize = 96;
+  PmxCaptionAreaHeight = 28;
+
+procedure TFramePmxCatalog.ApplyDpiLayout;
+var
+  PPI: Integer;
+  ThumbnailSize: Integer;
+begin
+  PPI := CurrentPPI;
+  if (PPI <= 0) or (FLayoutPPI = PPI) or
+    not Assigned(FLeftPanel) or not Assigned(FDivider) or
+    not Assigned(FCatalogListView) or not Assigned(FPoseCatalogListView) then
+    Exit;
+
+  FLayoutPPI := PPI;
+  FLeftPanel.Width := MulDiv(PmxListPaneWidth, PPI, 96);
+  FDivider.Width := Max(1, MulDiv(1, PPI, 96));
+
+  ThumbnailSize := MulDiv(PmxThumbnailSize, PPI, 96);
+  FCatalogListView.ImageSize := ThumbnailSize;
+  FCatalogListView.RowHeight := ThumbnailSize +
+    MulDiv(PmxCaptionAreaHeight, PPI, 96);
+  FPoseCatalogListView.ImageSize := ThumbnailSize;
+  FPoseCatalogListView.RowHeight := ThumbnailSize +
+    MulDiv(PmxCaptionAreaHeight, PPI, 96);
+end;
 
 constructor TFramePmxCatalog.Create(AOwner: TComponent);
 var
@@ -137,11 +176,28 @@ begin
 
   FCatalogListView.OnSelectionChanged := CatalogSelectionChanged;
   FCatalogListView.SetCatalog(FCatalog);
+
+  FDragAliasFileName := GetAppFolder('Temp') + 'PmxPose-' +
+    IntToHex(NativeUInt(Self), SizeOf(Pointer) * 2) + '.object';
+  FPoseDrag := TDragShellFile.Create(Self);
+  FPoseDrag.Attach(FPoseCatalogListView);
+  FPoseDrag.OnCanStart := PoseDragCanStart;
+  FPoseDrag.OnDragRequest := PoseDragRequest;
+  ApplyDpiLayout;
   RefreshList;
 end;
 
 destructor TFramePmxCatalog.Destroy;
 begin
+  if Assigned(FPoseDrag) then
+    FPoseDrag.Detach;
+  FPoseDrag.Free;
+  try
+    if TFile.Exists(FDragAliasFileName) then
+      TFile.Delete(FDragAliasFileName);
+  except
+    { 一時エイリアスの後始末失敗は終了処理へ影響させない。 }
+  end;
   FPoseCatalogListView.Free;
   FCatalogListView.Free;
   FPoseCatalog.Free;
@@ -150,6 +206,37 @@ begin
   FThumbnailCache.Free;
   FCatalog.Free;
   inherited;
+end;
+
+function TFramePmxCatalog.PoseDragCanStart(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer): Boolean;
+var
+  Index: Integer;
+  Model: TPmxCatalogItem;
+  Pose: TPmxPoseCatalogItem;
+begin
+  Result := False;
+  if (Button <> mbLeft) or not Assigned(FCatalog) or
+    not Assigned(FPoseCatalog) then
+    Exit;
+  Index := FPoseCatalogListView.ItemAtPos(Point(X, Y));
+  if (Index < 0) or (Index >= FPoseCatalog.Count) or
+    (Index <> FPoseCatalogListView.ItemIndex) or
+    (FCatalogListView.ItemIndex < 0) or
+    (FCatalogListView.ItemIndex >= FCatalog.Count) then
+    Exit;
+  Model := FCatalog.Items[FCatalogListView.ItemIndex];
+  Pose := FPoseCatalog[Index];
+  Result := TryWritePmxPoseObjectAlias(Model.SourcePath, Pose.PoseData,
+    FDragAliasFileName);
+end;
+
+procedure TFramePmxCatalog.PoseDragRequest(Sender: TObject;
+  FileNames: TStringList);
+begin
+  FileNames.Clear;
+  if TFile.Exists(FDragAliasFileName) then
+    FileNames.Add(FDragAliasFileName);
 end;
 
 procedure TFramePmxCatalog.CatalogSelectionChanged(Sender: TObject);
@@ -267,8 +354,17 @@ begin
     CatalogSelectionChanged(FCatalogListView);
 end;
 
+procedure TFramePmxCatalog.Resize;
+begin
+  inherited;
+  ApplyDpiLayout;
+end;
+
 procedure TFramePmxCatalog.Show;
 begin
+  // このフレームは動的生成後にAviUtl2のウィンドウへ接続される。
+  // 実際の親が決まってからCurrentPPIを使い、96 DPI時の値を再計算する。
+  ApplyDpiLayout;
   RefreshList;
   inherited Show;
 end;

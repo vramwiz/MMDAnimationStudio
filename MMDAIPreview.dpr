@@ -12,6 +12,8 @@ uses
   MmdVpdDirectory in '..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas',
   HorizontalTrackBarRenderer in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas',
   HorizontalTrackBarControl in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas',
+  VerticalScrollBarControl in '..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas',
+  MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\MmdMorphSettingList.pas',
   MmdAiPreviewMainForm in 'Source\AI\MmdAiPreviewMainForm.pas' {MainForm};
 
 procedure AttachHostConsole;

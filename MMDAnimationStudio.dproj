@@ -15,8 +15,8 @@
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\StudioDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_UnitSearchPath>Source\Plugin\Extension;Source\Plugin\Extension\Style;Source\Plugin\Extension\PMX\Catalog;Source\Plugin\Extension\PMX\Catalog\View;Source\Plugin\Extension\PMX\Catalog\Thumbnail;Source\Plugin\Extension\PMX\Catalog\Pose;Source\Plugin\Extension\PMX\Catalog\Pose\View;Source\Plugin\Extension\PMX\Catalog\Pose\Editor;..\AviUtl2PluginLib\Serif;..\AviUtl2PluginLib\Lib\AppFolderUtils;..\AviUtl2PluginLib\Lib\DropFile;..\AviUtl2PluginLib\Lib\ItemListView;..\AviUtl2PluginLib\Lib\VerticalScrollBar;..\AviUtl2PluginLib\Lib\ToolBarPanelManager;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UnitSearchPath>Source\Plugin\Extension;Source\Plugin\Extension\Style;Source\Plugin\Extension\PMX\Catalog;Source\Plugin\Extension\PMX\Catalog\View;Source\Plugin\Extension\PMX\Catalog\Thumbnail;Source\Plugin\Extension\PMX\Catalog\Pose;Source\Plugin\Extension\PMX\Catalog\Pose\View;Source\Plugin\Extension\PMX\Catalog\Pose\Editor;Source\Plugin\Extension\PMX\Catalog\Pose\Drag;..\AviUtl2PluginLib\Serif;..\AviUtl2PluginLib\Lib\AppFolderUtils;..\AviUtl2PluginLib\Lib\DropFile;..\AviUtl2PluginLib\Lib\DragAgent;..\AviUtl2PluginLib\Lib\ItemListView;..\AviUtl2PluginLib\Lib\VerticalScrollBar;..\AviUtl2PluginLib\Lib\ToolBarPanelManager;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_Namespace>System;System.Win;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMDAnimationStudio</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -88,6 +88,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioExtension.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioFrame.pas">
@@ -105,60 +106,19 @@
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\View\PmxPoseCatalogListView.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Editor\PmxPoseCatalogEditor.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragAlias.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DragAgent\DragAgent.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailCache.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailRenderer.pas"/>
-        <DCCReference Include="Source\Plugin\Extension\Style\AviUtl2StyleColors.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdMorphSettingList.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioForm.pas">
             <Form>FormMMDAnimationStudio</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\AviUtl2PluginLib\Serif\SerifToolbarIcons.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\ItemListView\ItemListView.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPose.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxReader.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxBinaryStream.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxGeometryReader.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxMaterialReader.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxBoneReader.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxMorphReader.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DScene.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DSelection.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DInteraction.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DShapes.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DBuffers.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DCapture.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DOverlay.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DShaders.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DTextures.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDevice.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDeform.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewportSurface.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary\MmdD3DLiveDragTest.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewport.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseSymmetry.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseHistory.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditOperations.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdMorphPreviewPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DropFile\DropFile.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\ToolBarPanelManager\ToolBarPanelManager.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

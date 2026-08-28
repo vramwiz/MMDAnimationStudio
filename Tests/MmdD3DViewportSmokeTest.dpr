@@ -352,6 +352,41 @@ begin
   Result := -1;
 end;
 
+procedure CheckFaceFocus(Viewport: TMmdD3DViewport; Model: TPmxModel;
+  const Poses: TPmxBonePoses);
+var
+  HeadIndex: Integer;
+  Joint: TMmdPreviewJoint;
+  Projected: TPmxVector3;
+  Scene: TMmdPreviewScene;
+begin
+  HeadIndex := FindTestBone(Model, string('頭'));
+  if HeadIndex < 0 then
+    raise Exception.Create('face focus test head bone was not found');
+  Viewport.SetScene(Model, Poses, HeadIndex);
+  if not Viewport.FocusPreviewBone(string('頭'), 4.0) then
+    raise Exception.Create('face focus rejected the head bone');
+  if Abs(Viewport.Camera.Zoom - 4.0) > 0.001 then
+    raise Exception.Create('face focus zoom was not applied');
+  BuildPreviewScene(Model, Poses, nil, EmptyPreviewTarget,
+    EmptyPreviewTarget, Scene);
+  for Joint in Scene.Joints do
+    if Joint.BoneIndex = HeadIndex then
+    begin
+      Projected := ProjectPreviewPosition(Joint.Position, Scene.Projection,
+        Viewport.Camera, Viewport.ClientWidth, Viewport.ClientHeight);
+      if (Abs(Projected.X) > 0.001) or (Abs(Projected.Y) > 0.001) then
+        raise Exception.Create('face focus did not center the head bone');
+      Viewport.ResetPreviewCamera;
+      if (Abs(Viewport.Camera.Zoom - 1.0) > 0.001) or
+        (Abs(Viewport.Camera.PanX) > 0.001) or
+        (Abs(Viewport.Camera.PanY) > 0.001) then
+        raise Exception.Create('full-body camera was not restored');
+      Exit;
+    end;
+  raise Exception.Create('face focus scene did not contain the head joint');
+end;
+
 procedure CheckImageAutoFit(Viewport: TMmdD3DViewport; Model: TPmxModel;
   const InitialPoses: TPmxBonePoses);
 var
@@ -861,6 +896,7 @@ begin
       Viewport.SetScene(Model, Poses, 0);
       Form.Show;
       Application.ProcessMessages;
+      CheckFaceFocus(Viewport, Model, Poses);
       CheckBoneMouseInteraction(Viewport, Model, Poses);
       CheckCameraInteractionPerformance(Viewport);
       CheckFixedViewKeyboard(Viewport);

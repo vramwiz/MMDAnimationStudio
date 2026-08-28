@@ -130,13 +130,26 @@ end;
 
 procedure TLayoutProbe.ScaleLayoutAndCheck(TargetPPI: Integer);
 var
-  InitialFontHeight: Integer;
+  InitialFontHeight, InitialBoneListFontHeight,
+    InitialMorphFontHeight, InitialToolbarFontHeight: Integer;
 begin
   InitialFontHeight := Font.Height;
+  InitialBoneListFontHeight := FBoneList.Font.Height;
+  InitialMorphFontHeight := FMorphPreview.Font.Height;
+  InitialToolbarFontHeight := FCommandToolbar.Font.Height;
   ScaleLayoutForPPI(TargetPPI);
   if Font.Height <> InitialFontHeight then
     raise Exception.CreateFmt('font was scaled twice: %d <> %d',
       [Font.Height, InitialFontHeight]);
+  if FBoneList.Font.Height <> InitialBoneListFontHeight then
+    raise Exception.CreateFmt('bone list font was scaled twice: %d <> %d',
+      [FBoneList.Font.Height, InitialBoneListFontHeight]);
+  if FMorphPreview.Font.Height <> InitialMorphFontHeight then
+    raise Exception.CreateFmt('morph font was scaled twice: %d <> %d',
+      [FMorphPreview.Font.Height, InitialMorphFontHeight]);
+  if FCommandToolbar.Font.Height <> InitialToolbarFontHeight then
+    raise Exception.CreateFmt('toolbar font was scaled twice: %d <> %d',
+      [FCommandToolbar.Font.Height, InitialToolbarFontHeight]);
   CheckLayout(TargetPPI);
 end;
 
