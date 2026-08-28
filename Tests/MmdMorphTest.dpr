@@ -6,8 +6,9 @@ uses
   System.IOUtils,
   System.Math,
   System.SysUtils,
-  Vcl.ComCtrls,
   Vcl.Forms,
+  HorizontalTrackBarRenderer in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas',
+  HorizontalTrackBarControl in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas',
   PmxModel in '..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
   PmxPoseTypes in '..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
   PmxPoseMath in '..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
@@ -36,7 +37,7 @@ var
   I: Integer;
   Model: TPmxModel;
   Panel: TMmdMorphPreviewPanel;
-  Track: TTrackBar;
+  Track: THorizontalTrackBarControl;
   Weights: TPmxMorphWeights;
 begin
   Form := TForm.Create(nil);
@@ -50,10 +51,15 @@ begin
     Panel.SetModel(Model);
     Track := nil;
     for I := 0 to Panel.ComponentCount - 1 do
-      if Panel.Components[I] is TTrackBar then
-        Track := TTrackBar(Panel.Components[I]);
+      if Panel.Components[I] is THorizontalTrackBarControl then
+        Track := THorizontalTrackBarControl(Panel.Components[I]);
     if Track = nil then
-      raise Exception.Create('morph preview track bar was not found');
+      raise Exception.Create('custom morph preview track bar was not found');
+    Track.SmallChange := 10;
+    Track.Position := 56;
+    if Track.Position <> 60 then
+      raise Exception.Create('custom track bar did not snap to SmallChange');
+    Track.SmallChange := 1;
     Track.Position := 100;
     Panel.CopyWeights(Weights);
     CheckNear(Weights[0], 1.0, 'morph preview track weight');

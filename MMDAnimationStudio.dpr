@@ -15,6 +15,9 @@ uses
   PmxPoseCatalogEditor in 'Source\Plugin\Extension\PMX\Catalog\Pose\Editor\PmxPoseCatalogEditor.pas',
   PmxCatalogThumbnailCache in 'Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailCache.pas',
   PmxCatalogThumbnailRenderer in 'Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailRenderer.pas',
+  MmdVpdDirectory in '..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas',
+  HorizontalTrackBarRenderer in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas',
+  HorizontalTrackBarControl in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas',
   MMDAnimationStudioForm in 'Source\Plugin\Extension\MMDAnimationStudioForm.pas' {FormMMDAnimationStudio};
 
 {$R *.res}
@@ -41,6 +44,7 @@ procedure RegisterPlugin(Host: PMMDHostAppTable); cdecl;
 begin
   try
     SetAppFolderRoot('MMDAnimationStudio');
+    EnsureMmdVpdDirectory;
     if Host = nil then
       Exit;
 

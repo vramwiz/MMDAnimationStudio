@@ -15,6 +15,7 @@ uses
   System.JSON,
   System.SysUtils,
   Winapi.Windows,
+  MmdAiPoseRepository,
   MmdAiPreviewPipeProtocol,
   MmdAiPreviewPipeServer,
   MmdAiPreviewProtocol;
@@ -131,6 +132,7 @@ procedure PrintUsage;
 begin
   Writeln('MMDAIPreview - direct Codex/MMD experiment host');
   Writeln('  --self-test              Query MMD provider capabilities.');
+  Writeln('  --convert-legacy-poses   Convert legacy JSON poses to VPD.');
   Writeln('  --request <json>         Process one JSON request.');
   Writeln('  --request-file <path>    Process one UTF-8 JSON file.');
   Writeln('  --stdio                  Process one JSON object per input line.');
@@ -139,6 +141,8 @@ end;
 
 procedure RunMmdAiPreviewHost;
 var
+  Converted: Integer;
+  ResultRoot: TJSONObject;
   RequestText: string;
 begin
   if ParamCount = 0 then
@@ -148,6 +152,23 @@ begin
   end;
   if SameText(ParamStr(1), '--self-test') then
     RequestText := CAPABILITIES_REQUEST
+  else if SameText(ParamStr(1), '--convert-legacy-poses') then
+  begin
+    if ParamCount <> 1 then
+      raise EArgumentException.Create(
+        '--convert-legacy-poses does not accept arguments.');
+    Converted := ConvertLegacyMmdAiPoseFiles;
+    ResultRoot := TJSONObject.Create;
+    try
+      ResultRoot.AddPair('status', 'ok');
+      ResultRoot.AddPair('converted', TJSONNumber.Create(Converted));
+      ResultRoot.AddPair('directory', GetMmdAiPoseDirectory);
+      WriteUtf8Line(ResultRoot.ToJSON);
+    finally
+      ResultRoot.Free;
+    end;
+    Exit;
+  end
   else if SameText(ParamStr(1), '--request') then
   begin
     if ParamCount <> 2 then

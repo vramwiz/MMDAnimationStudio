@@ -1,25 +1,31 @@
 ﻿unit MmdAiPoseRepository;
 
-// AIとGUIが共有する、Git同期可能なポーズJSONフォルダを管理する。
+// AIとGUIが共有するVPDポーズフォルダと、内部姿勢JSONとの変換を管理する。
 
 interface
 
 function GetMmdAiPoseDirectory: string;
-function SaveMmdAiPoseFile(const PoseName, CandidateId,
-  PoseData: string): string;
-procedure UpdateMmdAiPoseFile(const FilePath, PoseName, CandidateId,
-  PoseData: string);
+function ConvertLegacyMmdAiPoseFiles: Integer;
+function LoadMmdAiPoseFile(const FilePath: string; out PoseData: string): Boolean;
+function SaveMmdAiPoseFile(const PoseName, PoseData: string): string;
+procedure UpdateMmdAiPoseFile(const FilePath, PoseData: string);
 
 implementation
 
 uses
+  System.Classes,
   System.IOUtils,
   System.JSON,
-  System.SysUtils;
+  System.SysUtils,
+  PmxPose,
+  PmxPoseCodec,
+  MmdVpdDirectory,
+  VpdPoseCodec;
 
 function GetMmdAiPoseDirectory: string;
 begin
-  Result := TPath.Combine(ExtractFilePath(ParamStr(0)), 'Poses');
+  // 取得したパスへ直ちにアクセスできることを、この境界で保証する。
+  Result := EnsureMmdVpdDirectory;
 end;
 
 function MakeSafeFileName(const Value: string): string;
@@ -48,45 +54,124 @@ var
   Number: Integer;
 begin
   BaseName := MakeSafeFileName(PoseName);
-  Result := TPath.Combine(GetMmdAiPoseDirectory, BaseName + '.json');
+  Result := TPath.Combine(GetMmdAiPoseDirectory, BaseName + '.vpd');
   Number := 2;
   while TFile.Exists(Result) do
   begin
     Result := TPath.Combine(GetMmdAiPoseDirectory,
-      Format('%s-%d.json', [BaseName, Number]));
+      Format('%s-%d.vpd', [BaseName, Number]));
     Inc(Number);
   end;
 end;
 
-function SaveMmdAiPoseFile(const PoseName, CandidateId,
-  PoseData: string): string;
+function ReadVpdText(const FilePath: string): string;
+var
+  Bytes: TBytes;
+  Encoding: TEncoding;
 begin
-  TDirectory.CreateDirectory(GetMmdAiPoseDirectory);
-  Result := NewPoseFilePath(PoseName);
-  UpdateMmdAiPoseFile(Result, PoseName, CandidateId, PoseData);
+  Bytes := TFile.ReadAllBytes(FilePath);
+  if (Length(Bytes) >= 3) and (Bytes[0] = $EF) and (Bytes[1] = $BB) and
+    (Bytes[2] = $BF) then
+    Exit(TEncoding.UTF8.GetString(Bytes, 3, Length(Bytes) - 3));
+  Encoding := TEncoding.GetEncoding(932);
+  try
+    Result := Encoding.GetString(Bytes);
+  finally
+    Encoding.Free;
+  end;
 end;
 
-procedure UpdateMmdAiPoseFile(const FilePath, PoseName, CandidateId,
-  PoseData: string);
+procedure WriteVpdText(const FilePath, Text: string);
 var
-  Root: TJSONObject;
+  Bytes: TBytes;
+  Encoding: TEncoding;
+begin
+  Encoding := TEncoding.GetEncoding(932);
+  try
+    Bytes := Encoding.GetBytes(Text);
+  finally
+    Encoding.Free;
+  end;
+  TFile.WriteAllBytes(FilePath, Bytes);
+end;
+
+function LoadMmdAiPoseFile(const FilePath: string;
+  out PoseData: string): Boolean;
+var
+  Poses: TPmxNamedBonePoses;
+begin
+  PoseData := '';
+  Result := TryDecodeVpdPose(ReadVpdText(FilePath), Poses);
+  if Result then
+    PoseData := EncodePoseData(Poses);
+end;
+
+function SaveMmdAiPoseFile(const PoseName, PoseData: string): string;
+begin
+  Result := NewPoseFilePath(PoseName);
+  UpdateMmdAiPoseFile(Result, PoseData);
+end;
+
+procedure UpdateMmdAiPoseFile(const FilePath, PoseData: string);
+var
+  Poses: TPmxNamedBonePoses;
 begin
   if PoseData = '' then
     raise EArgumentException.Create('pose_data must not be empty.');
   if FilePath = '' then
     raise EArgumentException.Create('file path must not be empty.');
+  if not SameText(TPath.GetExtension(FilePath), '.vpd') then
+    raise EArgumentException.Create('pose file extension must be .vpd.');
+  if not TryDecodePoseData(PoseData, Poses) then
+    raise EArgumentException.Create('pose_data must be mmd.pose version 1.');
   TDirectory.CreateDirectory(TPath.GetDirectoryName(FilePath));
-  Root := TJSONObject.Create;
-  try
-    Root.AddPair('format', 'mmd-ai-preview-pose');
-    Root.AddPair('version', TJSONNumber.Create(1));
-    Root.AddPair('name', PoseName);
-    if CandidateId <> '' then
-      Root.AddPair('candidate_id', CandidateId);
-    Root.AddPair('pose_data', PoseData);
-    TFile.WriteAllText(FilePath, Root.Format(2), TEncoding.UTF8);
-  finally
-    Root.Free;
+  WriteVpdText(FilePath, EncodeVpdPose('MMDAIPreview', Poses));
+end;
+
+function ReadJsonString(const Object_: TJSONObject; const Name: string): string;
+var
+  Value: TJSONValue;
+begin
+  Result := '';
+  Value := Object_.GetValue(Name);
+  if Value is TJSONString then
+    Result := TJSONString(Value).Value;
+end;
+
+function ConvertLegacyMmdAiPoseFiles: Integer;
+var
+  FilePath, PoseData, VpdPath, VerifiedData: string;
+  Files: TArray<string>;
+  RootValue: TJSONValue;
+begin
+  Result := 0;
+  Files := TDirectory.GetFiles(GetMmdAiPoseDirectory, '*.json');
+  for FilePath in Files do
+  begin
+    VpdPath := ChangeFileExt(FilePath, '.vpd');
+    if TFile.Exists(VpdPath) then
+      Continue;
+    RootValue := TJSONObject.ParseJSONValue(
+      TFile.ReadAllText(FilePath, TEncoding.UTF8));
+    try
+      if not (RootValue is TJSONObject) then
+        raise EArgumentException.CreateFmt('Legacy pose is not a JSON object: %s',
+          [FilePath]);
+      PoseData := ReadJsonString(TJSONObject(RootValue), 'pose_data');
+      if PoseData = '' then
+        raise EArgumentException.CreateFmt('Legacy pose has no pose_data: %s',
+          [FilePath]);
+      UpdateMmdAiPoseFile(VpdPath, PoseData);
+      if not LoadMmdAiPoseFile(VpdPath, VerifiedData) then
+      begin
+        TFile.Delete(VpdPath);
+        raise EInvalidOperation.CreateFmt('Converted VPD verification failed: %s',
+          [VpdPath]);
+      end;
+      Inc(Result);
+    finally
+      RootValue.Free;
+    end;
   end;
 end;
 

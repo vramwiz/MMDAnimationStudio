@@ -70,7 +70,7 @@ CodexからMMDへ直接ポーズ候補を渡し、AviUtl2を起動せずにモ�
 - DFMなしの`CreateNew`ではVCLのメインフォーム生成フラグが設定されないため、フォーム自身の`ShowInTaskBar`を明示した。Named Pipe起動も初回表示時へ移して早期`Handle`生成を避け、所有者なしの`WS_EX_APPWINDOW`として通常アプリと同様にタスクバーから前面復帰・終了できるようにした。
 - MMDAIPreviewのDebug / Release、および共有レンダラー変更後のMMD Model / Pose両プラグインのDebug / Releaseをすべて警告0・エラー0でビルドした。
 - Delphi IDEのF9実行で外部ホストを要求しないよう、プロジェクト種別を`FrameworkType=VCL`、`AppType=Application`、`Borland.ProjectType=VCLApplication`へ変更し、Win64、Debug / Release構成、`UseLauncher=False`をIDE用メタデータへ明示した。引数なしではGUIを直接起動し、引数付きのCLIモードだけ既存コンソールへ接続する。GUI起動と`--self-test`の双方を確認済みである。
-- IDE実行構成は`D:\DelphiProg\test\WRT2646\Client\WRT2646MonitorControlTest`を正本として組み直した。DPRが`Vcl.Forms`からメインフォームを直接生成し、フォーム型をinterfaceへ公開する。EXEはVCLプロジェクト標準どおりプロジェクト直下の`D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe`へ出力し、DPROJへWin64構成とProjectOutputのDeployment情報を明示した。
+- IDE実行構成は`D:\DelphiProg\test\WRT2646\Client\WRT2646MonitorControlTest`を正本として組み直した。DPRが`Vcl.Forms`からメインフォームを直接生成し、フォーム型をinterfaceへ公開する。EXEはVCLプロジェクト標準どおりプロジェクト直下の`D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.exe`へ出力し、DPROJへWin64構成とProjectOutputのDeployment情報を明示した。
 - PMX未指定時は`MmdAiPlaceholderModel.pas`が標準的な全身・左右腕・脚・五指の仮骨格を生成する。仮モデルは保存用データへ混入せず、MMD共通の最終ボーン計算と同じ左右色で表示する。
 - `present_pose`の`model_file`を任意化した。省略時もMMD共通プロバイダーのモデル直接指定APIで、Euler角、Quaternion、重複名、未知ボーンを検証して正規化する。`Samples\banzai-placeholder.json`の14ボーンをすべて解決し、万歳の仮骨格表示を確認した。
 - `present_pose`へ正規化済み`pose_data`を直接渡す経路も追加した。保存済み万歳を同一Pipe接続で再提示し、再エンコード後の`pose_data`一致を確認した。この経路はモデル固有検証を行わないため、応答へ`model_validation=false`を返す。
@@ -78,25 +78,26 @@ CodexからMMDへ直接ポーズ候補を渡し、AviUtl2を起動せずにモ�
 - `Learning\MMD_POSE_LEARNING.md`へAul2MIRAI側の既存学習記録をコピーし、以後の学習記録の正本を本プロジェクトへ移した。`Learning\confirmed-poses.json`には、会釈、通常のお辞儀、深いお辞儀、背を反らす（腰に手）、威張る、万歳の確定ボーン情報を機械可読形式で保存した。全6件をMMD共通プロバイダーへ再入力し、18、18、18、13、13、14ボーンとしてすべて正常解決した。
 - AviUtl2、AIMIRAI、選択オブジェクト、`state_token`には依存しない。
 - 仮骨格は標準MMDボーン名と概略比率を使うため、モデル独自ボーンの最終確認には実際のPMXを開く必要がある。
+- 2026-08-28にGUIのポーズ保存を独自JSONからMMD標準VPDへ切り替えた。保存先は`D:\Users\take6\MMDAnimationStudio\VPD`へ固定し、MMDとの互換性を優先してCP932で書き出す。画面一覧、起動時の最新選択、編集後の自動保存は`.vpd`だけを対象とする。Named Pipeと内部エディターの`pose_data`は版付きJSONのまま維持し、ファイル境界の`VpdPoseCodec`でボーン名、移動、Quaternionを相互変換する。`--convert-legacy-poses`で既存JSON 2件を同名VPDへ変換し、12ボーンと13ボーンを再読込検証した。元JSONはバックアップとして残した。
 
 ## コマンド
 
 Debug Win64ビルド:
 
 ```powershell
-cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.dproj"" /t:Build /p:Config=Debug /p:Platform=Win64"
+cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.dproj"" /t:Build /p:Config=Debug /p:Platform=Win64"
 ```
 
 能力照会:
 
 ```powershell
-D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --self-test
+D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.exe --self-test
 ```
 
 単発要求:
 
 ```powershell
-D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --request-file request.json
+D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.exe --request-file request.json
 ```
 
 確認済みの「万歳」画像生成要求は`Samples\banzai-preview.json`に置く。これはMMD共通形式の動作確認用であり、独自ボーン形式のテンプレートではない。`capture.file_path`を省略すると一時BMPの絶対パスが応答の`image.file_path`へ返る。
@@ -133,7 +134,7 @@ D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --request-file request.json
 継続セッション:
 
 ```powershell
-D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --stdio
+D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.exe --stdio
 ```
 
 `--stdio`のJSONは1行で完結させる。標準出力には機械可読JSONだけを返し、診断ログは将来追加する場合も標準エラーへ分離する。
@@ -141,7 +142,7 @@ D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --stdio
 Named Pipeサーバー:
 
 ```powershell
-D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --pipe
+D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.exe --pipe
 ```
 
 通信仕様とPowerShell接続例は`PIPE_INTERFACE.md`を正本とする。

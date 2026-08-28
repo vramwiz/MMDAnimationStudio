@@ -272,7 +272,7 @@ begin
       if PoseData = '' then
         Exit(ErrorJson('missing_pose_data',
           'MMD provider did not return pose_data.'));
-      PoseFile := SaveMmdAiPoseFile(PoseName, CandidateId, PoseData);
+      PoseFile := SaveMmdAiPoseFile(PoseName, PoseData);
       Presentation := TJSONObject.Create;
       try
         Presentation.AddPair('candidate_id', CandidateId);

@@ -12,7 +12,7 @@
 GUIを通常起動するとサーバーも自動起動する。画面を使わずサーバーだけを起動する場合は次のコマンドを使う。
 
 ```powershell
-D:\DelphiProg\test\MMDAIPreview\MMDAIPreview.exe --pipe
+D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMDAIPreview.exe --pipe
 ```
 
 ## 要求と応答
@@ -47,9 +47,11 @@ Codex側で画像評価と調整を終えた候補は`present_pose`でGUIへ提�
 }
 ```
 
-`present_pose`は先にMMD共通プロバイダーで正規化とボーン解決を行い、成功した`pose_data`をプロジェクト直下の`Poses`へJSON保存してから画面へ渡す。成功応答の`pose_file`には作成したファイルの絶対パスを返す。同名時は`-2`、`-3`の連番を付け、既存ファイルを上書きしない。`model_file`は任意で、省略時は標準MMDボーン名を持つ仮骨格で検証・表示する。
+`present_pose`は先にMMD共通プロバイダーで正規化とボーン解決を行い、成功した`pose_data`を`D:\Users\take6\MMDAnimationStudio\VPD`へMMD標準VPDとして保存してから画面へ渡す。成功応答の`pose_file`には作成した`.vpd`の絶対パスを返す。同名時は`-2`、`-3`の連番を付け、既存ファイルを上書きしない。`model_file`は任意で、省略時は標準MMDボーン名を持つ仮骨格で検証・表示する。
 
-画面左側には`Poses`内のJSONファイル名を更新日時の新しい順で表示する。選択したファイルを直ちにプレビューへ反映し、起動時は最新ファイルを自動選択する。この最新項目がCodexからの指示結果の初期プレビューとなる。「ポーズを開く」と「保存」の各ボタンは設けない。画面では通常、ボーンのみ、通常＋ボーンを切り替えられる。
+画面左側には`D:\Users\take6\MMDAnimationStudio\VPD`内の`.vpd`ファイル名を更新日時の新しい順で表示する。選択したファイルを直ちにプレビューへ反映し、起動時は最新ファイルを自動選択する。この最新項目がCodexからの指示結果の初期プレビューとなる。「ポーズを開く」と「保存」の各ボタンは設けない。画面では通常、ボーンのみ、通常＋ボーンを切り替えられる。
+
+旧形式を移行する場合は`MMDAIPreview.exe --convert-legacy-poses`を実行する。同フォルダの独自JSONを同名VPDへ変換し、生成したVPDを再読込できた場合だけ成功とする。既存VPDと元JSONは上書き・削除しない。
 
 正規化済みの`mmd.pose`バージョン1を再提示する場合は、`payload`の代わりに`pose_data`文字列を直接指定できる。この経路はJSON形式の検証とQuaternion再正規化を行うが、`model_file`があってもモデル固有ボーンの存在確認は行わず、応答の`preview.model_validation`は`false`となる。
 

@@ -11,6 +11,7 @@ uses
   MmdAiPreviewPipeServer,
   MmdAiPreviewPresentation,
   MmdPoseEditor,
+  MmdPoseEditorTheme,
   PmxModel;
 
 type
@@ -23,7 +24,7 @@ type
     FDisplayCombo: TComboBox;
     FLoadingPose: Boolean;
     FLoadingPoseList: Boolean;
-    FOpenModelButton: TButton;
+    FOpenModelButton: TMmdDarkButton;
     FPipeServer: TMmdAiPreviewPipeServer;
     FPlaceholderModel: TPmxModel;
     FPoseFiles: TArray<string>;
@@ -94,21 +95,24 @@ begin
   Height := 760;
   Constraints.MinWidth := 900;
   Constraints.MinHeight := 630;
-  FButtonPanel.Visible := False;
+  FDialogButtonPanel.Visible := False;
 
   ToolPanel := TPanel.Create(Self);
   ToolPanel.Parent := Self;
   ToolPanel.Align := alTop;
   ToolPanel.Height := 52;
   ToolPanel.BevelOuter := bvNone;
-  FOpenModelButton := TButton.Create(Self);
+  ToolPanel.ParentBackground := False;
+  ToolPanel.Color := MmdEditorPanel;
+  ToolPanel.Font.Color := MmdEditorText;
+  FOpenModelButton := TMmdDarkButton.Create(Self);
   FOpenModelButton.Parent := ToolPanel;
   FOpenModelButton.Caption := 'PMXを開く';
   FOpenModelButton.SetBounds(12, 10, 100, 32);
   FOpenModelButton.OnClick := OpenModelClick;
-  FDisplayCombo := TComboBox.Create(Self);
+  FDisplayCombo := TMmdDarkComboBox.Create(Self);
   FDisplayCombo.Parent := ToolPanel;
-  FDisplayCombo.Style := csDropDownList;
+  FDisplayCombo.Style := csOwnerDrawFixed;
   FDisplayCombo.Items.Add('通常');
   FDisplayCombo.Items.Add('ボーンのみ');
   FDisplayCombo.Items.Add('通常＋ボーン');
@@ -127,7 +131,10 @@ begin
   PosePanel.Align := alTop;
   PosePanel.Height := 220;
   PosePanel.BevelOuter := bvNone;
-  FPoseList := TListBox.Create(Self);
+  PosePanel.ParentBackground := False;
+  PosePanel.Color := MmdEditorBackground;
+  PosePanel.Font.Color := MmdEditorText;
+  FPoseList := TMmdDarkListBox.Create(Self);
   FPoseList.Parent := PosePanel;
   FPoseList.Align := alClient;
   FPoseList.OnClick := PoseListClick;
@@ -137,6 +144,7 @@ begin
   FStatusLabel.AutoSize := False;
   FStatusLabel.Height := 60;
   FStatusLabel.WordWrap := True;
+  FStatusLabel.Font.Color := MmdEditorText;
   FStatusLabel.Caption := '保存ポーズを読み込んでいます。';
 
   FViewport.ShowHint := True;
@@ -181,7 +189,7 @@ procedure TMmdAiPreviewMainForm.SetStatus(const Text: string; Error: Boolean);
 begin
   FStatusLabel.Caption := Text;
   if Error then FStatusLabel.Font.Color := clRed
-  else FStatusLabel.Font.Color := clWindowText;
+  else FStatusLabel.Font.Color := MmdEditorText;
 end;
 
 function TMmdAiPreviewMainForm.GetSettingsFile: string;
@@ -307,8 +315,7 @@ var
   Files: TArray<string>;
   Temp: string;
 begin
-  TDirectory.CreateDirectory(GetMmdAiPoseDirectory);
-  Files := TDirectory.GetFiles(GetMmdAiPoseDirectory, '*.json');
+  Files := TDirectory.GetFiles(GetMmdAiPoseDirectory, '*.vpd');
   for I := 0 to High(Files) - 1 do
     for J := I + 1 to High(Files) do
       if TFile.GetLastWriteTimeUtc(Files[J]) > TFile.GetLastWriteTimeUtc(Files[I]) then
@@ -355,27 +362,10 @@ end;
 
 function TMmdAiPreviewMainForm.ExtractPoseFile(const FilePath: string;
   out PoseData, PoseName, CandidateId: string): Boolean;
-var
-  RootValue: TJSONValue;
-  Text: string;
 begin
-  Text := TFile.ReadAllText(FilePath, TEncoding.UTF8);
-  PoseData := Text;
   PoseName := ChangeFileExt(ExtractFileName(FilePath), '');
   CandidateId := '';
-  RootValue := TJSONObject.ParseJSONValue(Text);
-  try
-    if RootValue is TJSONObject then
-    begin
-      if TJSONObject(RootValue).GetValue('pose_data') is TJSONString then
-        PoseData := TJSONString(TJSONObject(RootValue).GetValue('pose_data')).Value;
-      PoseName := ReadJsonString(TJSONObject(RootValue), 'name', PoseName);
-      CandidateId := ReadJsonString(TJSONObject(RootValue), 'candidate_id', '');
-    end;
-  finally
-    RootValue.Free;
-  end;
-  Result := PoseData <> '';
+  Result := LoadMmdAiPoseFile(FilePath, PoseData);
 end;
 
 procedure TMmdAiPreviewMainForm.PoseStateChanged;
@@ -383,8 +373,7 @@ begin
   inherited PoseStateChanged;
   if FLoadingPose or (FSelectedPoseFile = '') then Exit;
   try
-    UpdateMmdAiPoseFile(FSelectedPoseFile, FCurrentPoseName,
-      FCurrentCandidateId, EncodeCurrentPose);
+    UpdateMmdAiPoseFile(FSelectedPoseFile, EncodeCurrentPose);
     SetStatus('微調整を自動保存しました: ' + ExtractFileName(FSelectedPoseFile));
   except
     on E: Exception do SetStatus('ポーズ保存エラー: ' + E.Message, True);

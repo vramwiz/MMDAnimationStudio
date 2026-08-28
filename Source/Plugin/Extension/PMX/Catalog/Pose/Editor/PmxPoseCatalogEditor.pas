@@ -21,7 +21,8 @@ uses
   Vcl.ExtCtrls,
   Vcl.Forms,
   Vcl.StdCtrls,
-  MmdPoseEditor;
+  MmdPoseEditor,
+  MmdPoseEditorTheme;
 
 const
   EmptyPoseData = '{"version":1,"bones":[]}';
@@ -30,8 +31,8 @@ type
   TPmxPoseEditorForm = class(TStandardPoseEditorForm)
   private
     FCommitPanel: TPanel;
-    FSaveButton: TButton;
-    FCancelButton: TButton;
+    FSaveButton: TMmdDarkButton;
+    FCancelButton: TMmdDarkButton;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   public
     procedure ConfigureTransactionControls;
@@ -40,7 +41,7 @@ type
 procedure TPmxPoseEditorForm.ConfigureTransactionControls;
 begin
   // 共通GUI側のボタンは使用しない。編集GUIの構成変更から確定処理を分離する。
-  FButtonPanel.Visible := False;
+  FDialogButtonPanel.Visible := False;
 
   FCommitPanel := TPanel.Create(Self);
   FCommitPanel.Parent := Self;
@@ -49,8 +50,11 @@ begin
   FCommitPanel.BevelOuter := bvNone;
   FCommitPanel.BevelKind := bkTile;
   FCommitPanel.BevelEdges := [beTop];
+  FCommitPanel.ParentBackground := False;
+  FCommitPanel.Color := MmdEditorPanel;
+  FCommitPanel.Font.Color := MmdEditorText;
 
-  FSaveButton := TButton.Create(Self);
+  FSaveButton := TMmdDarkButton.Create(Self);
   FSaveButton.Parent := FCommitPanel;
   FSaveButton.Caption := #$4FDD#$5B58#$3057#$3066#$9589#$3058#$308B;
   FSaveButton.ModalResult := mrOk;
@@ -58,7 +62,7 @@ begin
   FSaveButton.SetBounds(FCommitPanel.ClientWidth - 271, 10, 135, 32);
   FSaveButton.Anchors := [akTop, akRight];
 
-  FCancelButton := TButton.Create(Self);
+  FCancelButton := TMmdDarkButton.Create(Self);
   FCancelButton.Parent := FCommitPanel;
   FCancelButton.Caption := #$30AD#$30E3#$30F3#$30BB#$30EB;
   FCancelButton.ModalResult := mrCancel;

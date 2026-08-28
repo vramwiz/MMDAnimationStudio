@@ -19,17 +19,21 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - AI MIRAIのNamed Pipe `Aul2MIRAI.v1`から利用するバージョン1 C ABIをModel / Poseから公開済み。
 - `get_model_schema`と非破壊の`preview_pose`は実モデルで実機確認済み。
 - AI専用診断ビューとして通常、骨格のみ、骨格重畳、単色シルエット、指別ID色、身体のみの6表示を実装し、AI MIRAIから一時表示、画像取得、解除を実機確認済み。
-- 2026-08-27に、両腕を頭より高い左右対称V字へ上げた試作姿勢をユーザー確認済みポーズ「万歳」として確定した。移行時点の確定値と評価結果は`D:\DelphiProg\test\MMDAIPreview\Learning\MMD_POSE_LEARNING.md`を参照する。
+- 2026-08-27に、両腕を頭より高い左右対称V字へ上げた試作姿勢をユーザー確認済みポーズ「万歳」として確定した。移行時点の確定値と評価結果は`D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\Learning\MMD_POSE_LEARNING.md`を参照する。
 - 「万歳」はAI診断フラグの全6表示で確認し、左右骨格の対称、腕の非交差、診断解除後の状態不変と通常BMP完全一致を確認した。現在の構図では頭頂と手先の一部が上端から切れるため、診断時の一時的な自動フィットが次の改善候補である。
 - `sample2.aup2`の起動中モデルへ「万歳」を適用したが、プロジェクトファイル自体は未保存である。再開時は保存状態を再確認する。
 - 最新コミット時点でModel / Pose / Aul2MIRAIのWin64 Releaseビルドと実機連携に合格している。
 - 2026-08-27に`D:\DelphiProg\test\MMD`から本フォルダへ製品側コードをコピーし、MMD共通コードを`..\AviUtl2PluginLib\MMD`へ分離した。Model / PoseのDebug / Releaseと`MMDAnimationStudio.groupproj`のDebugを、共有側への相対参照だけで警告0・エラー0でビルドした。
 - 2026-08-27に`MMDAnimationStudio.dproj`を製品の本命となるAviUtl2拡張プラグインへ変更した。表示名は「MMDアニメーションスタジオ」、プラグイングループは`MMD`。現段階は同名クライアントウィンドウへ空のVCLフォームを表示する最小実装のみで、Win64 Debug / Releaseを警告0・エラー0でビルドし、`C:\ProgramData\aviutl2\Plugin\MMD\MMDAnimationStudio.aux2`を生成済み。
+- 2026-08-27に単体`MMDAIPreview`プロジェクトも本フォルダへ移設した。製品側は`Source\AI`、共通処理は`..\AviUtl2PluginLib\MMD`だけを参照し、元のテストフォルダへの参照を持たない。元プロジェクトと重複していたGUIDは新規GUIDへ変更し、`MMDAnimationStudioGroup.groupproj`へ追加した。Win64 Debug / Release、`--self-test`、グループ全体のReleaseビルドに合格済み。
+- 2026-08-28に`MMDAIPreview`のポーズ永続化を独自JSONからMMD標準VPDへ変更した。保存先は`D:\Users\take6\MMDAnimationStudio\VPD`へ固定し、拡張子は`.vpd`、文字コードはMMD互換のCP932とする。内部処理とNamed Pipeの`pose_data`は引き続き版付きJSONを使い、ファイル境界だけで相互変換する。既存JSON 2件は同名VPDへ変換済みで、元JSONはバックアップとして残した。VPD codecの往復テスト、Win64 Debug / Release、`--self-test`に合格済み。
+- VPD保存先は共有`MmdVpdDirectory`で管理する。プレビューが保存先を取得するときとMMDAnimationStudio本体のプラグイン登録時に存在を確認し、無ければ作成する。パスが同名ファイルで占有されている場合や作成後も存在しない場合はエラーとする。
 - 2026-08-27に拡張プラグインのフォームへメインフレームを配置し、「モデル／ポーズ／モーション／表情／設定」の表示切替用ツールバーを追加した。アイコンは`Syncroh2_Extension2`と同じDPI対応線画生成を採用し、現段階では表示のみ。Win64 Debug / Releaseを警告0・エラー0でビルド済み。
 - 初回のツールバー実装は、フレームが親パネルへ接続される前のコンストラクタ内で`TToolBar.Images`を設定し、`EInvalidOperation`（親ウィンドウなし）となっていた。参照元と同じくフォームの`ParentWindow`設定後にルートパネルとフレームを生成し、フレームを親へ接続した後の`Show`でアイコンを遅延初期化するよう修正した。単独UIスモークテストとAviUtl2実機プローブで、フォーム、ルートパネル、フレーム、ツールバーがすべて可視状態になることを確認済み。
 - ツールバーのホバー／選択色がWindows標準描画では明るすぎたため、参照元と同じ`TToolBarPanelManager`へ切り替えた。通常`$2B2B2B`、ホバー`$B03C3C`、押下`$1F1F1F`、選択`$FF6666`をそのまま使用する。
 - ツールバーを左から「PMXの管理／ポーズ・モーション／表情／セリフ／エクスプローラー／音楽／起動」の7項目へ整理した。PMXは人物上半身、ポーズ・モーションは走る人物、表情はスマイル、セリフは吹き出し、エクスプローラーはフォルダー、音楽は音符、起動は緑の再生アイコンとし、各Hintも同じ順序の用途説明へ対応させた。
 - 初回表示や横幅縮小でツールバーボタンが折り返された際、親パネルが1行分の固定高のまま下段を隠していた。親パネルを自動サイズ化し、フレームのResizeごとにネイティブボタン矩形の最下端から必要高を再計算してツールバーと親パネルへ反映するよう修正した。幅100pxへ縮めるUIスモークテストで複数行への高さ拡張を確認済み。
+- 2026-08-28に共通ポーズ編集GUIの右欄にあった適用、Undo / Redo、各初期化、左右対称、画像合わせを、フォーム上端のアイコンツールバーへ移した。`MMDAnimationStudio`と同じDPI対応線画生成と暗色のホバー／押下／選択色を使う。MMDAIPreview、Model、Pose、拡張プラグインの全編集画面が同じ実装を利用し、96 / 192 DPI、イベント接続、Win64 Debug / Release全体ビルドに合格済み。
 
 ## 次の作業
 
@@ -100,6 +104,7 @@ AI MIRAIポーズ連携の次段階を扱う。
 
 ## 文書
 
+- [共通GUIライブラリ](LIBRARIES.md): 再利用可能な独自コントロールの所在、API、使用例、類似部品との使い分け。
 - [現在の実装状態](CURRENT_STATE.md): 対応済み機能、データ境界、既知の制限。
 - [アーキテクチャ](ARCHITECTURE.md): プラグイン間の責務、状態所有、処理順、ソース構成。
 - [ロードマップ](ROADMAP.md): 直近の作業、未対応機能、保留事項。

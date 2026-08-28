@@ -113,7 +113,11 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdMorphPreviewPanel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseSymmetry.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewportSurface.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary\MmdD3DLiveDragTest.pas"/>
