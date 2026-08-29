@@ -1,24 +1,24 @@
-unit PmxPoseCatalogGroupBar;
+﻿unit PmxFaceCatalogGroupBar;
 
-// ポーズグループの選択、新規作成、名称編集、削除、並び替えを担当する。
+// 表情グループの選択、新規作成、名称編集、削除、並び替えを担当する。
 
 interface
 
 uses
   System.Classes, System.Types,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.Menus, Vcl.StdCtrls,
-  PmxPoseCatalogGroups, PmxPoseCatalogListView;
+  PmxFaceCatalogGroups, PmxFaceCatalogListView;
 
 type
-  TPmxPoseCatalogGroupBar = class(TComponent)
+  TPmxFaceCatalogGroupBar = class(TComponent)
   private
     FBar: TPanel;
     FCombo: TComboBox;
     FEdit: TEdit;
     FEditingIndex: Integer;
     FEndingEdit: Boolean;
-    FGroups: TPmxPoseCatalogGroups;
-    FList: TPmxPoseCatalogListView;
+    FGroups: TPmxFaceCatalogGroups;
+    FList: TPmxFaceCatalogListView;
     FMenuAdd: TMenuItem;
     FMenuDelete: TMenuItem;
     FMenuDown: TMenuItem;
@@ -47,13 +47,17 @@ type
     procedure GroupUp(Sender: TObject);
     procedure Popup(Sender: TObject);
   public
+    // 指定一覧の上部へグループ選択コンボと編集メニューを生成する。
     constructor Create(AOwner: TComponent; AParent: TWinControl;
-      AList: TPmxPoseCatalogListView); reintroduce;
+      AList: TPmxFaceCatalogListView); reintroduce;
+    // グループ一覧を再構築し、指定IDまたは現在選択中のグループを維持する。
     procedure Rebuild(const SelectedGroupId: string = '');
-    procedure SetGroups(AGroups: TPmxPoseCatalogGroups);
+    // 表示・編集対象のグループ保存領域を差し替える。
+    procedure SetGroups(AGroups: TPmxFaceCatalogGroups);
+    // 呼出側が配置と状態確認に使うControl、および現在の保存領域を公開する。
     property Bar: TPanel read FBar;
     property Combo: TComboBox read FCombo;
-    property Groups: TPmxPoseCatalogGroups read FGroups;
+    property Groups: TPmxFaceCatalogGroups read FGroups;
   end;
 
 implementation
@@ -66,8 +70,8 @@ const
   GroupEditNew = -1;
   GroupEditNone = -2;
 
-constructor TPmxPoseCatalogGroupBar.Create(AOwner: TComponent;
-  AParent: TWinControl; AList: TPmxPoseCatalogListView);
+constructor TPmxFaceCatalogGroupBar.Create(AOwner: TComponent;
+  AParent: TWinControl; AList: TPmxFaceCatalogListView);
 var
   Separator: TMenuItem;
 begin
@@ -118,7 +122,7 @@ begin
   FEdit.OnExit := EditExit;
 end;
 
-procedure TPmxPoseCatalogGroupBar.AddMenu(const Caption: string;
+procedure TPmxFaceCatalogGroupBar.AddMenu(const Caption: string;
   Handler: TNotifyEvent; out Item: TMenuItem);
 begin
   Item := TMenuItem.Create(FPopup);
@@ -127,13 +131,13 @@ begin
   FPopup.Items.Add(Item);
 end;
 
-procedure TPmxPoseCatalogGroupBar.SetGroups(AGroups: TPmxPoseCatalogGroups);
+procedure TPmxFaceCatalogGroupBar.SetGroups(AGroups: TPmxFaceCatalogGroups);
 begin
   FGroups := AGroups;
   Rebuild;
 end;
 
-procedure TPmxPoseCatalogGroupBar.Rebuild(const SelectedGroupId: string);
+procedure TPmxFaceCatalogGroupBar.Rebuild(const SelectedGroupId: string);
 var
   I, SelectedIndex: Integer;
   Id: string;
@@ -162,7 +166,7 @@ begin
   FList.SetGroupIndex(SelectedIndex - 1);
 end;
 
-procedure TPmxPoseCatalogGroupBar.BeginEdit(AIndex: Integer);
+procedure TPmxFaceCatalogGroupBar.BeginEdit(AIndex: Integer);
 begin
   if not Assigned(FGroups) or (AIndex < GroupEditNew) or
     (AIndex >= FGroups.Count) then Exit;
@@ -176,10 +180,10 @@ begin
   FEdit.SelectAll;
 end;
 
-procedure TPmxPoseCatalogGroupBar.EndEdit(Accept, ReturnFocus: Boolean);
+procedure TPmxFaceCatalogGroupBar.EndEdit(Accept, ReturnFocus: Boolean);
 var
   ExistingIndex, EditingIndex: Integer;
-  Group: TPmxPoseCatalogGroup;
+  Group: TPmxFaceCatalogGroup;
   GroupId, Name: string;
 begin
   if not FEdit.Visible or FEndingEdit or not Assigned(FGroups) then Exit;
@@ -223,17 +227,17 @@ begin
   end;
 end;
 
-procedure TPmxPoseCatalogGroupBar.GroupAdd(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.GroupAdd(Sender: TObject);
 begin
   BeginEdit(GroupEditNew);
 end;
 
-procedure TPmxPoseCatalogGroupBar.GroupRename(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.GroupRename(Sender: TObject);
 begin
   BeginEdit(FCombo.ItemIndex - 1);
 end;
 
-procedure TPmxPoseCatalogGroupBar.GroupDelete(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.GroupDelete(Sender: TObject);
 var
   Index: Integer;
 begin
@@ -245,7 +249,7 @@ begin
   Rebuild;
 end;
 
-procedure TPmxPoseCatalogGroupBar.GroupMove(Delta: Integer);
+procedure TPmxFaceCatalogGroupBar.GroupMove(Delta: Integer);
 var
   GroupId: string;
   Index, NewIndex: Integer;
@@ -261,17 +265,17 @@ begin
   Rebuild(GroupId);
 end;
 
-procedure TPmxPoseCatalogGroupBar.GroupUp(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.GroupUp(Sender: TObject);
 begin
   GroupMove(-1);
 end;
 
-procedure TPmxPoseCatalogGroupBar.GroupDown(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.GroupDown(Sender: TObject);
 begin
   GroupMove(1);
 end;
 
-procedure TPmxPoseCatalogGroupBar.Popup(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.Popup(Sender: TObject);
 var
   Index: Integer;
 begin
@@ -284,12 +288,12 @@ begin
   FMenuDown.Enabled := FMenuRename.Enabled and (Index + 1 < FGroups.Count);
 end;
 
-procedure TPmxPoseCatalogGroupBar.ComboChange(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.ComboChange(Sender: TObject);
 begin
   FList.SetGroupIndex(FCombo.ItemIndex - 1);
 end;
 
-procedure TPmxPoseCatalogGroupBar.ComboDrawItem(Control: TWinControl;
+procedure TPmxFaceCatalogGroupBar.ComboDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 var
   Combo: TComboBox;
@@ -305,7 +309,7 @@ begin
       Combo.Items[Index]);
 end;
 
-procedure TPmxPoseCatalogGroupBar.ComboKeyDown(Sender: TObject;
+procedure TPmxFaceCatalogGroupBar.ComboKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   if (Key = VK_F2) and (Shift = []) then
@@ -320,7 +324,7 @@ begin
   end;
 end;
 
-procedure TPmxPoseCatalogGroupBar.EditKeyDown(Sender: TObject;
+procedure TPmxFaceCatalogGroupBar.EditKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   if (Key = VK_ESCAPE) and (Shift = []) then
@@ -330,7 +334,7 @@ begin
   end;
 end;
 
-procedure TPmxPoseCatalogGroupBar.EditKeyUp(Sender: TObject;
+procedure TPmxFaceCatalogGroupBar.EditKeyUp(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   if (Key = VK_RETURN) and (Shift = []) then
@@ -340,9 +344,11 @@ begin
   end;
 end;
 
-procedure TPmxPoseCatalogGroupBar.EditExit(Sender: TObject);
+procedure TPmxFaceCatalogGroupBar.EditExit(Sender: TObject);
 begin
   EndEdit(True, False);
 end;
 
 end.
+
+

@@ -28,8 +28,8 @@ uses
   PmxMorphReader in '..\AviUtl2PluginLib\MMD\IO\PmxMorphReader.pas',
   MmdMorphSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
   MmdEyeBlinkSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
-  MmdEyeBlinkSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdEyeBlinkSettingPanel.pas',
-  MmdSettingPanelValue in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdSettingPanelValue.pas',
+  MmdEyeBlinkSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdEyeBlinkSettingPanel.pas',
+  MmdSettingPanelValue in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas',
   MMD_Model_EyeBlink in 'Source\Plugin\Model\Runtime\EyeBlink\MMD_Model_EyeBlink.pas',
   MmdLipSyncSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
   SharedMemoryBase in '..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas',
@@ -38,12 +38,12 @@ uses
   MMD_Model_LipSyncInput in 'Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncInput.pas',
   MMD_Model_LipSyncContext in 'Source\Plugin\Model\Context\LipSync\MMD_Model_LipSyncContext.pas',
   MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas',
-  MmdLipSyncSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdLipSyncSettingPanel.pas',
+  MmdLipSyncSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas',
   MmdD3DDeform in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDeform.pas',
-  MmdMorphSettingListRenderer in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingListRenderer.pas',
-  MmdMorphSettingRows in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas',
-  MmdMorphSettingValue in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas',
-  MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas',
+  MmdMorphSettingListRenderer in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingListRenderer.pas',
+  MmdMorphSettingRows in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingRows.pas',
+  MmdMorphSettingValue in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas',
+  MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas',
   MmdMorphPreviewPanel in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas';
 
 type
@@ -201,6 +201,56 @@ begin
       'preview morphed skin x');
     CheckNear(Skinned[0].Position.Y, 0.6 + 0.4 * Sin(Pi / 10),
       'preview morphed skin y');
+  finally
+    Model.Free;
+  end;
+end;
+
+procedure TestMorphPanelUsage;
+var
+  Model: TPmxModel;
+  Weights: TPmxMorphWeights;
+begin
+  Model := TPmxModel.Create;
+  try
+    SetLength(Model.Morphs, 5);
+    Model.Morphs[0].Panel := PMX_MORPH_PANEL_EYE;
+    Model.Morphs[0].MorphType := pmtVertex;
+    Model.Morphs[1].Panel := PMX_MORPH_PANEL_LIP;
+    Model.Morphs[1].MorphType := pmtVertex;
+    Model.Morphs[2].Panel := PMX_MORPH_PANEL_OTHER;
+    Model.Morphs[2].MorphType := pmtVertex;
+    Model.Morphs[3].Panel := PMX_MORPH_PANEL_OTHER;
+    Model.Morphs[3].MorphType := pmtGroup;
+    SetLength(Model.Morphs[3].GroupOffsets, 1);
+    Model.Morphs[3].GroupOffsets[0].MorphIndex := 0;
+    Model.Morphs[3].GroupOffsets[0].Weight := 0.75;
+    Model.Morphs[4].Panel := PMX_MORPH_PANEL_EYE;
+    Model.Morphs[4].MorphType := pmtGroup;
+    SetLength(Model.Morphs[4].GroupOffsets, 1);
+    Model.Morphs[4].GroupOffsets[0].MorphIndex := 2;
+    Model.Morphs[4].GroupOffsets[0].Weight := 1.0;
+
+    InitializeMorphWeights(Model, Weights);
+    Weights[0] := 1.0;
+    if not MorphWeightsUsePanel(Model, Weights, PMX_MORPH_PANEL_EYE) then
+      raise Exception.Create('direct eye panel was not detected');
+    if MorphWeightsUsePanel(Model, Weights, PMX_MORPH_PANEL_LIP) then
+      raise Exception.Create('unused lip panel was detected');
+
+    InitializeMorphWeights(Model, Weights);
+    Weights[1] := 0.0;
+    if MorphWeightsUsePanel(Model, Weights, PMX_MORPH_PANEL_LIP) then
+      raise Exception.Create('zero lip morph occupied the panel');
+
+    Weights[3] := 1.0;
+    if not MorphWeightsUsePanel(Model, Weights, PMX_MORPH_PANEL_EYE) then
+      raise Exception.Create('group-expanded eye panel was not detected');
+
+    InitializeMorphWeights(Model, Weights);
+    Weights[4] := 1.0;
+    if not MorphWeightsUsePanel(Model, Weights, PMX_MORPH_PANEL_EYE) then
+      raise Exception.Create('eye-classified group was not detected');
   finally
     Model.Free;
   end;
@@ -639,6 +689,8 @@ begin
     Writeln('Morph preview panel creation: PASS');
     TestGroupedVertexAndBoneMorph;
     Writeln('Synthetic morph and preview deformation: PASS');
+    TestMorphPanelUsage;
+    Writeln('Morph panel priority detection: PASS');
     TestMorphSettingCodec;
     Writeln('Morph setting codec: PASS');
     TestEyeBlinkSetting;

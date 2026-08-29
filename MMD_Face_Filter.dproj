@@ -1,23 +1,23 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{E27FDC66-0DE2-4A8B-A4A3-B7E44A90A808}</ProjectGuid>
+        <ProjectGuid>{A4B67A1E-90A6-41D0-BE8A-105B44BD8D5F}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
-        <ProjectName Condition="'$(ProjectName)'==''">MMD_Model_Filter</ProjectName>
-        <TargetedPlatforms>2</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">MMD_Face_Filter</ProjectName>
+        <TargetedPlatforms>2097155</TargetedPlatforms>
         <AppType>Library</AppType>
-        <MainSource>MMD_Model_Filter.dpr</MainSource>
+        <MainSource>MMD_Face_Filter.dpr</MainSource>
         <Base>True</Base>
     </PropertyGroup>
     <PropertyGroup>
         <GenDll>true</GenDll>
-        <DCC_DcuOutput>.\$(Platform)\$(Config)\DCU</DCC_DcuOutput>
+        <DCC_DcuOutput>.\$(Platform)\$(Config)\FaceDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\Setting;..\AviUtl2PluginLib\MMD\Editor\Morph;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
-        <SanitizedProjectName>MMD_Model_Filter</SanitizedProjectName>
+        <SanitizedProjectName>MMD_Face_Filter</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -46,7 +46,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <GenDll>true</GenDll>
-        <SanitizedProjectName>MMD_Model_Filter</SanitizedProjectName>
+        <SanitizedProjectName>MMD_Face_Filter</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -55,7 +55,6 @@
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-        <DCC_RemoteDebug>true</DCC_RemoteDebug>
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_RangeChecking>true</DCC_RangeChecking>
     </PropertyGroup>
@@ -84,13 +83,14 @@
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
         <PostBuildEvent><![CDATA[copy /Y "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2"&&if exist "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll"&&if exist "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm"]]></PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
-        <Debugger_HostApplication>D:\aviutl2_v2.1.6a\aviutl2.exe</Debugger_HostApplication>
+        <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdFaceSharedMemory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas"/>
@@ -98,35 +98,15 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPose.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\AI\MmdAiDiagnosticState.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\AI\MmdAiDiagnosticProtocol.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\AI\MmdAiSchema.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\AI\MmdAiProvider.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdFaceSharedMemory.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\KeyValue\KeyValueText.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxBinaryStream.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxGeometryReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxMaterialReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxBoneReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxMorphReader.pas"/>
-        <DCCReference Include="Source\Lib\FilterTable\PluginFilterTable.pas"/>
-        <DCCReference Include="Source\Plugin\Model\MMD_Model_FilterPlugin.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Runtime\EyeBlink\MMD_Model_EyeBlink.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Context\MMD_Model_Context.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Context\LipSync\MMD_Model_LipSyncContext.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Input\Face\MMD_Model_FaceInput.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncProtocol.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncInput.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_Renderer.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_MaterialSelection.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_DiagnosticRenderer.pas"/>
-        <DCCReference Include="Source\Plugin\Model\Editor\MMD_Model_SettingsButton.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DScene.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DSelection.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DInteraction.pas"/>
@@ -150,15 +130,6 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingEditorIcons.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdEyeBlinkSettingPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingDialogs.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
@@ -171,6 +142,15 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdEyeBlinkSettingPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingEditorIcons.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingDialogs.pas"/>
+        <DCCReference Include="Source\Lib\FilterTable\PluginFilterTable.pas"/>
+        <DCCReference Include="Source\Plugin\Face\MMD_Face_FilterPlugin.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -185,23 +165,26 @@
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>
-        <Borland.ProjectType>Application</Borland.ProjectType>
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">MMD_Model_Filter.dpr</Source>
+                    <Source Name="MainSource">MMD_Face_Filter.dpr</Source>
                 </Source>
+                <Platforms>
+                    <Platform value="Win32">False</Platform>
+                    <Platform value="Win64">True</Platform>
+                </Platforms>
             </Delphi.Personality>
             <Platforms>
-                <Platform value="Win32">False</Platform>
+                <Platform value="Win32">True</Platform>
                 <Platform value="Win64">True</Platform>
+                <Platform value="WinARM64EC">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
-    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
         <PreBuildEvent>if not exist &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot; mkdir &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot;</PreBuildEvent>
         <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>

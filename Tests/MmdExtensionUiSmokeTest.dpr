@@ -51,6 +51,7 @@ uses
   PmxPoseCatalogItemCodec in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogItemCodec.pas',
   PmxPoseCatalogListView in '..\Source\Plugin\Extension\PMX\Catalog\Pose\View\PmxPoseCatalogListView.pas',
+  PmxCatalogGroupShortcut in '..\Source\Plugin\Extension\PMX\Catalog\Group\PmxCatalogGroupShortcut.pas',
   PmxPoseCatalogToolbar in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Toolbar\PmxPoseCatalogToolbar.pas',
   PmxPoseCatalogToolbarIcons in
@@ -271,7 +272,7 @@ begin
          not Assigned(Frame.PoseCatalogFrame.PoseGroupBar) or
          (Frame.PoseCatalogFrame.PoseGroupBar.Combo.Items.Count <> 1) or
          (Frame.PoseCatalogFrame.PoseGroupBar.Combo.Items[0] <>
-           #$5168#$30DD#$30FC#$30BA) then
+           #$3059#$3079#$3066) then
         raise Exception.Create('pose group bar was not attached');
       if not Assigned(Frame.PoseCatalogFrame.PoseListView.PopupMenu) or
          (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items.Count <> 11) or

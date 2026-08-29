@@ -13,7 +13,8 @@ uses
   Vcl.ToolWin,
   ToolBarPanelManager,
   PmxCatalogFrame,
-  MmdPoseCatalogFrame;
+  MmdPoseCatalogFrame,
+  MmdFaceCatalogFrame;
 
 type
   TFrameMMDAnimationStudio = class(TFrame)
@@ -40,11 +41,13 @@ type
     FUpdatingToolbarHeight: Boolean;
     FPmxCatalogFrame: TFramePmxCatalog;
     FPoseCatalogFrame: TFrameMmdPoseCatalog;
+    FFaceCatalogFrame: TFrameMmdFaceCatalog;
     FSelectedPmxId: string;
     FSyncingPmxSelection: Boolean;
     procedure DropFilesCore(const Files: TArray<string>);
     procedure EnsurePmxCatalogFrame;
     procedure EnsurePoseCatalogFrame;
+    procedure EnsureFaceCatalogFrame;
     procedure InitializeToolbar;
     procedure PageChanged(Sender: TObject; Index: Integer);
     procedure PmxSelectionChanged(Sender: TObject);
@@ -58,6 +61,7 @@ type
     procedure Show; reintroduce;
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
     property PoseCatalogFrame: TFrameMmdPoseCatalog read FPoseCatalogFrame;
+    property FaceCatalogFrame: TFrameMmdFaceCatalog read FFaceCatalogFrame;
   end;
 
 implementation
@@ -187,6 +191,22 @@ begin
   FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
 end;
 
+procedure TFrameMMDAnimationStudio.EnsureFaceCatalogFrame;
+begin
+  EnsurePmxCatalogFrame;
+  if Assigned(FFaceCatalogFrame) then
+  begin
+    FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+    Exit;
+  end;
+
+  FFaceCatalogFrame := TFrameMmdFaceCatalog.Create(Self);
+  FFaceCatalogFrame.Parent := PanelExpression;
+  FFaceCatalogFrame.Align := alClient;
+  FFaceCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
+  FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+end;
+
 procedure TFrameMMDAnimationStudio.InitializeToolbar;
 var
   ButtonSize: Integer;
@@ -242,6 +262,13 @@ begin
         FPoseCatalogFrame.Visible := True;
         FPoseCatalogFrame.Show;
       end;
+    2:
+      begin
+        EnsureFaceCatalogFrame;
+        FFaceCatalogFrame.SelectPmxId(FSelectedPmxId);
+        FFaceCatalogFrame.Visible := True;
+        FFaceCatalogFrame.Show;
+      end;
   end;
 end;
 
@@ -255,13 +282,19 @@ begin
       FSelectedPmxId := FPmxCatalogFrame.SelectedPmxId;
       if Assigned(FPoseCatalogFrame) then
         FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+      if Assigned(FFaceCatalogFrame) then
+        FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
     end
     else if Sender = FPoseCatalogFrame then
-      FSelectedPmxId := FPoseCatalogFrame.PmxSelector.SelectedPmxId;
+      FSelectedPmxId := FPoseCatalogFrame.PmxSelector.SelectedPmxId
+    else if Sender = FFaceCatalogFrame then
+      FSelectedPmxId := FFaceCatalogFrame.PmxSelector.SelectedPmxId;
     if Assigned(FPmxCatalogFrame) and (Sender <> FPmxCatalogFrame) then
       FPmxCatalogFrame.SelectPmxId(FSelectedPmxId);
     if Assigned(FPoseCatalogFrame) and (Sender <> FPoseCatalogFrame) then
       FPoseCatalogFrame.SelectPmxId(FSelectedPmxId);
+    if Assigned(FFaceCatalogFrame) and (Sender <> FFaceCatalogFrame) then
+      FFaceCatalogFrame.SelectPmxId(FSelectedPmxId);
   finally
     FSyncingPmxSelection := False;
   end;

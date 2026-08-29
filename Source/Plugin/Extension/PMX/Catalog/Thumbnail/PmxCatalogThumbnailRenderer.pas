@@ -14,8 +14,8 @@ type
   TPmxCatalogThumbnailRenderer = class(TCustomControl)
   private
     FRenderer: TMmdD3DRenderer;
-    function RenderPmxInternal(const FileName, PoseData: string; Width,
-      Height: Integer; Bitmap: TBitmap; FocusHead: Boolean): Boolean;
+    function RenderPmxInternal(const FileName, PoseData, FaceData: string;
+      Width, Height: Integer; Bitmap: TBitmap; FocusHead: Boolean): Boolean;
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -29,6 +29,9 @@ type
     // 指定姿勢を適用したPMX全身画像をBitmapへ返す。
     function RenderPmxPose(const FileName, PoseData: string; Width,
       Height: Integer; Bitmap: TBitmap): Boolean;
+    // 指定表情を適用したPMXの頭部中心画像をBitmapへ返す。
+    function RenderPmxFace(const FileName, FaceData: string; Width,
+      Height: Integer; Bitmap: TBitmap): Boolean;
   end;
 
 implementation
@@ -41,6 +44,7 @@ uses
   PmxPose,
   PmxPoseCodec,
   PmxReader,
+  MmdMorphSettingCodec,
   MmdD3DScene;
 
 constructor TPmxCatalogThumbnailRenderer.Create(AOwner: TComponent);
@@ -73,15 +77,23 @@ end;
 function TPmxCatalogThumbnailRenderer.RenderPmx(const FileName: string;
   Width, Height: Integer; Bitmap: Vcl.Graphics.TBitmap): Boolean;
 begin
-  Result := RenderPmxInternal(FileName, '', Width, Height, Bitmap, True);
+  Result := RenderPmxInternal(FileName, '', '', Width, Height, Bitmap, True);
 end;
 
 function TPmxCatalogThumbnailRenderer.RenderPmxPose(const FileName,
   PoseData: string; Width, Height: Integer;
   Bitmap: Vcl.Graphics.TBitmap): Boolean;
 begin
-  Result := RenderPmxInternal(FileName, PoseData, Width, Height, Bitmap,
+  Result := RenderPmxInternal(FileName, PoseData, '', Width, Height, Bitmap,
     False);
+end;
+
+function TPmxCatalogThumbnailRenderer.RenderPmxFace(const FileName,
+  FaceData: string; Width, Height: Integer;
+  Bitmap: Vcl.Graphics.TBitmap): Boolean;
+begin
+  Result := RenderPmxInternal(FileName, '', FaceData, Width, Height, Bitmap,
+    True);
 end;
 
 function TryHeadCamera(Model: TPmxModel; const Poses: TPmxBonePoses;
@@ -124,11 +136,12 @@ begin
 end;
 
 function TPmxCatalogThumbnailRenderer.RenderPmxInternal(const FileName,
-  PoseData: string; Width, Height: Integer;
+  PoseData, FaceData: string; Width, Height: Integer;
   Bitmap: Vcl.Graphics.TBitmap; FocusHead: Boolean): Boolean;
 var
   Camera: TMmdPreviewCamera;
   Model: TPmxModel;
+  NamedMorphs: TMmdNamedMorphWeights;
   MorphWeights: TPmxMorphWeights;
   NamedPoses: TPmxNamedBonePoses;
   Poses: TPmxBonePoses;
@@ -152,6 +165,9 @@ begin
     if (PoseData <> '') and TryDecodePoseData(PoseData, NamedPoses) then
       ApplyNamedBonePoses(Model, NamedPoses, Poses);
     InitializeMorphWeights(Model, MorphWeights);
+    if (FaceData <> '') and
+      TryDecodeMmdMorphSettingData(FaceData, NamedMorphs) then
+      ApplyMmdNamedMorphWeights(Model, NamedMorphs, MorphWeights);
     Target := EmptyPreviewTarget;
     Camera := DefaultPreviewCamera;
     FRenderer.SetScene(Model, Poses, MorphWeights, Target, Target);

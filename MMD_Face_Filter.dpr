@@ -1,12 +1,12 @@
-﻿library MMD_Model_Filter;
+﻿library MMD_Face_Filter;
 
-// MMDモデル表示フィルターのAviUtl2 DLL境界。
+// MMD表情レイヤーのAviUtl2 DLL境界。
 
 {$ALIGN 8}
 
 uses
-  System.SysUtils,
   AviUtl2FilterTypes in 'Source\Lib\AviUtl2FilterTypes.pas',
+  MmdFaceSharedMemory in '..\AviUtl2PluginLib\MMD\IPC\MmdFaceSharedMemory.pas',
   PmxModel in '..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
   PmxPoseTypes in '..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
   PmxPoseMath in '..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
@@ -14,35 +14,15 @@ uses
   PmxBoneSolver in '..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas',
   PmxPose in '..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
   PmxPoseCodec in '..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
-  MmdMorphSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
-  MmdAiDiagnosticState in '..\AviUtl2PluginLib\MMD\AI\MmdAiDiagnosticState.pas',
-  MmdAiDiagnosticProtocol in '..\AviUtl2PluginLib\MMD\AI\MmdAiDiagnosticProtocol.pas',
-  MmdAiSchema in '..\AviUtl2PluginLib\MMD\AI\MmdAiSchema.pas',
-  MmdAiProvider in '..\AviUtl2PluginLib\MMD\AI\MmdAiProvider.pas',
-  MmdPoseSharedMemory in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas',
-  MmdFaceSharedMemory in '..\AviUtl2PluginLib\MMD\IPC\MmdFaceSharedMemory.pas',
-  MmdPoseSharedTrace in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas',
-  SharedMemoryBase in '..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas',
-  KeyValueText in '..\AviUtl2PluginLib\Lib\KeyValue\KeyValueText.pas',
   PmxReader in '..\AviUtl2PluginLib\MMD\IO\PmxReader.pas',
   PmxBinaryStream in '..\AviUtl2PluginLib\MMD\IO\PmxBinaryStream.pas',
   PmxGeometryReader in '..\AviUtl2PluginLib\MMD\IO\PmxGeometryReader.pas',
   PmxMaterialReader in '..\AviUtl2PluginLib\MMD\IO\PmxMaterialReader.pas',
   PmxBoneReader in '..\AviUtl2PluginLib\MMD\IO\PmxBoneReader.pas',
   PmxMorphReader in '..\AviUtl2PluginLib\MMD\IO\PmxMorphReader.pas',
-  PluginFilterTable in 'Source\Lib\FilterTable\PluginFilterTable.pas',
-  MMD_Model_FilterPlugin in 'Source\Plugin\Model\MMD_Model_FilterPlugin.pas',
-  MMD_Model_EyeBlink in 'Source\Plugin\Model\Runtime\EyeBlink\MMD_Model_EyeBlink.pas',
-  MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas',
-  MMD_Model_LipSyncContext in 'Source\Plugin\Model\Context\LipSync\MMD_Model_LipSyncContext.pas',
-  MMD_Model_PoseInput in 'Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas',
-  MMD_Model_FaceInput in 'Source\Plugin\Model\Input\Face\MMD_Model_FaceInput.pas',
-  MMD_Model_LipSyncProtocol in 'Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncProtocol.pas',
-  MMD_Model_LipSyncInput in 'Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncInput.pas',
-  MMD_Model_Renderer in 'Source\Plugin\Model\Render\MMD_Model_Renderer.pas',
-  MMD_Model_MaterialSelection in 'Source\Plugin\Model\Render\MMD_Model_MaterialSelection.pas',
-  MMD_Model_DiagnosticRenderer in 'Source\Plugin\Model\Render\MMD_Model_DiagnosticRenderer.pas',
-  MMD_Model_SettingsButton in 'Source\Plugin\Model\Editor\MMD_Model_SettingsButton.pas',
+  MmdMorphSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
+  MmdEyeBlinkSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
+  MmdLipSyncSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
   MmdD3DScene in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DScene.pas',
   MmdD3DSelection in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DSelection.pas',
   MmdD3DInteraction in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DInteraction.pas',
@@ -66,15 +46,6 @@ uses
   MmdMorphSettingValue in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas',
   MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas',
   MmdMorphPreviewPanel in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas',
-  MmdModelSettingEditorIcons in '..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingEditorIcons.pas',
-  MmdModelSettingToolbarRenderer in '..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarRenderer.pas',
-  MmdSettingPanelValue in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas',
-  MmdEyeBlinkSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
-  MmdEyeBlinkSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdEyeBlinkSettingPanel.pas',
-  MmdLipSyncSettingCodec in '..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
-  MmdLipSyncSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas',
-  MmdModelSettingEditor in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas',
-  MmdModelSettingDialogs in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingDialogs.pas',
   MmdPoseImageAutoFit in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas',
   MmdPoseImageClipboard in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas',
   HorizontalTrackBarRenderer in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas',
@@ -86,31 +57,35 @@ uses
   MmdPoseEditorComboTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas',
   MmdPoseEditorLayout in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas',
   MmdPoseEditorToolbarIcons in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas',
-  MmdPoseEditor in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas';
+  MmdPoseEditor in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas',
+  MmdEyeBlinkSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdEyeBlinkSettingPanel.pas',
+  MmdLipSyncSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas',
+  MmdModelSettingEditorIcons in '..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingEditorIcons.pas',
+  MmdModelSettingToolbarRenderer in '..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarRenderer.pas',
+  MmdSettingPanelValue in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas',
+  MmdModelSettingEditor in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas',
+  MmdModelSettingDialogs in '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingDialogs.pas',
+  PluginFilterTable in 'Source\Lib\FilterTable\PluginFilterTable.pas',
+  MMD_Face_FilterPlugin in 'Source\Plugin\Face\MMD_Face_FilterPlugin.pas';
 
 function InitializePlugin(Version: Cardinal): Byte; cdecl;
 begin
-  TraceMmdPoseShared('MODEL', 'plugin_initialize', -1, -1, 0, 0, 0, 0,
-    'version=' + UIntToStr(Version));
   Result := 1;
 end;
 
 procedure UninitializePlugin; cdecl;
 begin
-  TraceMmdPoseShared('MODEL', 'plugin_uninitialize', -1, -1, 0, 0, 0, 0);
 end;
 
 function GetFilterPluginTable: PFILTER_PLUGIN_TABLE; cdecl;
 begin
-  Result := GetModelFilterTable;
+  Result := GetFaceFilterTable;
 end;
 
 exports
   InitializePlugin name 'InitializePlugin',
   UninitializePlugin name 'UninitializePlugin',
-  GetFilterPluginTable name 'GetFilterPluginTable',
-  MmdAiProviderGetVersion name 'MmdAiProviderGetVersion',
-  MmdAiProviderInvoke name 'MmdAiProviderInvoke';
+  GetFilterPluginTable name 'GetFilterPluginTable';
 
 begin
 end.

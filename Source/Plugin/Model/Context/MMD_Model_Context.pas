@@ -19,6 +19,11 @@ type
   private
     FEffectID: Int64;
     FObjectID: Int64;
+    FExternalExpressionModel: TPmxModel;
+    FExternalExpressionNamed: TMmdNamedMorphWeights;
+    FExternalExpressionText: string;
+    FExternalExpressionValid: Boolean;
+    FExternalExpressionWeights: TPmxMorphWeights;
     FExternalPoseText: string;
     FExternalPoses: TPmxNamedBonePoses;
     FExternalPoseValid: Boolean;
@@ -48,6 +53,8 @@ type
     procedure SetObjectID(AObjectID: Int64);
     // 入力文字列が変化した場合だけ外部姿勢JSONを再解析する。
     procedure UpdateExternalPose(const Text: string);
+    // 入力文字列が変化した場合だけ参照表情JSONを再解析する。
+    procedure UpdateExternalExpression(const Text: string);
     // 入力文字列が変化した場合だけ標準姿勢JSONを再解析する。
     procedure UpdateStandardPose(const Text: string);
     // 入力文字列が変化した場合だけ初期表情JSONを再解析する。
@@ -58,6 +65,8 @@ type
     procedure UpdateLipSync(const Text: string);
     // 現在モデルへ名前付き初期表情を解決し、有効な非ゼロ値があればTrueを返す。
     function ResolveInitialExpression(const Model: TPmxModel): Boolean;
+    // 現在モデルへ参照表情を解決し、有効な非ゼロ値があればTrueを返す。
+    function ResolveExternalExpression(const Model: TPmxModel): Boolean;
     // 現在モデルの目パチ用モーフを解決する。
     function ResolveEyeBlink(const Model: TPmxModel): Boolean;
     // 現在モデルの開閉・音素モーフ名をIndexへ解決する。
@@ -73,6 +82,9 @@ type
     property ObjectID: Int64 read FObjectID;
     property ExternalPoses: TPmxNamedBonePoses read FExternalPoses;
     property ExternalPoseValid: Boolean read FExternalPoseValid;
+    property ExternalExpressionValid: Boolean read FExternalExpressionValid;
+    property ExternalExpressionWeights: TPmxMorphWeights
+      read FExternalExpressionWeights;
     property InitialExpressionValid: Boolean read FInitialExpressionValid;
     property InitialExpressionWeights: TPmxMorphWeights
       read FInitialExpressionWeights;
@@ -143,6 +155,22 @@ begin
   DecodePoseText(Text, FExternalPoseText, FExternalPoses, FExternalPoseValid);
 end;
 
+procedure TMmdModelContext.UpdateExternalExpression(const Text: string);
+begin
+  if FExternalExpressionText = Text then Exit;
+  FExternalExpressionText := Text;
+  FExternalExpressionModel := nil;
+  FExternalExpressionNamed := nil;
+  FExternalExpressionWeights := nil;
+  FExternalExpressionValid := False;
+  try
+    FExternalExpressionValid := TryDecodeMmdMorphSettingData(Text,
+      FExternalExpressionNamed);
+  except
+    FExternalExpressionNamed := nil;
+  end;
+end;
+
 procedure TMmdModelContext.UpdateStandardPose(const Text: string);
 begin
   DecodePoseText(Text, FStandardPoseText, FStandardPoses, FStandardPoseValid);
@@ -209,6 +237,23 @@ begin
   for Weight in FInitialExpressionWeights do
     if Weight > 0.000001 then
       Exit(True);
+end;
+
+function TMmdModelContext.ResolveExternalExpression(
+  const Model: TPmxModel): Boolean;
+var
+  Weight: Single;
+begin
+  Result := False;
+  if not FExternalExpressionValid or (Model = nil) then Exit;
+  if FExternalExpressionModel <> Model then
+  begin
+    ApplyMmdNamedMorphWeights(Model, FExternalExpressionNamed,
+      FExternalExpressionWeights);
+    FExternalExpressionModel := Model;
+  end;
+  for Weight in FExternalExpressionWeights do
+    if Weight > 0.000001 then Exit(True);
 end;
 
 function TMmdModelContext.ResolveEyeBlink(const Model: TPmxModel): Boolean;

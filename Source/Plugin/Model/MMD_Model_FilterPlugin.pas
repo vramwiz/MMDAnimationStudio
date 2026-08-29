@@ -24,6 +24,7 @@ uses
   PmxPose,
   PmxReader,
   MMD_Model_Context,
+  MMD_Model_FaceInput,
   MMD_Model_LipSyncInput,
   MMD_Model_LipSyncProtocol,
   MMD_Model_PoseInput,
@@ -67,12 +68,18 @@ threadvar
 function ModelProcVideo(Video: PFILTER_PROC_VIDEO): Byte; cdecl;
 var
   BaseMorphWeight: Single;
+  BaseExpressionWeights: TPmxMorphWeights;
   Context: TMmdModelContext;
   DiagnosticActive: Boolean;
   DiagnosticMode: TMmdAiDiagnosticMode;
   DisplayMode: Integer;
   EyeBlinkAmount: Single;
   EyeBlinkConfigured: Boolean;
+  ExpressionUsesEye: Boolean;
+  ExpressionUsesLip: Boolean;
+  ExternalExpressionActive: Boolean;
+  FaceDataText: string;
+  FaceLayer: Integer;
   Fps: Double;
   Frame, I: Integer;
   InternalScale: Single;
@@ -106,10 +113,13 @@ begin
       DisplayMode := EnsureRange(DisplayModeItem.Value, DISPLAY_MODE_MODEL,
         DISPLAY_MODE_BOTH);
       Frame := Video^.Object_^.Frame;
+      FaceLayer := Round(EnsureRange(ExpressionLayerItem.Value, 1.0, 99.0));
       PoseLayer := Round(EnsureRange(PoseLayerItem.Value, 1.0, 99.0));
+      TryGetReferencedFaceData(Video, FaceLayer, ModelFileName, FaceDataText);
       TryGetReferencedPoseData(Video, PoseLayer, ModelFileName, PoseDataText);
       Context.UpdateStandardPose(string(StandardPoseDataItem.Value));
       Context.UpdateInitialExpression(string(ExpressionDataItem.Value));
+      Context.UpdateExternalExpression(FaceDataText);
       Context.UpdateExternalPose(PoseDataText);
 
       SerializedPoseActive := False;
@@ -122,6 +132,15 @@ begin
         SerializedPoseActive := ApplyNamedBonePoses(Model,
           Context.ExternalPoses, BonePoses) or SerializedPoseActive;
       InitialExpressionActive := Context.ResolveInitialExpression(Model);
+      ExternalExpressionActive := Context.ResolveExternalExpression(Model);
+      if Context.ExternalExpressionValid then
+        BaseExpressionWeights := Context.ExternalExpressionWeights
+      else
+        BaseExpressionWeights := Context.InitialExpressionWeights;
+      ExpressionUsesEye := MorphWeightsUsePanel(Model,
+        BaseExpressionWeights, PMX_MORPH_PANEL_EYE);
+      ExpressionUsesLip := MorphWeightsUsePanel(Model,
+        BaseExpressionWeights, PMX_MORPH_PANEL_LIP);
       Fps := 0;
       if (Video^.Scene <> nil) and (Video^.Scene^.Scale <> 0) then
         Fps := Video^.Scene^.Rate / Video^.Scene^.Scale;
@@ -131,15 +150,16 @@ begin
         if EyeBlinkDataItem.Value <> nil then
         begin
           Context.UpdateEyeBlink(string(EyeBlinkDataItem.Value));
-          EyeBlinkConfigured := Context.ResolveEyeBlink(Model);
+          EyeBlinkConfigured := not ExpressionUsesEye and
+            Context.ResolveEyeBlink(Model);
         end;
         if EyeBlinkConfigured then
         begin
           InitializeMorphWeights(Model, CombinedMorphWeights);
-          if InitialExpressionActive then
+          if InitialExpressionActive or ExternalExpressionActive then
             for I := 0 to Min(High(CombinedMorphWeights),
-              High(Context.InitialExpressionWeights)) do
-              CombinedMorphWeights[I] := Context.InitialExpressionWeights[I];
+              High(BaseExpressionWeights)) do
+              CombinedMorphWeights[I] := BaseExpressionWeights[I];
           EyeBlinkAmount := Context.EyeBlinkAmount(Frame, Fps,
             EnsureRange(EyeBlinkIntervalItem.Value, 1.0, 20.0),
             EnsureRange(EyeBlinkSpeedItem.Value, 0.01, 100.0),
@@ -160,7 +180,8 @@ begin
         if LipSyncDataItem.Value <> nil then
         begin
           Context.UpdateLipSync(string(LipSyncDataItem.Value));
-          LipSyncConfigured := Context.ResolveLipSync(Model);
+          LipSyncConfigured := not ExpressionUsesLip and
+            Context.ResolveLipSync(Model);
         end;
         if LipSyncConfigured then
         begin
@@ -177,11 +198,11 @@ begin
             if not EyeBlinkConfigured then
             begin
               InitializeMorphWeights(Model, CombinedMorphWeights);
-              if InitialExpressionActive then
+              if InitialExpressionActive or ExternalExpressionActive then
                 for I := 0 to Min(High(CombinedMorphWeights),
-                  High(Context.InitialExpressionWeights)) do
+                  High(BaseExpressionWeights)) do
                   CombinedMorphWeights[I] :=
-                    Context.InitialExpressionWeights[I];
+                    BaseExpressionWeights[I];
             end;
             for I := 0 to Min(High(CombinedMorphWeights),
               High(Context.LipSyncWeights)) do
@@ -193,7 +214,10 @@ begin
         LipSyncActive := False;
       end;
 
-      MorphActive := InitialExpressionActive;
+      if Context.ExternalExpressionValid then
+        MorphActive := ExternalExpressionActive
+      else
+        MorphActive := InitialExpressionActive;
       if EyeBlinkConfigured or LipSyncActive then
       begin
         MorphActive := False;
@@ -210,7 +234,7 @@ begin
           ApplyMorphs(Model, CombinedMorphWeights, BonePoses,
             MorphPositions)
         else
-          ApplyMorphs(Model, Context.InitialExpressionWeights, BonePoses,
+          ApplyMorphs(Model, BaseExpressionWeights, BonePoses,
             MorphPositions);
         CalculateBoneTransforms(Model, BonePoses, BoneTransforms);
         SkinVerticesLinear(Model, MorphPositions, BoneTransforms,

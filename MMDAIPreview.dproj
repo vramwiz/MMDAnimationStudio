@@ -105,11 +105,11 @@
         <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingListRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingListRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingRows.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas"/>

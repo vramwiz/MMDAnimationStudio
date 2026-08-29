@@ -1,28 +1,27 @@
-unit PmxPoseCatalogListView;
-// 選択PMXのポーズを、全件または独自グループのPoseUID順で画像表示する。
-
+﻿unit PmxFaceCatalogListView;
+// 選択PMXの表情を、全件または表情グループのFaceUID順で画像表示する。
 interface
+
 uses
   System.Classes, System.Generics.Collections, System.Types,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.Graphics, ItemListView,
-  PmxCatalogStorage, PmxPoseCatalogStorage, PmxPoseCatalogGroups,
+  PmxCatalogStorage, PmxFaceCatalogStorage, PmxFaceCatalogGroups,
   PmxCatalogThumbnailCache, PmxCatalogThumbnailRenderer;
 
 type
-  TPmxPoseCatalogListView = class(TCustomItemListView)
+  TPmxFaceCatalogListView = class(TCustomItemListView)
   private
     FDisplayIndices: TList<Integer>;
     FFailedIds: TStringList;
+    FFaceCatalog: TPmxFaceCatalogStorage;
     FGroupIndex: Integer;
-    FGroups: TPmxPoseCatalogGroups;
+    FGroups: TPmxFaceCatalogGroups;
     FModel: TPmxCatalogItem;
-    FPoseCatalog: TPmxPoseCatalogStorage;
     FThumbnailCache: TPmxCatalogThumbnailCache;
     FThumbnailQueue: TStringList;
     FThumbnailRenderer: TPmxCatalogThumbnailRenderer;
     FThumbnailTimer: TTimer;
     function FindDisplayIndex(const Id: string): Integer;
-    function FindPoseIndex(const Id: string): Integer;
     function SourceIndex(DisplayIndex: Integer): Integer;
     function VariantKey(DisplayIndex: Integer): string;
     procedure QueueThumbnail(const Id: string);
@@ -36,40 +35,47 @@ type
       Target: TCanvas); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   public
+    // 表情一覧、選択状態、遅延サムネイルキューを初期化する。
     constructor Create(AOwner: TComponent); override;
+    // タイマー、キュー、表示順一覧を停止・解放する。
     destructor Destroy; override;
-    // 追加・複製したPoseUIDを現在グループへ挿入して選択する。
-    procedure AdoptPoseInCurrentGroup(const PoseId: string;
+    // 追加・複製したFaceUIDを現在グループへ挿入して選択する。
+    procedure AdoptFaceInCurrentGroup(const FaceId: string;
       InsertIndex: Integer = -1);
     // 選択項目を指定グループへ所属させる。-1は所属解除。
     procedure AssignSelectedToGroup(AGroupIndex: Integer);
-    function DisplayName(Index: Integer): string;
-    // 選択PoseUID群をグループメニュー用に列挙する。
-    procedure GetSelectedPoseIds(Dest: TStrings);
-    // 現在グループ内で選択ポーズを上下へ移動する。
+    // 選択FaceUID群をグループメニュー用に列挙する。
+    procedure GetSelectedFaceIds(Dest: TStrings);
+    // 現在グループ内で選択表情を上下へ移動する。
     function MoveSelectedInGroup(Delta: Integer): Boolean;
+    // このモデルの表情サムネイルキャッシュを破棄し、一覧を再読込する。
     function RefreshThumbnails: Boolean;
+    // 表示条件を維持して表情一覧と遅延サムネイル状態を再構築する。
     procedure Reload;
-    // 選択表示項目に対応するカタログ上の位置を返す。
+    // 現在選択行に対応する表情カタログ番号を返し、未選択では-1を返す。
     function SelectedSourceIndex: Integer;
-    procedure SelectPoseId(const PoseId: string);
+    // 指定FaceUIDが現在の表示対象なら、その行を選択する。
+    procedure SelectFaceId(const FaceId: string);
+    // 選択PMX、表情カタログ、任意のグループ一覧を表示元として設定する。
     procedure SetData(AModel: TPmxCatalogItem;
-      APoseCatalog: TPmxPoseCatalogStorage;
-      AGroups: TPmxPoseCatalogGroups = nil);
-    // -1は全ポーズ、それ以外は対応グループだけを表示する。
+      AFaceCatalog: TPmxFaceCatalogStorage;
+      AGroups: TPmxFaceCatalogGroups = nil);
+    // -1で全表情、それ以外で対応グループだけを表示する。
     procedure SetGroupIndex(const Value: Integer);
+    // サムネイルの読込先キャッシュと未生成画像の描画サービスを接続する。
     procedure SetThumbnailServices(ACache: TPmxCatalogThumbnailCache;
       ARenderer: TPmxCatalogThumbnailRenderer);
+    // 現在のグループ番号と保存領域を読取専用で公開する。
     property GroupIndex: Integer read FGroupIndex;
-    property Groups: TPmxPoseCatalogGroups read FGroups;
+    property Groups: TPmxFaceCatalogGroups read FGroups;
   end;
-implementation
 
+implementation
 uses
   Winapi.Windows, System.Math, System.SysUtils, AviUtl2StyleColors,
-  PmxCatalogGroupShortcut;
+  PmxCatalogGroupShortcut, PmxFaceCatalogSelection;
 
-constructor TPmxPoseCatalogListView.Create(AOwner: TComponent);
+constructor TPmxFaceCatalogListView.Create(AOwner: TComponent);
 begin
   inherited;
   FGroupIndex := -1;
@@ -92,7 +98,7 @@ begin
   FThumbnailTimer.OnTimer := ThumbnailTimer;
 end;
 
-destructor TPmxPoseCatalogListView.Destroy;
+destructor TPmxFaceCatalogListView.Destroy;
 begin
   FThumbnailTimer.Free;
   FThumbnailQueue.Free;
@@ -100,82 +106,68 @@ begin
   FDisplayIndices.Free;
   inherited;
 end;
-function TPmxPoseCatalogListView.SourceIndex(DisplayIndex: Integer): Integer;
+
+function TPmxFaceCatalogListView.SourceIndex(DisplayIndex: Integer): Integer;
 begin
   Result := -1;
   if (DisplayIndex >= 0) and (DisplayIndex < FDisplayIndices.Count) then
     Result := FDisplayIndices[DisplayIndex];
 end;
-function TPmxPoseCatalogListView.FindPoseIndex(const Id: string): Integer;
+
+function TPmxFaceCatalogListView.FindDisplayIndex(const Id: string): Integer;
 begin
-  if Assigned(FPoseCatalog) then
-    for Result := 0 to FPoseCatalog.Count - 1 do
-      if SameText(FPoseCatalog[Result].Id, Id) then Exit;
-  Result := -1;
+  Result := FDisplayIndices.IndexOf(
+    FindPmxFaceCatalogIndex(FFaceCatalog, Id));
 end;
-function TPmxPoseCatalogListView.FindDisplayIndex(const Id: string): Integer;
-begin
-  Result := FDisplayIndices.IndexOf(FindPoseIndex(Id));
-end;
-function TPmxPoseCatalogListView.GetItemCount: Integer;
+
+function TPmxFaceCatalogListView.GetItemCount: Integer;
 begin
   Result := FDisplayIndices.Count;
 end;
-function TPmxPoseCatalogListView.GetItemText(Index: Integer): string;
+
+function TPmxFaceCatalogListView.GetItemText(Index: Integer): string;
 begin
   Result := '';
   Index := SourceIndex(Index);
-  if Assigned(FPoseCatalog) and (Index >= 0) and
-    (Index < FPoseCatalog.Count) then Result := FPoseCatalog[Index].Name;
+  if Assigned(FFaceCatalog) and (Index >= 0) and
+    (Index < FFaceCatalog.Count) then Result := FFaceCatalog[Index].Name;
 end;
-procedure TPmxPoseCatalogListView.SetItemText(Index: Integer;
+
+procedure TPmxFaceCatalogListView.SetItemText(Index: Integer;
   const Value: string);
 begin
   Index := SourceIndex(Index);
-  if Assigned(FPoseCatalog) and FPoseCatalog.Rename(Index, Value) then Reload;
+  if Assigned(FFaceCatalog) and FFaceCatalog.Rename(Index, Value) then Reload;
 end;
-function TPmxPoseCatalogListView.DisplayName(Index: Integer): string;
-begin
-  Result := GetItemText(Index);
-end;
-procedure TPmxPoseCatalogListView.RebuildDisplay(PreserveSelection: Boolean);
+
+procedure TPmxFaceCatalogListView.RebuildDisplay(PreserveSelection: Boolean);
 var
-  I, Source: Integer;
-  PoseId, SelectedId: string;
+  SelectedId: string;
+  Source: Integer;
 begin
   SelectedId := '';
   Source := SourceIndex(ItemIndex);
-  if PreserveSelection and Assigned(FPoseCatalog) and (Source >= 0) and
-    (Source < FPoseCatalog.Count) then SelectedId := FPoseCatalog[Source].Id;
-  FDisplayIndices.Clear;
-  if Assigned(FPoseCatalog) then
-    if Assigned(FGroups) and (FGroupIndex >= 0) and
-      (FGroupIndex < FGroups.Count) then
-    begin
-      for I := 0 to FGroups[FGroupIndex].PoseIds.Count - 1 do
-      begin
-        PoseId := FGroups[FGroupIndex].PoseIds[I];
-        Source := FindPoseIndex(PoseId);
-        if Source >= 0 then FDisplayIndices.Add(Source);
-      end;
-    end
-    else
-      for I := 0 to FPoseCatalog.Count - 1 do FDisplayIndices.Add(I);
+  if PreserveSelection and Assigned(FFaceCatalog) and (Source >= 0) and
+    (Source < FFaceCatalog.Count) then SelectedId := FFaceCatalog[Source].Id;
+  BuildPmxFaceDisplayIndices(FFaceCatalog, FGroups, FGroupIndex,
+    FDisplayIndices);
   if SelectedId <> '' then ItemIndex := FindDisplayIndex(SelectedId)
   else if FDisplayIndices.Count > 0 then ItemIndex := 0
   else ItemIndex := -1;
   InvalidateList;
 end;
-procedure TPmxPoseCatalogListView.SetData(AModel: TPmxCatalogItem;
-  APoseCatalog: TPmxPoseCatalogStorage; AGroups: TPmxPoseCatalogGroups);
+
+procedure TPmxFaceCatalogListView.SetData(AModel: TPmxCatalogItem;
+  AFaceCatalog: TPmxFaceCatalogStorage; AGroups: TPmxFaceCatalogGroups);
 begin
   FModel := AModel;
-  FPoseCatalog := APoseCatalog;
+  FFaceCatalog := AFaceCatalog;
   FGroups := AGroups;
   FGroupIndex := -1;
   Reload;
 end;
-procedure TPmxPoseCatalogListView.SetGroupIndex(const Value: Integer);
+
+procedure TPmxFaceCatalogListView.SetGroupIndex(const Value: Integer);
 var
   NewValue: Integer;
 begin
@@ -186,15 +178,18 @@ begin
   FGroupIndex := NewValue;
   RebuildDisplay(False);
 end;
-function TPmxPoseCatalogListView.SelectedSourceIndex: Integer;
+
+function TPmxFaceCatalogListView.SelectedSourceIndex: Integer;
 begin
   Result := SourceIndex(ItemIndex);
 end;
-procedure TPmxPoseCatalogListView.SelectPoseId(const PoseId: string);
+
+procedure TPmxFaceCatalogListView.SelectFaceId(const FaceId: string);
 begin
-  ItemIndex := FindDisplayIndex(PoseId);
+  ItemIndex := FindDisplayIndex(FaceId);
 end;
-procedure TPmxPoseCatalogListView.GetSelectedPoseIds(Dest: TStrings);
+
+procedure TPmxFaceCatalogListView.GetSelectedFaceIds(Dest: TStrings);
 var
   I, Source: Integer;
   Selection: TList<Integer>;
@@ -207,17 +202,17 @@ begin
     for I := 0 to Selection.Count - 1 do
     begin
       Source := SourceIndex(Selection[I]);
-      if Assigned(FPoseCatalog) and (Source >= 0) and
-        (Source < FPoseCatalog.Count) and
-        (Dest.IndexOf(FPoseCatalog[Source].Id) < 0) then
-        Dest.Add(FPoseCatalog[Source].Id);
+      if Assigned(FFaceCatalog) and (Source >= 0) and
+        (Source < FFaceCatalog.Count) and
+        (Dest.IndexOf(FFaceCatalog[Source].Id) < 0) then
+        Dest.Add(FFaceCatalog[Source].Id);
     end;
   finally
     Selection.Free;
   end;
 end;
 
-procedure TPmxPoseCatalogListView.AssignSelectedToGroup(AGroupIndex: Integer);
+procedure TPmxFaceCatalogListView.AssignSelectedToGroup(AGroupIndex: Integer);
 var
   I: Integer;
   Ids: TStringList;
@@ -226,9 +221,9 @@ begin
     (AGroupIndex >= FGroups.Count) then Exit;
   Ids := TStringList.Create;
   try
-    GetSelectedPoseIds(Ids);
+    GetSelectedFaceIds(Ids);
     for I := 0 to Ids.Count - 1 do
-      FGroups.AssignPoseToGroup(Ids[I], AGroupIndex);
+      FGroups.AssignFaceToGroup(Ids[I], AGroupIndex);
     if Ids.Count > 0 then FGroups.SaveToFile;
     RebuildDisplay(True);
   finally
@@ -236,20 +231,20 @@ begin
   end;
 end;
 
-procedure TPmxPoseCatalogListView.AdoptPoseInCurrentGroup(
-  const PoseId: string; InsertIndex: Integer);
+procedure TPmxFaceCatalogListView.AdoptFaceInCurrentGroup(
+  const FaceId: string; InsertIndex: Integer);
 begin
   if Assigned(FGroups) and (FGroupIndex >= 0) and
     (FGroupIndex < FGroups.Count) then
   begin
-    FGroups.AssignPoseToGroup(PoseId, FGroupIndex, InsertIndex);
+    FGroups.AssignFaceToGroup(FaceId, FGroupIndex, InsertIndex);
     FGroups.SaveToFile;
   end;
   RebuildDisplay(False);
-  SelectPoseId(PoseId);
+  SelectFaceId(FaceId);
 end;
 
-function TPmxPoseCatalogListView.MoveSelectedInGroup(
+function TPmxFaceCatalogListView.MoveSelectedInGroup(
   Delta: Integer): Boolean;
 var
   NewIndex: Integer;
@@ -260,10 +255,10 @@ begin
   NewIndex := ItemIndex + Delta;
   if (ItemIndex < 0) or (NewIndex < 0) or
     (NewIndex >= FDisplayIndices.Count) then Exit;
-  FGroups[FGroupIndex].ExchangePose(ItemIndex, NewIndex);
+  FGroups[FGroupIndex].ExchangeFace(ItemIndex, NewIndex);
   if not FGroups.SaveToFile then
   begin
-    FGroups[FGroupIndex].ExchangePose(NewIndex, ItemIndex);
+    FGroups[FGroupIndex].ExchangeFace(NewIndex, ItemIndex);
     Exit;
   end;
   RebuildDisplay(False);
@@ -271,7 +266,7 @@ begin
   Result := True;
 end;
 
-procedure TPmxPoseCatalogListView.Reload;
+procedure TPmxFaceCatalogListView.Reload;
 begin
   FThumbnailTimer.Enabled := False;
   FThumbnailQueue.Clear;
@@ -279,13 +274,13 @@ begin
   RebuildDisplay(True);
 end;
 
-function TPmxPoseCatalogListView.RefreshThumbnails: Boolean;
+function TPmxFaceCatalogListView.RefreshThumbnails: Boolean;
 begin
   Result := Assigned(FThumbnailCache) and FThumbnailCache.Clear;
   Reload;
 end;
 
-procedure TPmxPoseCatalogListView.SetThumbnailServices(
+procedure TPmxFaceCatalogListView.SetThumbnailServices(
   ACache: TPmxCatalogThumbnailCache;
   ARenderer: TPmxCatalogThumbnailRenderer);
 begin
@@ -294,18 +289,18 @@ begin
   Reload;
 end;
 
-function TPmxPoseCatalogListView.VariantKey(DisplayIndex: Integer): string;
+function TPmxFaceCatalogListView.VariantKey(DisplayIndex: Integer): string;
 var
   Source: Integer;
 begin
   Result := '';
   Source := SourceIndex(DisplayIndex);
-  if Assigned(FPoseCatalog) and (Source >= 0) and
-    (Source < FPoseCatalog.Count) then
-    Result := FPoseCatalog[Source].Id + '|' + FPoseCatalog[Source].PoseData;
+  if Assigned(FFaceCatalog) and (Source >= 0) and
+    (Source < FFaceCatalog.Count) then
+    Result := FFaceCatalog[Source].Id + '|' + FFaceCatalog[Source].FaceData;
 end;
 
-procedure TPmxPoseCatalogListView.DrawItemImage(Index: Integer;
+procedure TPmxFaceCatalogListView.DrawItemImage(Index: Integer;
   const Bounds: TRect; Target: TCanvas);
 var
   Bitmap: Vcl.Graphics.TBitmap;
@@ -314,8 +309,8 @@ begin
   Target.Brush.Color := A2SCListViewAltBackground;
   Target.FillRect(Bounds);
   Source := SourceIndex(Index);
-  if not Assigned(FModel) or not Assigned(FPoseCatalog) or (Source < 0) or
-    (Source >= FPoseCatalog.Count) or not FileExists(FModel.SourcePath) then Exit;
+  if not Assigned(FModel) or not Assigned(FFaceCatalog) or (Source < 0) or
+    (Source >= FFaceCatalog.Count) or not FileExists(FModel.SourcePath) then Exit;
   Bitmap := Vcl.Graphics.TBitmap.Create;
   try
     Bitmap.PixelFormat := pf32bit;
@@ -325,14 +320,14 @@ begin
     if not Assigned(FThumbnailCache) or
       not FThumbnailCache.LoadVariant(FModel.SourcePath, VariantKey(Index),
         Bitmap.Width, Bitmap.Height, Bitmap) then
-      QueueThumbnail(FPoseCatalog[Source].Id);
+      QueueThumbnail(FFaceCatalog[Source].Id);
     Target.StretchDraw(Bounds, Bitmap);
   finally
     Bitmap.Free;
   end;
 end;
 
-procedure TPmxPoseCatalogListView.QueueThumbnail(const Id: string);
+procedure TPmxFaceCatalogListView.QueueThumbnail(const Id: string);
 begin
   if (Id = '') or (FFailedIds.IndexOf(Id) >= 0) or
     (FThumbnailQueue.IndexOf(Id) >= 0) then Exit;
@@ -340,35 +335,35 @@ begin
   FThumbnailTimer.Enabled := True;
 end;
 
-procedure TPmxPoseCatalogListView.ThumbnailTimer(Sender: TObject);
+procedure TPmxFaceCatalogListView.ThumbnailTimer(Sender: TObject);
 var
   Bitmap: Vcl.Graphics.TBitmap;
   DisplayIndex, Source: Integer;
-  PoseId: string;
+  FaceId: string;
   R: TRect;
 begin
   FThumbnailTimer.Enabled := False;
   if (FThumbnailQueue.Count = 0) or not Assigned(FModel) or
-    not Assigned(FPoseCatalog) or not Assigned(FThumbnailCache) or
+    not Assigned(FFaceCatalog) or not Assigned(FThumbnailCache) or
     not Assigned(FThumbnailRenderer) then Exit;
-  PoseId := FThumbnailQueue[0];
+  FaceId := FThumbnailQueue[0];
   FThumbnailQueue.Delete(0);
-  Source := FindPoseIndex(PoseId);
-  DisplayIndex := FindDisplayIndex(PoseId);
+  Source := FindPmxFaceCatalogIndex(FFaceCatalog, FaceId);
+  DisplayIndex := FindDisplayIndex(FaceId);
   if (Source >= 0) and (DisplayIndex >= 0) then
   begin
     R := ItemImageRect(DisplayIndex);
     Bitmap := Vcl.Graphics.TBitmap.Create;
     try
-      if FThumbnailRenderer.RenderPmxPose(FModel.SourcePath,
-        FPoseCatalog[Source].PoseData, Max(1, R.Width), Max(1, R.Height),
+      if FThumbnailRenderer.RenderPmxFace(FModel.SourcePath,
+        FFaceCatalog[Source].FaceData, Max(1, R.Width), Max(1, R.Height),
         Bitmap) then
       begin
         FThumbnailCache.SaveVariant(FModel.SourcePath,
           VariantKey(DisplayIndex), Bitmap.Width, Bitmap.Height, Bitmap);
         ReloadItem(DisplayIndex);
       end
-      else if FFailedIds.IndexOf(PoseId) < 0 then FFailedIds.Add(PoseId);
+      else if FFailedIds.IndexOf(FaceId) < 0 then FFailedIds.Add(FaceId);
     finally
       Bitmap.Free;
     end;
@@ -376,7 +371,7 @@ begin
   FThumbnailTimer.Enabled := FThumbnailQueue.Count > 0;
 end;
 
-procedure TPmxPoseCatalogListView.KeyDown(var Key: Word; Shift: TShiftState);
+procedure TPmxFaceCatalogListView.KeyDown(var Key: Word; Shift: TShiftState);
 var
   GroupIndex: Integer;
 begin
@@ -391,3 +386,4 @@ begin
 end;
 
 end.
+

@@ -128,10 +128,10 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewport.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseHistory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditOperations.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingListRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingListRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingRows.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas"/>
