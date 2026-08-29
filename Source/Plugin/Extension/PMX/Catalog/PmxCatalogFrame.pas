@@ -1,4 +1,4 @@
-unit PmxCatalogFrame;
+﻿unit PmxCatalogFrame;
 
 // PMX管理ページの表示と、PMXファイル受信イベントの境界を担当する。
 
@@ -228,6 +228,8 @@ begin
   Model := FCatalog.Items[FCatalogListView.ItemIndex];
   Pose := FPoseCatalog[Index];
   Result := TryWritePmxPoseObjectAlias(Model.SourcePath, Pose.PoseData,
+    Pose.InitialExpressionData, Pose.InitialEyeBlinkData,
+    Pose.InitialLipSyncData,
     FDragAliasFileName);
 end;
 
@@ -261,6 +263,7 @@ procedure TFramePmxCatalog.PoseListDblClick(Sender: TObject);
 var
   Index: Integer;
   Model: TPmxCatalogItem;
+  OldInitialExpressionData: string;
   OldPoseData: string;
   Pose: TPmxPoseCatalogItem;
 begin
@@ -273,12 +276,14 @@ begin
     Exit;
   Model := FCatalog.Items[FCatalogListView.ItemIndex];
   Pose := FPoseCatalog[Index];
+  OldInitialExpressionData := Pose.InitialExpressionData;
   OldPoseData := Pose.PoseData;
   try
     if not EditPmxPoseCatalogItem(Model, Pose) then
       Exit;
     if not FPoseCatalog.SaveToFile then
     begin
+      Pose.InitialExpressionData := OldInitialExpressionData;
       Pose.PoseData := OldPoseData;
       raise EInOutError.Create(
         #$30DD#$30FC#$30BA#$30C7#$30FC#$30BF#$3092#$4FDD#$5B58#$3067#$304D#$307E#$305B#$3093#$3067#$3057#$305F);

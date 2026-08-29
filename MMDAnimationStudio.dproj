@@ -104,6 +104,7 @@
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\PmxCatalogStorage.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\View\PmxCatalogListView.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogDataValidation.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\View\PmxPoseCatalogListView.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Editor\PmxPoseCatalogEditor.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragAlias.pas"/>
@@ -114,7 +115,20 @@
         <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdMorphSettingList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingListRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdEyeBlinkSettingPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdLipSyncSettingPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditorIcons.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdSettingPanelValue.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingDialogs.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioForm.pas">
             <Form>FormMMDAnimationStudio</Form>
             <FormType>dfm</FormType>

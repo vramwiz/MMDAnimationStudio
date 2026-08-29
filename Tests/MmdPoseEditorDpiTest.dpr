@@ -11,6 +11,9 @@ uses
   Vcl.Controls,
   Vcl.Forms,
   Vcl.Graphics,
+  HorizontalTrackBarControl,
+  MmdLipSyncSettingCodec,
+  MmdModelSettingEditor,
   MmdPoseEditor,
   MmdPoseEditorLayout,
   MmdPoseEditorTheme;
@@ -128,6 +131,84 @@ begin
     raise Exception.Create('symmetry command is not a toggle');
 end;
 
+procedure CheckModelSettingModes;
+var
+  Form: TMmdModelSettingEditorForm;
+begin
+  // モデル表示の「設定」はポーズ・表情だけを見せる。
+  Form := TMmdModelSettingEditorForm.Create(nil);
+  try
+    Form.ConfigureSettingControls;
+    if (Form.ModeToolbar.ButtonCount <> 2) or
+      (Form.ModeToolbar.Images = nil) or
+      (Form.ModeToolbar.Images.Count <> 2) then
+      raise Exception.Create('model setting toolbar is not pose/expression only');
+    if (Form.ModeToolbar.Buttons[0].Tag <> Ord(mspPose)) or
+      (Form.ModeToolbar.Buttons[1].Tag <> Ord(mspExpression)) then
+      raise Exception.Create('model setting toolbar is not pose then expression');
+  finally
+    Form.Free;
+  end;
+  // PMXカタログの初期状態編集は従来の全アイコンを維持する。
+  Form := TMmdModelSettingEditorForm.Create(nil);
+  try
+    Form.ConfigureSettingControls(True);
+    if (Form.ModeToolbar.ButtonCount <> 4) or
+      (Form.ModeToolbar.Images = nil) or
+      (Form.ModeToolbar.Images.Count <> 4) then
+      raise Exception.Create('initial state toolbar does not have all modes');
+    if (Form.EyeBlinkPanel = nil) or
+      (Form.EyeBlinkPanel.MorphCombo = nil) then
+      raise Exception.Create('eye blink combo is missing');
+    if Form.EyeBlinkPanel.MorphCombo.Font.Height <> Form.Font.Height then
+      raise Exception.Create('eye blink combo font does not match editor font');
+    if (Form.EyeBlinkPanel.HeaderPanel.Caption <> #$76EE#$30D1#$30C1) or
+      (Form.EyeBlinkPanel.IntervalEdit = nil) or
+      (Form.EyeBlinkPanel.SpeedEdit = nil) or
+      (Form.EyeBlinkPanel.OffsetEdit = nil) then
+      raise Exception.Create('eye blink page layout is incomplete');
+    if (Form.EyeBlinkPanel.HeaderPanel.Top >=
+        Form.EyeBlinkPanel.MorphCombo.Top) or
+      (Form.EyeBlinkPanel.MorphCombo.Top >=
+        Form.EyeBlinkPanel.StageTrack.Top) or
+      (Form.EyeBlinkPanel.StageTrack.Top >=
+        Form.EyeBlinkPanel.IntervalEdit.Parent.Parent.Top) or
+      (Form.EyeBlinkPanel.IntervalEdit.Parent.Top >=
+        Form.EyeBlinkPanel.SpeedEdit.Parent.Top) or
+      (Form.EyeBlinkPanel.SpeedEdit.Parent.Top >=
+        Form.EyeBlinkPanel.OffsetEdit.Parent.Top) then
+      raise Exception.CreateFmt(
+        'eye blink controls are not in requested order: %d,%d,%d,%d / %d,%d,%d',
+        [Form.EyeBlinkPanel.HeaderPanel.Top,
+         Form.EyeBlinkPanel.MorphCombo.Top,
+         Form.EyeBlinkPanel.StageTrack.Top,
+         Form.EyeBlinkPanel.IntervalEdit.Parent.Parent.Top,
+         Form.EyeBlinkPanel.IntervalEdit.Parent.Top,
+         Form.EyeBlinkPanel.SpeedEdit.Parent.Top,
+         Form.EyeBlinkPanel.OffsetEdit.Parent.Top]);
+    if Form.EyeBlinkPanel.StageTrack.ClassType <>
+      THorizontalTrackBarControl then
+      raise Exception.Create('eye blink stage does not use shared trackbar');
+    if (Form.LipSyncPanel = nil) or
+      (Form.LipSyncPanel.HeaderPanel.Caption <> #$53E3#$30D1#$30AF) or
+      (Form.LipSyncPanel.OpenCloseCombo = nil) then
+      raise Exception.Create('lip sync page layout is incomplete');
+    if Form.LipSyncPanel.OpenCloseCombo.Font.Height <> Form.Font.Height then
+      raise Exception.Create('lip sync combo font does not match editor font');
+    if (Form.LipSyncPanel.OpenCloseCombo.Parent.Top >=
+        Form.LipSyncPanel.PhonemeCombo(mlpA).Parent.Top) or
+      (Form.LipSyncPanel.PhonemeCombo(mlpA).Parent.Top >=
+        Form.LipSyncPanel.PhonemeCombo(mlpN).Parent.Top) or
+      (Form.LipSyncPanel.PhonemeCombo(mlpN).Parent.Top >=
+        Form.LipSyncPanel.SpeedEdit.Parent.Top) or
+      (Form.LipSyncPanel.SpeedEdit.Parent.Top >=
+        Form.LipSyncPanel.StrengthEdit.Parent.Top) then
+      raise Exception.Create('lip sync controls are not in requested order');
+  finally
+    Form.Free;
+  end;
+end;
+
 procedure TLayoutProbe.ScaleLayoutAndCheck(TargetPPI: Integer);
 var
   InitialFontHeight, InitialBoneListFontHeight,
@@ -181,6 +262,7 @@ begin
     finally
       EditorForm.Free;
     end;
+    CheckModelSettingModes;
     Writeln('MmdPoseEditorDpiTest: PASS (including 200%)');
   except
     on E: Exception do

@@ -8,7 +8,7 @@
 - ユニット: `HorizontalTrackBarControl`
 - クラス: `THorizontalTrackBarControl`
 - ソース: `..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas`
-- 現在の利用先: `MmdMorphPreviewPanel.pas`のモーフ確認ウェイト
+- 現在の利用先: 単独の数値入力GUI。モーフ一覧は仮想行描画のため、描画部だけを利用する。
 - 対応環境: Delphi 37.0 / VCL / Win64 / DPIスケーリング
 
 Windows標準の`TTrackBar`は使用せず、背景、チャンネル、到達部分、目盛り、つまみ、
@@ -70,3 +70,36 @@ Track.DisabledColor := TColor($00808080);
 
 単なる数値選択にWindows標準`TTrackBar`を新規使用せず、原則として
 `THorizontalTrackBarControl`を使う。
+
+## モーフ設定一覧
+
+- 入力と状態管理: `MmdMorphSettingList`
+- 分類行モデル: `MmdMorphSettingRows`
+- 行描画: `MmdMorphSettingListRenderer`
+- 端吸着と2値規則: `MmdMorphSettingValue`
+- 見出しとプレビュー通知: `MmdMorphPreviewPanel`
+- 名前付き初期表情JSON: `MmdMorphSettingCodec`
+- ポーズ・表情の共通設定フォーム: `MmdModelSettingEditor`
+- 共通設定フォームのアイコン: `MmdModelSettingEditorIcons`
+- 単一目パチモーフと閉眼時ウェイトのUI: `MmdEyeBlinkSettingPanel`
+- 目パチ設定の版付きJSON: `MmdEyeBlinkSettingCodec`
+
+モーフ数に比例してVCLコントロールを生成せず、表示中の行だけをCanvasへ描画する。
+PMXのモーフ順を維持し、`Panel`値が変わる位置へ眉、目、リップ、その他、未分類の
+見出し行を挿入する。ウェイト配列と連続値／2値方式はPMXのモーフ番号順で保持するため、
+見出し行を追加してもモデル側の番号は変化しない。
+
+`SetWeights`で保存済みウェイトを一覧へ復元できる。永続化では
+`MmdMorphSettingCodec`を使い、モーフ名と非ゼロウェイトだけを版付きJSONへ保存する。
+
+モデル表示の`設定`ボタンとPMX管理の初期状態ダブルクリックは、どちらも
+`EditMmdModelSettings`を呼ぶ。既定ではフォーム上端にポーズと表情の2アイコンだけを表示する。初期状態編集は末尾の`ShowAllPages=True`を渡し、目パチと口パクを含む全4アイコンを表示する。
+
+初期状態の全データを扱う場合は`EditMmdInitialStateSettings`を呼ぶ。目パチはモーフ、閉眼ウェイト、間隔、速度、オフセットを、口パクは開閉と6音素のモーフ割当、内部ウェイト、速度、強さをそれぞれ版付きJSONで受け渡す。
+
+`TryBuildPmxPoseObjectAlias`と`TryWritePmxPoseObjectAlias`には、ポーズ、初期表情、初期目パチ、初期口パクの順でJSONを渡す。目パチと口パクのJSONはモデル表示の各データ項目へ、時間設定や強さは対応する数値パラメーターへ展開される。
+
+モデル表示の目パチ時間計算は`MMD_Model_EyeBlink`を使う。`TMmdEyeBlinkRuntimeState`は必ずモデル表示のオブジェクト別コンテキストに保持し、共有してはならない。`CalculateMmdEyeBlinkAmount`はオブジェクト相対フレーム、FPS、間隔、速度、オフセット、安定シードから0～1の閉眼量を返す。
+
+縦スクロールには`TVerticalScrollBarControl`を使う。ホイールは一覧スクロール専用とし、
+トラック操作はクリックとドラッグだけで行う。左右端の近傍は0または1へ吸着する。

@@ -1,14 +1,16 @@
-unit PmxPoseCatalogDragAlias;
+﻿unit PmxPoseCatalogDragAlias;
 
 // PMXとポーズの選択内容から、AviUtl2へD&Dする単一モデル表示エイリアスを生成する。
 
 interface
 
 // モデル表示と標準描画を持つUTF-8エイリアスを組み立てる。
-function TryBuildPmxPoseObjectAlias(const ModelFileName, PoseData: string;
+function TryBuildPmxPoseObjectAlias(const ModelFileName, PoseData,
+  InitialExpressionData, InitialEyeBlinkData, InitialLipSyncData: string;
   out AliasText: string): Boolean;
 // エイリアスをUTF-8 BOMなしの実ファイルとして保存する。
 function TryWritePmxPoseObjectAlias(const ModelFileName, PoseData,
+  InitialExpressionData, InitialEyeBlinkData, InitialLipSyncData,
   FileName: string): Boolean;
 
 implementation
@@ -17,7 +19,10 @@ uses
   System.Classes,
   System.IOUtils,
   System.JSON,
-  System.SysUtils;
+  System.SysUtils,
+  MmdEyeBlinkSettingCodec,
+  MmdLipSyncSettingCodec,
+  MmdMorphSettingCodec;
 
 function HasLineBreak(const Value: string): Boolean;
 begin
@@ -42,18 +47,39 @@ begin
   end;
 end;
 
-function TryBuildPmxPoseObjectAlias(const ModelFileName, PoseData: string;
+function TryBuildPmxPoseObjectAlias(const ModelFileName, PoseData,
+  InitialExpressionData, InitialEyeBlinkData, InitialLipSyncData: string;
   out AliasText: string): Boolean;
 var
+  EyeBlinkSetting: TMmdEyeBlinkSetting;
+  FormatSettings: TFormatSettings;
+  LipSyncSetting: TMmdLipSyncSetting;
   Lines: TStringList;
+  NamedMorphs: TMmdNamedMorphWeights;
+  NormalizedInitialExpressionData: string;
+  NormalizedInitialEyeBlinkData: string;
+  NormalizedInitialLipSyncData: string;
   NormalizedPoseData: string;
 begin
   Result := False;
   AliasText := '';
   if (ModelFileName = '') or HasLineBreak(ModelFileName) or
     not TFile.Exists(ModelFileName) or
-    not NormalizePoseData(PoseData, NormalizedPoseData) then
+    not NormalizePoseData(PoseData, NormalizedPoseData) or
+    not TryDecodeMmdMorphSettingData(InitialExpressionData, NamedMorphs) or
+    not NormalizePoseData(InitialExpressionData,
+      NormalizedInitialExpressionData) or
+    not TryDecodeMmdEyeBlinkSettingData(InitialEyeBlinkData,
+      EyeBlinkSetting) or
+    not NormalizePoseData(InitialEyeBlinkData,
+      NormalizedInitialEyeBlinkData) or
+    not TryDecodeMmdLipSyncSettingData(InitialLipSyncData, LipSyncSetting) or
+    not NormalizePoseData(InitialLipSyncData,
+      NormalizedInitialLipSyncData) then
     Exit;
+
+  FormatSettings := TFormatSettings.Create;
+  FormatSettings.DecimalSeparator := '.';
 
   Lines := TStringList.Create;
   try
@@ -71,7 +97,24 @@ begin
       '=0');
     Lines.Add(#$30DD#$30FC#$30BA + '=' +
       NormalizedPoseData);
-    Lines.Add(#$30DD#$30FC#$30BA#$8A2D#$5B9A + '=');
+    Lines.Add(#$8A2D#$5B9A + '=');
+    Lines.Add(#$8868#$60C5 + '=' +
+      NormalizedInitialExpressionData);
+    Lines.Add(#$76EE#$30D1#$30C1#$30C7#$30FC#$30BF + '=' +
+      NormalizedInitialEyeBlinkData);
+    Lines.Add(#$76EE#$30D1#$30C1#$9593#$9694 + #$FF08#$79D2#$FF09 + '=' +
+      FloatToStr(EyeBlinkSetting.IntervalSec, FormatSettings));
+    Lines.Add(#$76EE#$30D1#$30C1#$901F#$5EA6 + #$FF08#$79D2#$FF09 + '=' +
+      FloatToStr(EyeBlinkSetting.SpeedSec, FormatSettings));
+    Lines.Add(#$76EE#$30D1#$30C1#$30AA#$30D5#$30BB#$30C3#$30C8 +
+      #$FF08#$79D2#$FF09 + '=' +
+      FloatToStr(EyeBlinkSetting.OffsetSec, FormatSettings));
+    Lines.Add(#$53E3#$30D1#$30AF#$30C7#$30FC#$30BF + '=' +
+      NormalizedInitialLipSyncData);
+    Lines.Add(#$53E3#$30D1#$30AF#$901F#$5EA6 + #$FF08#$79D2#$FF09 + '=' +
+      FloatToStr(LipSyncSetting.SpeedSec, FormatSettings));
+    Lines.Add(#$53E3#$30D1#$30AF#$5F37#$3055 + #$FF08'%'#$FF09 + '=' +
+      FloatToStr(LipSyncSetting.Strength * 100, FormatSettings));
     Lines.Add(#$6BD4#$8F03#$7528#$9AA8#$683C + 'X' +
       #$305A#$3089#$3057 + '=30');
     Lines.Add('[0.1]');
@@ -100,6 +143,7 @@ begin
 end;
 
 function TryWritePmxPoseObjectAlias(const ModelFileName, PoseData,
+  InitialExpressionData, InitialEyeBlinkData, InitialLipSyncData,
   FileName: string): Boolean;
 var
   AliasText: string;
@@ -107,7 +151,8 @@ var
 begin
   Result := False;
   if (FileName = '') or not TryBuildPmxPoseObjectAlias(ModelFileName,
-    PoseData, AliasText) then
+    PoseData, InitialExpressionData, InitialEyeBlinkData,
+    InitialLipSyncData, AliasText) then
     Exit;
   try
     ForceDirectories(ExtractFilePath(FileName));

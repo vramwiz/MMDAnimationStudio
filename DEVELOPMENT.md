@@ -25,7 +25,7 @@
 - `SetAppFolderRoot('MMDAnimationStudio')`で製品ルートを決め、機能別データはその下位フォルダへ分離する。
 - PMX表示順は`PMX\Catalog.json`、モデル情報は`PMX\Models\<PmxUID>\Model.json`へUTF-8 JSONで保存する。旧`PMX\PmxCatalog.txt`は自動移行対象とする。
 - 一覧の識別には正規化した絶対パスを使い、表示名にはパスと拡張子を含めない。
-- PMXごとのポーズ表示順と初期ポーズIDは`Poses\Index.json`、ポーズ本体は`Poses\Items\<PoseUID>.json`へ分ける。ポーズ本体の`poseData`はJSON文字列へ二重符号化せず、版付きJSONオブジェクトとして保存する。0件の場合は`{"version":1,"bones":[]}`の「初期状態」を自動生成する。
+- PMXごとのポーズ表示順と初期ポーズIDは`Poses\Index.json`、ポーズ本体は`Poses\Items\<PoseUID>.json`へ分ける。ポーズ本体の`poseData`と`initialExpressionData`はJSON文字列へ二重符号化せず、版付きJSONオブジェクトとして保存する。0件の場合は空の姿勢と初期表情を持つ「初期状態」を自動生成する。
 - 正面サムネイルは`PMX\Cache\Model`、ポーズ適用画像は`PMX\Cache\Pose`へPNGで保存する。PMXとポーズの更新状態および表示寸法を含むキーで再利用可否を判定する。
 - サムネイル生成はUIスレッドのタイマーで1件ずつ行い、一覧の`Paint`から直接PMXを読み込まない。
 

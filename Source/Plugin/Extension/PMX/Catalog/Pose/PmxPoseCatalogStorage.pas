@@ -1,4 +1,4 @@
-unit PmxPoseCatalogStorage;
+﻿unit PmxPoseCatalogStorage;
 
 // 1つのPMXに属するポーズ要素をPoseUID別ファイルと順序索引で管理する。
 
@@ -11,6 +11,9 @@ type
   TPmxPoseCatalogItem = class
   private
     FId: string;
+    FInitialEyeBlinkData: string;
+    FInitialExpressionData: string;
+    FInitialLipSyncData: string;
     FKind: string;
     FName: string;
     FPmxId: string;
@@ -18,6 +21,12 @@ type
     FPoseData: string;
   public
     property Id: string read FId write FId;
+    property InitialEyeBlinkData: string read FInitialEyeBlinkData
+      write FInitialEyeBlinkData;
+    property InitialExpressionData: string read FInitialExpressionData
+      write FInitialExpressionData;
+    property InitialLipSyncData: string read FInitialLipSyncData
+      write FInitialLipSyncData;
     property Kind: string read FKind write FKind;
     property Name: string read FName write FName;
     property PmxId: string read FPmxId write FPmxId;
@@ -40,11 +49,14 @@ type
     function LoadItem(const Id: string): TPmxPoseCatalogItem;
     function SaveItem(Item: TPmxPoseCatalogItem): Boolean;
   public
+    // 指定モデルフォルダーに属するポーズ索引と個別データの保存先を初期化する。
     constructor Create(const ModelFolder: string; const APmxId: string = '';
       const APmxName: string = '');
+    // 読み込んだポーズ項目を解放する。保存は自動実行しない。
     destructor Destroy; override;
     // 保存データが0件なら、空ポーズデータの「初期状態」を1件作成する。
     function LoadOrCreateDefault: Boolean;
+    // 全項目を個別JSONへ保存し、順序と初期状態IDを索引JSONへ書き出す。
     function SaveToFile: Boolean;
     property Count: Integer read GetCount;
     property Items[Index: Integer]: TPmxPoseCatalogItem read GetItem; default;
@@ -57,15 +69,16 @@ uses
   System.IOUtils,
   System.JSON,
   System.SysUtils,
-  PmxPose,
-  PmxPoseCodec;
+  MmdMorphSettingCodec,
+  MmdEyeBlinkSettingCodec,
+  MmdLipSyncSettingCodec,
+  PmxPoseCatalogDataValidation;
 
 const
-  PoseCatalogFormatVersion = 2;
+  PoseCatalogFormatVersion = 5;
   InitialPoseName = #$521D#$671F#$72B6#$614B;
   InitialPoseKind = 'initial';
   NormalPoseKind = 'pose';
-  EmptyPoseData = '{"version":1,"bones":[]}';
 
 function JsonString(Value: TJSONValue; const Name: string): string;
 var
@@ -77,15 +90,6 @@ begin
   Pair := TJSONObject(Value).Get(Name);
   if Assigned(Pair) and (Pair.JsonValue is TJSONString) then
     Result := TJSONString(Pair.JsonValue).Value;
-end;
-
-function NormalizePoseData(const Value: string): string;
-var
-  Poses: TPmxNamedBonePoses;
-begin
-  Result := Value;
-  if not TryDecodePoseData(Result, Poses) then
-    Result := EmptyPoseData;
 end;
 
 constructor TPmxPoseCatalogStorage.Create(const ModelFolder, APmxId,
@@ -164,6 +168,27 @@ begin
         Result.PmxName := FPmxName;
       Result.Name := JsonString(Json, 'name');
       Result.Kind := JsonString(Json, 'kind');
+      PoseValue := TJSONObject(Json).GetValue('initialEyeBlinkData');
+      if PoseValue is TJSONString then
+        Result.InitialEyeBlinkData := TJSONString(PoseValue).Value
+      else if Assigned(PoseValue) then
+        Result.InitialEyeBlinkData := PoseValue.ToJSON;
+      Result.InitialEyeBlinkData := NormalizeInitialEyeBlinkData(
+        Result.InitialEyeBlinkData);
+      PoseValue := TJSONObject(Json).GetValue('initialLipSyncData');
+      if PoseValue is TJSONString then
+        Result.InitialLipSyncData := TJSONString(PoseValue).Value
+      else if Assigned(PoseValue) then
+        Result.InitialLipSyncData := PoseValue.ToJSON;
+      Result.InitialLipSyncData := NormalizeInitialLipSyncData(
+        Result.InitialLipSyncData);
+      PoseValue := TJSONObject(Json).GetValue('initialExpressionData');
+      if PoseValue is TJSONString then
+        Result.InitialExpressionData := TJSONString(PoseValue).Value
+      else if Assigned(PoseValue) then
+        Result.InitialExpressionData := PoseValue.ToJSON;
+      Result.InitialExpressionData := NormalizeInitialExpressionData(
+        Result.InitialExpressionData);
       PoseValue := TJSONObject(Json).GetValue('poseData');
       if PoseValue is TJSONString then
         Result.PoseData := TJSONString(PoseValue).Value
@@ -230,7 +255,10 @@ begin
       Item.Kind := InitialPoseKind;
       Item.PmxId := FPmxId;
       Item.PmxName := FPmxName;
-      Item.PoseData := EmptyPoseData;
+      Item.PoseData := EmptyPmxPoseData;
+      Item.InitialEyeBlinkData := EmptyMmdEyeBlinkSettingData;
+      Item.InitialExpressionData := EmptyMmdMorphSettingData;
+      Item.InitialLipSyncData := EmptyMmdLipSyncSettingData;
       FItems.Add(Item);
       FDefaultPoseId := Item.Id;
       SaveToFile;
@@ -263,6 +291,7 @@ end;
 function TPmxPoseCatalogStorage.SaveItem(
   Item: TPmxPoseCatalogItem): Boolean;
 var
+  ExpressionJson: TJSONValue;
   Json: TJSONObject;
   PoseJson: TJSONValue;
 begin
@@ -281,12 +310,43 @@ begin
       Json.AddPair('pmxName', Item.PmxName);
       Json.AddPair('name', Item.Name);
       Json.AddPair('kind', Item.Kind);
+      Item.InitialEyeBlinkData := NormalizeInitialEyeBlinkData(
+        Item.InitialEyeBlinkData);
+      ExpressionJson := TJSONObject.ParseJSONValue(Item.InitialEyeBlinkData);
+      if not (ExpressionJson is TJSONObject) then
+      begin
+        ExpressionJson.Free;
+        ExpressionJson := TJSONObject.ParseJSONValue(
+          EmptyMmdEyeBlinkSettingData);
+      end;
+      Json.AddPair('initialEyeBlinkData', ExpressionJson);
+      Item.InitialLipSyncData := NormalizeInitialLipSyncData(
+        Item.InitialLipSyncData);
+      ExpressionJson := TJSONObject.ParseJSONValue(Item.InitialLipSyncData);
+      if not (ExpressionJson is TJSONObject) then
+      begin
+        ExpressionJson.Free;
+        ExpressionJson := TJSONObject.ParseJSONValue(
+          EmptyMmdLipSyncSettingData);
+      end;
+      Json.AddPair('initialLipSyncData', ExpressionJson);
+      Item.InitialExpressionData := NormalizeInitialExpressionData(
+        Item.InitialExpressionData);
+      ExpressionJson := TJSONObject.ParseJSONValue(
+        Item.InitialExpressionData);
+      if not (ExpressionJson is TJSONObject) then
+      begin
+        ExpressionJson.Free;
+        ExpressionJson := TJSONObject.ParseJSONValue(
+          EmptyMmdMorphSettingData);
+      end;
+      Json.AddPair('initialExpressionData', ExpressionJson);
       Item.PoseData := NormalizePoseData(Item.PoseData);
       PoseJson := TJSONObject.ParseJSONValue(Item.PoseData);
       if not (PoseJson is TJSONObject) then
       begin
         PoseJson.Free;
-        PoseJson := TJSONObject.ParseJSONValue(EmptyPoseData);
+        PoseJson := TJSONObject.ParseJSONValue(EmptyPmxPoseData);
       end;
       Json.AddPair('poseData', PoseJson);
       TFile.WriteAllText(ItemFileName(Item.Id), Json.ToJSON,
