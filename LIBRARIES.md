@@ -1,6 +1,17 @@
 # 共通GUIライブラリ
 
 複数画面から再利用するGUI部品の所在と選定基準を記録する。
+
+## MMDポーズ編集の暗色テーマ
+
+- 共通色、項目描画、タイトルバー: `MMD\Editor\MmdPoseEditorTheme.pas`
+- 暗色ボタン: `MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas`
+- 暗色一覧／チェック一覧: `MMD\Editor\Theme\MmdPoseEditorListTheme.pas`
+- 暗色コンボ: `MMD\Editor\Theme\MmdPoseEditorComboTheme.pas`
+
+画面側は必要なControlのユニットだけを参照する。色を独自に複製せず、配色定数と
+項目描画は基盤テーマを使う。チェック一覧はVCL標準のチェック操作を維持したまま、
+本文と選択状態だけを共通配色で描画する。
 新しい画面で同種の部品が必要になった場合は、個別実装の前にこの一覧を確認する。
 
 ## 横型トラックバー

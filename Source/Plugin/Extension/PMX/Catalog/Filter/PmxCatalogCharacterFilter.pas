@@ -28,15 +28,21 @@ type
     procedure Change; override;
     procedure CreateWnd; override;
   public
+    // 暗色コンボの表示設定と既定の「すべて」を初期化する。
     constructor Create(AOwner: TComponent); override;
     // 登録モデルに一致するキャラ名だけを候補へ追加し、現在選択を可能なら維持する。
     procedure Rebuild(ACatalog: TPmxCatalogStorage);
   end;
 
+// 組み込みキャラクター分類の件数を返す。
 function PmxCatalogCharacterCount: Integer;
+// 指定位置の分類名と検索語を返す。
 function PmxCatalogCharacterDef(Index: Integer): TPmxCatalogCharacterDef;
+// 完全一致する分類名の位置または-1を返す。
 function PmxCatalogCharacterIndexOfName(const Name: string): Integer;
+// 表示文字列がフィルターなしの「すべて」を表すか判定する。
 function PmxCatalogCharacterIsAll(const Caption: string): Boolean;
+// 表示名またはファイル名が分類のいずれかの検索語に一致するか判定する。
 function PmxCatalogCharacterMatches(const Def: TPmxCatalogCharacterDef;
   const Text: string): Boolean;
 

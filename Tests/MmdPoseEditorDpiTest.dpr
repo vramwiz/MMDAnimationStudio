@@ -16,7 +16,9 @@ uses
   MmdModelSettingEditor,
   MmdPoseEditor,
   MmdPoseEditorLayout,
-  MmdPoseEditorTheme;
+  MmdPoseEditorTheme,
+  MmdPoseEditorButtonTheme,
+  MmdPoseEditorListTheme;
 
 type
   TDarkButtonProbe = class(TMmdDarkButton)

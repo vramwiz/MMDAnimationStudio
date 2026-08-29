@@ -6,13 +6,32 @@ uses
   System.SysUtils,
   AviUtl2FilterTypes in 'Source\Lib\AviUtl2FilterTypes.pas',
   MmdPoseSharedMemory in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas',
+  MmdPoseSharedTrace in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas',
   PmxModel in '..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
   PmxPoseTypes in '..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
   PmxPoseMath in '..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
   PmxBoneSolver in '..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas',
   PmxPose in '..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
   PmxPoseCodec in '..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
-  MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas';
+  MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas',
+  MMD_Model_PoseInput in
+    'Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas';
+
+var
+  PoseObjectAvailable: Boolean;
+  RequestedLayer: Integer;
+  RequestedOffset: Double;
+
+function TestGetImageObject(Layer: Integer;
+  Offset: Double): OBJECT_HANDLE; cdecl;
+begin
+  RequestedLayer := Layer;
+  RequestedOffset := Offset;
+  if PoseObjectAvailable then
+    Result := Pointer(1)
+  else
+    Result := nil;
+end;
 
 procedure Check(Condition: Boolean; const Message_: string);
 begin
@@ -31,15 +50,56 @@ begin
   Snapshot.ModelPathHash := HashModelPath('C:\model\sample.pmx');
   Snapshot.PoseData := '{"version":1,"bones":[]}';
   Check(PublishPoseSnapshot(876, Snapshot), 'publish failed');
-  Check(TryReadPoseSnapshot(876, 345, Snapshot.ModelPathHash, ReadBack),
+  Check(TryReadPoseSnapshot(876, Snapshot.ModelPathHash, ReadBack),
     'read failed');
   Check(ReadBack.WriterObjectID = 101, 'object id mismatch');
   Check(ReadBack.WriterEffectID = 201, 'effect id mismatch');
   Check(ReadBack.PoseData = Snapshot.PoseData, 'pose data mismatch');
-  Check(not TryReadPoseSnapshot(876, 346, Snapshot.ModelPathHash, ReadBack),
-    'stale frame was accepted');
-  Check(not TryReadPoseSnapshot(876, 345, Snapshot.ModelPathHash + 1, ReadBack),
+  Check(ReadBack.TimelineFrame = 345, 'published frame was not preserved');
+  Check(not TryReadPoseSnapshot(876, Snapshot.ModelPathHash + 1, ReadBack),
     'different model was accepted');
+end;
+
+procedure TestModelPoseLayerInput;
+const
+  ModelFileName = 'C:\model\layer-input.pmx';
+  PoseData = '{"version":1,"bones":[{"name":"center",' +
+    '"translation":[1,2,3],"rotation":[0,0,0,1]}]}';
+var
+  ObjectInfo: TOBJECT_INFO;
+  ReadPoseData: string;
+  Snapshot: TMmdPoseSharedSnapshot;
+  Video: TFILTER_PROC_VIDEO;
+begin
+  ObjectInfo := Default(TOBJECT_INFO);
+  ObjectInfo.FrameS := 900;
+  ObjectInfo.Frame := 45;
+  Video := Default(TFILTER_PROC_VIDEO);
+  Video.Object_ := @ObjectInfo;
+  Video.GetImageObject := TestGetImageObject;
+  Snapshot.WriterObjectID := 301;
+  Snapshot.WriterEffectID := 401;
+  // PoseとModelの配置開始位置が異なっても、存在中なら姿勢を受理する。
+  Snapshot.TimelineFrame := 123;
+  Snapshot.ModelPathHash := HashModelPath(ModelFileName);
+  Snapshot.PoseData := PoseData;
+  Check(PublishPoseSnapshot(903, Snapshot),
+    'model pose input publish failed');
+  PoseObjectAvailable := True;
+  RequestedLayer := -1;
+  RequestedOffset := -1;
+  Check(TryGetReferencedPoseData(@Video, 904, ModelFileName,
+    ReadPoseData), 'model did not read referenced pose layer');
+  Check(RequestedLayer = 903, 'display layer was not converted to SDK layer');
+  Check(RequestedOffset = 0, 'pose layer was not evaluated at current time');
+  Check(ReadPoseData = PoseData, 'model pose input data mismatch');
+  PoseObjectAvailable := False;
+  Check(not TryGetReferencedPoseData(@Video, 904, ModelFileName,
+    ReadPoseData), 'model accepted pose data without a pose object');
+  PoseObjectAvailable := True;
+  Check(not TryGetReferencedPoseData(@Video, 904,
+    'C:\model\different.pmx', ReadPoseData),
+    'model accepted a pose for a different PMX');
 end;
 
 procedure TestObjectContexts;
@@ -68,6 +128,7 @@ end;
 begin
   try
     TestSharedMemory;
+    TestModelPoseLayerInput;
     TestObjectContexts;
     Writeln('MmdPoseSharedMemoryTest: PASS');
   except

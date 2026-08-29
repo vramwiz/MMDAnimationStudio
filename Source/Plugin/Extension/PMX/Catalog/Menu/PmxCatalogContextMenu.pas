@@ -36,10 +36,13 @@ type
     procedure RevealFile(Sender: TObject);
     procedure ShowError(const Text: string);
   public
+    // 左一覧へ登録解除、場所表示、再読込のメニューを接続する。
     constructor Create(ACatalogList: TPmxCatalogListView;
       APoseList: TPmxPoseCatalogListView;
       AModelCache, APoseCache: TPmxCatalogThumbnailCache);
+    // 一覧からメニューを切り離し、生成したメニュー項目を解放する。
     destructor Destroy; override;
+    // メニュー操作対象となる現在のPMXカタログを差し替える。
     procedure SetCatalog(ACatalog: TPmxCatalogStorage);
     property OnChanged: TPmxCatalogChangedEvent read FOnChanged write FOnChanged;
   end;

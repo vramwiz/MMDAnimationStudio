@@ -21,9 +21,12 @@ type
     procedure DestroyWnd; override;
     procedure Resize; override;
   public
+    // 画面外のD3D描画面を作成し、サムネイル生成専用として初期化する。
     constructor Create(AOwner: TComponent); override;
+    // PMXを正面表示し、頭ボーンが判明する場合は頭中心の画像をBitmapへ返す。
     function RenderPmx(const FileName: string; Width, Height: Integer;
       Bitmap: TBitmap): Boolean;
+    // 指定姿勢を適用したPMX全身画像をBitmapへ返す。
     function RenderPmxPose(const FileName, PoseData: string; Width,
       Height: Integer; Bitmap: TBitmap): Boolean;
   end;

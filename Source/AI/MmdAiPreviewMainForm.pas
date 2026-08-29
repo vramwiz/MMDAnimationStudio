@@ -12,6 +12,9 @@ uses
   MmdAiPreviewPresentation,
   MmdPoseEditor,
   MmdPoseEditorTheme,
+  MmdPoseEditorButtonTheme,
+  MmdPoseEditorComboTheme,
+  MmdPoseEditorListTheme,
   PmxModel;
 
 type

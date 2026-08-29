@@ -37,16 +37,26 @@ type
     procedure DrawItemImage(Index: Integer; const Bounds: TRect;
       Target: TCanvas); override;
   public
+    // PMX用一覧、表示索引、遅延サムネイル生成キューを初期化する。
     constructor Create(AOwner: TComponent); override;
+    // タイマー、表示索引、生成待ちキューを停止して解放する。
     destructor Destroy; override;
+    // 元カタログ位置に対応する現在の表示位置を返す。非表示では-1を返す。
     function DisplayIndexOfSource(SourceIndex: Integer): Integer;
+    // 表示位置に対応するPMX表示名を返す。範囲外では空文字を返す。
     function DisplayName(Index: Integer): string;
+    // フィルター済み表示索引とサムネイル状態を再構築する。
     procedure Reload;
+    // キャラクター名による表示フィルターを変更する。
     procedure SetCharacterFilter(const CharacterName: string);
+    // 表示元のPMXカタログを差し替える。
     procedure SetCatalog(ACatalog: TPmxCatalogStorage);
+    // サムネイルの読書き先と非表示レンダラーを設定する。
     procedure SetThumbnailServices(ACache: TPmxCatalogThumbnailCache;
       ARenderer: TPmxCatalogThumbnailRenderer);
+    // 現在選択されている項目の元カタログ位置を返す。
     function SelectedSourceIndex: Integer;
+    // 表示位置を元カタログ位置へ変換する。範囲外では-1を返す。
     function SourceIndexOfDisplay(DisplayIndex: Integer): Integer;
   end;
 
@@ -68,7 +78,7 @@ begin
   FVisibleIndexes := TList<Integer>.Create;
   FCharacterFilter := PmxCatalogAllCharactersCaption;
   Layout := illIcon;
-  SelectionStyle := ilssImageOverlay;
+  SelectionStyle := ilssRow;
   CaptionVisible := True;
   ImageSize := ScaleValue(96);
   RowHeight := ImageSize + ScaleValue(28);

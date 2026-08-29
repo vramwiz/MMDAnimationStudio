@@ -5,19 +5,12 @@ unit PmxCatalogStorage;
 interface
 
 uses
-  System.Generics.Collections;
+  System.Generics.Collections,
+  PmxCatalogItem;
 
 type
-  TPmxCatalogItem = class
-  private
-    FDisplayName: string;
-    FId: string;
-    FSourcePath: string;
-  public
-    property DisplayName: string read FDisplayName write FDisplayName;
-    property Id: string read FId write FId;
-    property SourcePath: string read FSourcePath write FSourcePath;
-  end;
+  // 既存の呼び出し側へ公開するカタログ項目型。実体はStorage配下で共有する。
+  TPmxCatalogItem = PmxCatalogItem.TPmxCatalogItem;
 
   TPmxCatalogStorage = class
   private
@@ -36,17 +29,24 @@ type
     function NormalizePmxPath(const FileName: string): string;
     function SaveModel(Item: TPmxCatalogItem): Boolean;
   public
+    // 指定した一覧JSONと旧パス一覧を、このインスタンスが扱う保存境界として設定する。
     constructor Create(const AFileName: string;
       const ALegacyFileName: string = '');
+    // 読み込んだPMX項目を解放する。保存は自動実行しない。
     destructor Destroy; override;
     // 未登録のPMX絶対パスへPmxUIDを発行し、モデル情報を保存する。
     function Add(const FileName: string): Boolean;
+    // PmxUIDが一致する項目を返す。未登録の場合はnilを返す。
     function FindById(const Id: string): TPmxCatalogItem;
+    // PMXパスを正規化して検索し、表示順の位置または-1を返す。
     function IndexOfPath(const FileName: string): Integer;
+    // 一覧JSONを読み、存在しない場合は旧パス一覧から移行する。
     function LoadFromFile: Boolean;
+    // PmxUIDに対応するモデル固有データフォルダを返す。
     function ModelFolder(const Id: string): string;
     // 一覧から登録だけを解除する。PMX本体とUID別データは削除しない。
     function RemoveAt(Index: Integer): Boolean;
+    // 現在の表示順と全モデル情報をJSONへ保存する。
     function SaveToFile: Boolean;
     property Count: Integer read GetCount;
     property FileName: string read FCatalogFileName;
@@ -61,22 +61,11 @@ uses
   System.Classes,
   System.IOUtils,
   System.JSON,
-  System.SysUtils;
+  System.SysUtils,
+  PmxCatalogModelCodec;
 
 const
   CatalogFormatVersion = 1;
-
-function JsonString(Value: TJSONValue; const Name: string): string;
-var
-  Pair: TJSONPair;
-begin
-  Result := '';
-  if not (Value is TJSONObject) then
-    Exit;
-  Pair := TJSONObject(Value).Get(Name);
-  if Assigned(Pair) and (Pair.JsonValue is TJSONString) then
-    Result := TJSONString(Pair.JsonValue).Value;
-end;
 
 constructor TPmxCatalogStorage.Create(const AFileName,
   ALegacyFileName: string);
@@ -245,34 +234,13 @@ begin
 end;
 
 function TPmxCatalogStorage.LoadModel(const Id: string): TPmxCatalogItem;
-var
-  Json: TJSONValue;
-  Text: string;
 begin
-  Result := nil;
-  try
-    if not TFile.Exists(ModelFileName(Id)) then
-      Exit;
-    Text := TFile.ReadAllText(ModelFileName(Id), TEncoding.UTF8);
-    Json := TJSONObject.ParseJSONValue(Text);
-    try
-      if not (Json is TJSONObject) then
-        Exit;
-      Result := TPmxCatalogItem.Create;
-      Result.Id := JsonString(Json, 'id');
-      Result.SourcePath := NormalizePmxPath(JsonString(Json, 'sourcePath'));
-      Result.DisplayName := JsonString(Json, 'displayName');
-      if (Result.Id = '') or (Result.SourcePath = '') then
-        FreeAndNil(Result)
-      else if Result.DisplayName = '' then
-        Result.DisplayName := ChangeFileExt(ExtractFileName(
-          Result.SourcePath), '');
-    finally
-      Json.Free;
-    end;
-  except
-    FreeAndNil(Result);
-  end;
+  Result := LoadPmxCatalogModel(ModelFileName(Id));
+  if not Assigned(Result) then Exit;
+  Result.SourcePath := NormalizePmxPath(Result.SourcePath);
+  if Result.SourcePath = '' then FreeAndNil(Result)
+  else if Result.DisplayName = '' then
+    Result.DisplayName := ChangeFileExt(ExtractFileName(Result.SourcePath), '');
 end;
 
 function TPmxCatalogStorage.ModelFileName(const Id: string): string;
@@ -319,30 +287,8 @@ begin
 end;
 
 function TPmxCatalogStorage.SaveModel(Item: TPmxCatalogItem): Boolean;
-var
-  Json: TJSONObject;
 begin
-  Result := False;
-  if not Assigned(Item) or (Item.Id = '') then
-    Exit;
-  try
-    if not ForceDirectories(ModelFolder(Item.Id)) then
-      Exit;
-    Json := TJSONObject.Create;
-    try
-      Json.AddPair('formatVersion', TJSONNumber.Create(CatalogFormatVersion));
-      Json.AddPair('id', Item.Id);
-      Json.AddPair('sourcePath', Item.SourcePath);
-      Json.AddPair('displayName', Item.DisplayName);
-      TFile.WriteAllText(ModelFileName(Item.Id), Json.ToJSON,
-        TEncoding.UTF8);
-      Result := True;
-    finally
-      Json.Free;
-    end;
-  except
-    Result := False;
-  end;
+  Result := SavePmxCatalogModel(ModelFileName(Item.Id), Item);
 end;
 
 function TPmxCatalogStorage.SaveToFile: Boolean;

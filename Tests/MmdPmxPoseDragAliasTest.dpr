@@ -22,7 +22,9 @@ uses
   PmxPoseCatalogDataValidation in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogDataValidation.pas',
   PmxPoseCatalogDragAlias in
-    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragAlias.pas';
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragAlias.pas',
+  MmdPoseObjectDragAlias in
+    '..\Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragAlias.pas';
 
 var
   AliasBytes: TBytes;
@@ -32,6 +34,8 @@ var
   LipSyncData: string;
   LipSyncSetting: TMmdLipSyncSetting;
   ModelFileName: string;
+  PoseObjectAliasFileName: string;
+  PoseObjectAliasText: string;
   TestFolder: string;
 
 procedure TestPoseCatalogStorage(const ModelFolder: string);
@@ -84,6 +88,7 @@ begin
   TestFolder := TPath.Combine(TPath.GetTempPath,
     'MmdPmxPoseDragAlias-' + TPath.GetRandomFileName);
   AliasFileName := TPath.Combine(TestFolder, 'Pose.object');
+  PoseObjectAliasFileName := TPath.Combine(TestFolder, 'PoseObject.object');
   ModelFileName := TPath.Combine(TestFolder, 'Model.pmx');
   try
     TDirectory.CreateDirectory(TestFolder);
@@ -167,6 +172,40 @@ begin
     if (Length(AliasBytes) >= 3) and (AliasBytes[0] = $EF) and
       (AliasBytes[1] = $BB) and (AliasBytes[2] = $BF) then
       raise Exception.Create('alias file contains a UTF-8 BOM');
+    if not TryBuildMmdPoseObjectAlias(ModelFileName,
+      '{"version":1,"bones":[]}', PoseObjectAliasText) then
+      raise Exception.Create('pose object alias was rejected');
+    if Pos('effect.name=' + #$30DD#$30FC#$30BA,
+      PoseObjectAliasText) = 0 then
+      raise Exception.Create('pose object effect is missing');
+    if Pos(#$30E2#$30C7#$30EB#$30D5#$30A1#$30A4#$30EB + '=' +
+      ModelFileName, PoseObjectAliasText) = 0 then
+      raise Exception.Create('pose object model path is missing');
+    if Pos(#$30DD#$30FC#$30BA + '={"version":1,"bones":[]}',
+      PoseObjectAliasText) = 0 then
+      raise Exception.Create('renamed pose item is missing');
+    if Pos(#$8A2D#$5B9A + '=', PoseObjectAliasText) = 0 then
+      raise Exception.Create('renamed settings item is missing');
+    if Pos('effect.name=' + #$6A19#$6E96#$63CF#$753B,
+      PoseObjectAliasText) = 0 then
+      raise Exception.Create('pose object standard drawing is missing');
+    if (Pos('effect.name=' + #$30E2#$30C7#$30EB#$8868#$793A,
+      PoseObjectAliasText) > 0) or
+      (Pos(#$59FF#$52E2#$30C7#$30FC#$30BF + '=',
+        PoseObjectAliasText) > 0) or
+      (Pos(#$30DD#$30FC#$30BA#$8A2D#$5B9A + '=',
+        PoseObjectAliasText) > 0) then
+      raise Exception.Create('pose drag still creates a model object');
+    if TryBuildMmdPoseObjectAlias(ModelFileName, '{broken',
+      PoseObjectAliasText) then
+      raise Exception.Create('invalid pose object JSON was accepted');
+    if not TryWriteMmdPoseObjectAlias(ModelFileName,
+      '{"version":1,"bones":[]}', PoseObjectAliasFileName) then
+      raise Exception.Create('pose object alias file was not written');
+    AliasBytes := TFile.ReadAllBytes(PoseObjectAliasFileName);
+    if (Length(AliasBytes) >= 3) and (AliasBytes[0] = $EF) and
+      (AliasBytes[1] = $BB) and (AliasBytes[2] = $BF) then
+      raise Exception.Create('pose object alias contains a UTF-8 BOM');
     TestPoseCatalogStorage(TestFolder);
     Writeln('MmdPmxPoseDragAliasTest: PASS');
   except

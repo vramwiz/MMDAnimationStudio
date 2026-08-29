@@ -13,7 +13,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <DCC_DcuOutput>$(MSBuildProjectDirectory)\$(Platform)\$(Config)\DCU</DCC_DcuOutput>
-        <DCC_UnitSearchPath>Source\AI;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\VPD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\AI;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\VPD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMDAIPreview</SanitizedProjectName>
     </PropertyGroup>
@@ -111,6 +111,9 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

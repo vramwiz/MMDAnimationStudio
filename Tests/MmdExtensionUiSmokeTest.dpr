@@ -3,6 +3,8 @@ program MmdExtensionUiSmokeTest;
 {$APPTYPE CONSOLE}
 
 uses
+  Winapi.Windows,
+  Winapi.Messages,
   System.Classes,
   System.JSON,
   System.SysUtils,
@@ -10,28 +12,76 @@ uses
   Vcl.ExtCtrls,
   Vcl.Forms,
   Vcl.Graphics,
+  Vcl.Menus,
   System.IOUtils,
+  ItemListView in
+    '..\AviUtl2PluginLib\Lib\ItemListView\ItemListView.pas',
+  ShortcutAction in
+    '..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas',
+  ConfirmDialogForm in
+    '..\AviUtl2PluginLib\Lib\ConfirmDialog\ConfirmDialogForm.pas' {FormConfirmDialog},
   MmdMorphSettingCodec in
     '..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
   MmdEyeBlinkSettingCodec in
     '..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
   MmdLipSyncSettingCodec in
     '..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
+  MmdModelSettingEditor in
+    '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas',
   MMDAnimationStudioFrame in '..\Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
   PmxCatalogFrame in '..\Source\Plugin\Extension\PMX\Catalog\PmxCatalogFrame.pas' {FramePmxCatalog: TFrame},
   PmxCatalogStorage in '..\Source\Plugin\Extension\PMX\Catalog\PmxCatalogStorage.pas',
+  PmxCatalogItem in '..\Source\Plugin\Extension\PMX\Catalog\Storage\PmxCatalogItem.pas',
+  PmxCatalogModelCodec in
+    '..\Source\Plugin\Extension\PMX\Catalog\Storage\PmxCatalogModelCodec.pas',
   PmxCatalogCharacterFilter in
     '..\Source\Plugin\Extension\PMX\Catalog\Filter\PmxCatalogCharacterFilter.pas',
+  PmxCatalogSelector in
+    '..\Source\Plugin\Extension\PMX\Catalog\Selector\PmxCatalogSelector.pas',
   PmxCatalogContextMenu in
     '..\Source\Plugin\Extension\PMX\Catalog\Menu\PmxCatalogContextMenu.pas',
   PmxCatalogListView in '..\Source\Plugin\Extension\PMX\Catalog\View\PmxCatalogListView.pas',
   PmxPoseCatalogStorage in '..\Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas',
   PmxPoseCatalogDataValidation in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogDataValidation.pas',
+  PmxPoseCatalogItem in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogItem.pas',
+  PmxPoseCatalogIndexCodec in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogIndexCodec.pas',
+  PmxPoseCatalogItemCodec in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogItemCodec.pas',
   PmxPoseCatalogListView in '..\Source\Plugin\Extension\PMX\Catalog\Pose\View\PmxPoseCatalogListView.pas',
+  PmxPoseCatalogToolbar in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Toolbar\PmxPoseCatalogToolbar.pas',
+  PmxPoseCatalogToolbarIcons in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Toolbar\PmxPoseCatalogToolbarIcons.pas',
+  PmxPoseCatalogContextMenu in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Menu\PmxPoseCatalogContextMenu.pas',
+  PmxPoseCatalogGroups in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Group\PmxPoseCatalogGroups.pas',
+  PmxPoseCatalogGroupBar in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Group\PmxPoseCatalogGroupBar.pas',
+  PmxPoseCatalogDragController in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragController.pas',
+  MmdPoseCatalogFrame in
+    '..\Source\Plugin\Extension\Pose\Catalog\MmdPoseCatalogFrame.pas',
+  MmdPoseObjectDragAlias in
+    '..\Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragAlias.pas',
+  MmdPoseObjectDragController in
+    '..\Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragController.pas',
   PmxCatalogThumbnailCache in '..\Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailCache.pas',
   PmxCatalogThumbnailRenderer in '..\Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailRenderer.pas',
   MMDAnimationStudioToolbarIcons in '..\Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas';
+
+type
+  TTestPoseEditor = class
+  public
+    Accept: Boolean;
+    CallCount: Integer;
+    NewPoseData: string;
+    function EditPose(Sender: TObject; Model: TPmxCatalogItem;
+      Item: TPmxPoseCatalogItem): Boolean;
+  end;
 
 var
   HostForm: TForm;
@@ -54,12 +104,78 @@ var
   EditedPoseData: string;
   PoseFileName: string;
   PoseJson: TJSONValue;
+  PoseIndex: Integer;
+  PoseToolbar: TPmxPoseCatalogToolbar;
+  ComponentIndex: Integer;
+  ConfirmDialog: TFormConfirmDialog;
+  PoseOnlyForm: TMmdModelSettingEditorForm;
+  CanClose: Boolean;
+  DarkOkButton: TDarkConfirmButton;
+  ShortcutKey: Word;
+  SecondPmxId: string;
+  VisibleDarkButtonCount: Integer;
+  TestPoseEditor: TTestPoseEditor;
+  PoseGroup: TPmxPoseCatalogGroup;
+  ReloadedPoseGroups: TPmxPoseCatalogGroups;
+
+function TTestPoseEditor.EditPose(Sender: TObject; Model: TPmxCatalogItem;
+  Item: TPmxPoseCatalogItem): Boolean;
+begin
+  Inc(CallCount);
+  Result := Accept and Assigned(Model) and Assigned(Item);
+  if Result then Item.PoseData := NewPoseData;
+end;
 
 begin
   try
     Application.Initialize;
     HostForm := TForm.Create(nil);
     try
+      ConfirmDialog := TFormConfirmDialog.Create(HostForm);
+      try
+        ConfirmDialog.ApplyDpi(192);
+        if (ConfirmDialog.ClientWidth <> 398) or
+           (ConfirmDialog.ClientHeight <> 112) or
+           (ConfirmDialog.PanelCaption.Height <> 70) or
+           (ConfirmDialog.Font.Height <> -28) then
+          raise Exception.Create('confirm dialog 200% DPI scaling failed');
+        VisibleDarkButtonCount := 0;
+        DarkOkButton := nil;
+        for ComponentIndex := 0 to ConfirmDialog.Panel1.ControlCount - 1 do
+          if ConfirmDialog.Panel1.Controls[ComponentIndex].Visible and
+            (ConfirmDialog.Panel1.Controls[ComponentIndex] is
+              TDarkConfirmButton) then
+          begin
+            Inc(VisibleDarkButtonCount);
+            if TDarkConfirmButton(
+              ConfirmDialog.Panel1.Controls[ComponentIndex]).Caption = 'OK' then
+              DarkOkButton := TDarkConfirmButton(
+                ConfirmDialog.Panel1.Controls[ComponentIndex]);
+          end;
+        if ConfirmDialog.btnOk.Visible or ConfirmDialog.btnCancel.Visible or
+          (VisibleDarkButtonCount <> 2) or not Assigned(DarkOkButton) then
+          raise Exception.Create('confirm dialog dark buttons were not applied');
+        ConfirmDialog.ModalResult := mrNone;
+        DarkOkButton.Perform(WM_LBUTTONDOWN, MK_LBUTTON, 1 or (1 shl 16));
+        DarkOkButton.Perform(WM_LBUTTONUP, 0, 1 or (1 shl 16));
+        if ConfirmDialog.ModalResult <> mrOk then
+          raise Exception.Create('confirm dialog dark OK button did not execute');
+      finally
+        ConfirmDialog.Free;
+      end;
+      PoseOnlyForm := TMmdModelSettingEditorForm.Create(nil);
+      try
+        PoseOnlyForm.ConfigureSettingControls(False, True);
+        if Assigned(PoseOnlyForm.ModeToolbar) then
+          raise Exception.Create('pose-only page toolbar was created');
+        CanClose := False;
+        PoseOnlyForm.ModalResult := mrNone;
+        PoseOnlyForm.OnCloseQuery(PoseOnlyForm, CanClose);
+        if not CanClose or (PoseOnlyForm.ModalResult <> mrOk) then
+          raise Exception.Create('pose-only close did not confirm settings');
+      finally
+        PoseOnlyForm.Free;
+      end;
       HostPanel := TPanel.Create(HostForm);
       HostPanel.Parent := HostForm;
       HostPanel.Align := alClient;
@@ -81,6 +197,10 @@ begin
       Frame.DropFiles(HostPanel, DroppedFiles);
       if not Assigned(Frame.PmxCatalogFrame) then
         raise Exception.Create('PMX catalog frame was not created');
+      if (Frame.PmxCatalogFrame.CatalogListView.SelectionStyle <> ilssRow) or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.SelectionStyle <>
+           ilssRow) then
+        raise Exception.Create('PMX row selection style was not applied');
       if Frame.PmxCatalogFrame.DropEventCount <> 1 then
         raise Exception.Create('PMX drop event did not fire');
       if not SameText(Frame.PmxCatalogFrame.LastDroppedFile, 'sample.pmx') then
@@ -117,6 +237,180 @@ begin
            'sample') or
          (Frame.PmxCatalogFrame.PoseCatalogListView.DisplayCount <> 1) then
         raise Exception.Create('initial pose was not created');
+      if not Frame.PmxCatalogFrame.Catalog.Add('C:\Temp\sample-second.pmx') or
+         not Frame.PmxCatalogFrame.Catalog.SaveToFile then
+        raise Exception.Create('second PMX was not added for selection test');
+      SecondPmxId := Frame.PmxCatalogFrame.Catalog.Items[1].Id;
+      Frame.PmxCatalogFrame.Show;
+      Frame.PmxCatalogFrame.CatalogListView.ItemIndex := 1;
+      Application.ProcessMessages;
+      if not SameText(Frame.PmxCatalogFrame.SelectedPmxId, SecondPmxId) then
+        raise Exception.Create('second PMX was not selected');
+      Frame.ButtonPoseMotion.Click;
+      Application.ProcessMessages;
+      if not Assigned(Frame.PoseCatalogFrame) or
+         not Frame.PanelPoseMotion.Visible or
+         (Frame.PoseCatalogFrame.PmxSelector.ListView.SelectionStyle <>
+           ilssRow) or
+         not SameText(Frame.PoseCatalogFrame.PmxSelector.SelectedPmxId,
+           SecondPmxId) then
+        raise Exception.Create('pose page PMX selection was not synchronized');
+      if not Assigned(Frame.PoseCatalogFrame.PoseCatalog) or
+         (Frame.PoseCatalogFrame.PoseCatalog.Count <> 1) or
+         not Frame.PoseCatalogFrame.PoseCatalog.IsInitial(0) or
+         (Frame.PoseCatalogFrame.PoseListView.DisplayCount <> 1) then
+        raise Exception.Create('pose page initial pose was not loaded');
+      if not Assigned(Frame.PoseCatalogFrame.PoseToolbar) or
+         (Frame.PoseCatalogFrame.PoseToolbar.Items.Count <> 5) or
+         (Frame.PoseCatalogFrame.PoseToolbar.Align <> alTop) or
+         (Frame.PoseCatalogFrame.PoseListView.Top <>
+           Frame.PoseCatalogFrame.PoseToolbar.Height +
+           Frame.PoseCatalogFrame.PoseGroupBar.Bar.Height) then
+        raise Exception.Create('pose page toolbar was not attached');
+      if not Assigned(Frame.PoseCatalogFrame.PoseGroups) or
+         not Assigned(Frame.PoseCatalogFrame.PoseGroupBar) or
+         (Frame.PoseCatalogFrame.PoseGroupBar.Combo.Items.Count <> 1) or
+         (Frame.PoseCatalogFrame.PoseGroupBar.Combo.Items[0] <>
+           #$5168#$30DD#$30FC#$30BA) then
+        raise Exception.Create('pose group bar was not attached');
+      if not Assigned(Frame.PoseCatalogFrame.PoseListView.PopupMenu) or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items.Count <> 11) or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items[0].Caption <>
+           #$65B0#$898F#$8FFD#$52A0 + '(&R)') or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items[2].Caption <>
+           #$767B#$9332#$6E08#$307F + 'VPD' + #$304B#$3089 +
+           #$8FFD#$52A0 + '...') or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items[4].Caption <>
+           #$540D#$79F0#$5909#$66F4 + '(&V)') or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items[5].Caption <>
+           #$30B0#$30EB#$30FC#$30D7#$306B#$767B#$9332) or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items[10].Caption <>
+           #$6700#$65B0#$306E#$60C5#$5831 + '(&Z)') or
+         (Frame.PoseCatalogFrame.PoseListView.PopupMenu.Items[1].ShortCut <>
+           ShortCut(Ord('C'), [ssCtrl])) then
+        raise Exception.Create('pose page context menu was not attached');
+      PoseGroup := Frame.PoseCatalogFrame.PoseGroups.Add(
+        #$57FA#$672C#$30DD#$30FC#$30BA);
+      if not Assigned(PoseGroup) then
+        raise Exception.Create('pose group was not added');
+      Frame.PoseCatalogFrame.PoseGroups.AssignPoseToGroup(
+        Frame.PoseCatalogFrame.PoseCatalog[0].Id, 0);
+      if not Frame.PoseCatalogFrame.PoseGroups.SaveToFile then
+        raise Exception.Create('pose group was not saved');
+      Frame.PoseCatalogFrame.PoseGroupBar.Rebuild(PoseGroup.Id);
+      if (Frame.PoseCatalogFrame.PoseGroupBar.Combo.ItemIndex <> 1) or
+         (Frame.PoseCatalogFrame.PoseListView.GroupIndex <> 0) or
+         (Frame.PoseCatalogFrame.PoseListView.DisplayCount <> 1) or
+         (Frame.PoseCatalogFrame.PoseListView.SelectedSourceIndex <> 0) then
+        raise Exception.Create('pose group filter was not applied');
+      ReloadedPoseGroups := TPmxPoseCatalogGroups.Create(
+        Frame.PmxCatalogFrame.Catalog.ModelFolder(SecondPmxId));
+      try
+        if not ReloadedPoseGroups.LoadFromFile or
+           (ReloadedPoseGroups.Count <> 1) or
+           (ReloadedPoseGroups[0].IndexOfPoseId(
+             Frame.PoseCatalogFrame.PoseCatalog[0].Id) <> 0) then
+          raise Exception.Create('pose group persistence failed');
+      finally
+        ReloadedPoseGroups.Free;
+      end;
+      if not Assigned(Frame.PoseCatalogFrame.PoseListView.OnKeyDown) then
+        raise Exception.Create('pose page shortcuts were not attached');
+      ShortcutKey := VK_F2;
+      Frame.PoseCatalogFrame.PoseListView.OnKeyDown(
+        Frame.PoseCatalogFrame.PoseListView, ShortcutKey, []);
+      if (ShortcutKey <> 0) or
+         not Frame.PoseCatalogFrame.PoseListView.CaptionEditing then
+        raise Exception.Create('pose page F2 shortcut did not execute');
+      Frame.PoseCatalogFrame.PoseListView.EndEdit(False);
+      if not Assigned(Frame.PoseCatalogFrame.PoseListView.OnDblClick) then
+        raise Exception.Create('pose page editor was not connected');
+      TestPoseEditor := TTestPoseEditor.Create;
+      try
+        TestPoseEditor.NewPoseData := '{"version":1,"bones":[' +
+          '{"name":"center","translation":[4,5,6],' +
+          '"rotation":[0,0,0,1]}]}';
+        Frame.PoseCatalogFrame.OnEditPose := TestPoseEditor.EditPose;
+        TestPoseEditor.Accept := False;
+        Frame.PoseCatalogFrame.PoseListView.OnDblClick(
+          Frame.PoseCatalogFrame.PoseListView);
+        if (TestPoseEditor.CallCount <> 1) or
+           (Frame.PoseCatalogFrame.PoseCatalog[0].PoseData <>
+             EmptyPmxPoseData) then
+          raise Exception.Create('cancelled pose edit was applied');
+        TestPoseEditor.Accept := True;
+        Frame.PoseCatalogFrame.PoseListView.OnDblClick(
+          Frame.PoseCatalogFrame.PoseListView);
+        if (TestPoseEditor.CallCount <> 2) or
+           (Frame.PoseCatalogFrame.PoseCatalog[0].PoseData <>
+             TestPoseEditor.NewPoseData) then
+          raise Exception.Create('confirmed pose edit was not applied');
+        if not Frame.PoseCatalogFrame.PoseCatalog.LoadOrCreateDefault or
+           (Frame.PoseCatalogFrame.PoseCatalog[0].PoseData <>
+             TestPoseEditor.NewPoseData) then
+          raise Exception.Create('confirmed pose edit was not persisted');
+        Frame.PoseCatalogFrame.PoseCatalog[0].PoseData := EmptyPmxPoseData;
+        if not Frame.PoseCatalogFrame.PoseCatalog.SaveToFile then
+          raise Exception.Create('pose edit test state was not restored');
+      finally
+        Frame.PoseCatalogFrame.OnEditPose := nil;
+        TestPoseEditor.Free;
+      end;
+      Frame.ButtonPmx.Click;
+      Application.ProcessMessages;
+      if not Frame.PanelPmx.Visible or
+         not SameText(Frame.PmxCatalogFrame.SelectedPmxId,
+           Frame.PoseCatalogFrame.PmxSelector.SelectedPmxId) then
+        raise Exception.Create('PMX selection was not kept across pages');
+      if not Assigned(Frame.PmxCatalogFrame.PoseGroups) or
+         not Assigned(Frame.PmxCatalogFrame.PoseGroupBar) or
+         (Frame.PmxCatalogFrame.PoseGroups.Count <> 1) or
+         (Frame.PmxCatalogFrame.PoseGroupBar.Combo.Items.Count <> 2) or
+         (Frame.PmxCatalogFrame.PoseGroups[0].Name <>
+           #$57FA#$672C#$30DD#$30FC#$30BA) then
+        raise Exception.Create('pose groups were not shared with PMX page');
+      Frame.PmxCatalogFrame.PoseGroups.Delete(0);
+      Frame.PmxCatalogFrame.PoseGroups.SaveToFile;
+      Frame.PmxCatalogFrame.PoseGroupBar.Rebuild;
+      if not Frame.PmxCatalogFrame.Catalog.RemoveAt(1) then
+        raise Exception.Create('selection test PMX was not removed');
+      Frame.PmxCatalogFrame.Show;
+      PoseToolbar := nil;
+      for ComponentIndex := 0 to Frame.PmxCatalogFrame.ComponentCount - 1 do
+        if Frame.PmxCatalogFrame.Components[ComponentIndex] is
+          TPmxPoseCatalogToolbar then
+          PoseToolbar := TPmxPoseCatalogToolbar(
+            Frame.PmxCatalogFrame.Components[ComponentIndex]);
+      if not Assigned(PoseToolbar) or (PoseToolbar.Items.Count <> 5) or
+         (PoseToolbar.Align <> alTop) or
+         not Assigned(Frame.PmxCatalogFrame.PoseGroupBar) or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.Top <>
+           PoseToolbar.Height +
+           Frame.PmxCatalogFrame.PoseGroupBar.Bar.Height) then
+        raise Exception.Create('pose catalog toolbar was not attached');
+      if not Assigned(Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu) or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu.Items.Count <> 11) or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu.Items[0].Caption <>
+           #$65B0#$898F#$8FFD#$52A0 + '(&R)') or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu.Items[2].Caption <>
+           #$767B#$9332#$6E08#$307F + 'VPD' + #$304B#$3089 +
+           #$8FFD#$52A0 + '...') or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu.Items[4].Caption <>
+           #$540D#$79F0#$5909#$66F4 + '(&V)') or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu.Items[10].Caption <>
+           #$6700#$65B0#$306E#$60C5#$5831 + '(&Z)') or
+         (Frame.PmxCatalogFrame.PoseCatalogListView.PopupMenu.Items[1].ShortCut <>
+           ShortCut(Ord('C'), [ssCtrl])) then
+        raise Exception.Create('pose catalog context menu was not attached');
+      if not Assigned(Frame.PmxCatalogFrame.PoseCatalogListView.OnKeyDown) then
+        raise Exception.Create('pose catalog shortcuts were not attached');
+      ShortcutKey := VK_F2;
+      Frame.PmxCatalogFrame.PoseCatalogListView.OnKeyDown(
+        Frame.PmxCatalogFrame.PoseCatalogListView, ShortcutKey, []);
+      if (ShortcutKey <> 0) or
+         not Frame.PmxCatalogFrame.PoseCatalogListView.CaptionEditing then
+        raise Exception.Create('pose catalog F2 shortcut did not execute');
+      Frame.PmxCatalogFrame.PoseCatalogListView.EndEdit(False);
       EditedPoseData := '{"version":1,"bones":[' +
         '{"name":"center","translation":[1,2,3],' +
         '"rotation":[0,0,0,1]}]}';
@@ -176,6 +470,26 @@ begin
          (Frame.PmxCatalogFrame.PoseCatalog[0].InitialLipSyncData <>
            EditedLipSyncData) then
         raise Exception.Create('initial pose was not restored');
+      PoseIndex := Frame.PmxCatalogFrame.PoseCatalog.Add;
+      if (PoseIndex <> 1) or
+         (Frame.PmxCatalogFrame.PoseCatalog.Count <> 2) then
+        raise Exception.Create('pose catalog add failed');
+      if not Frame.PmxCatalogFrame.PoseCatalog.Rename(PoseIndex,
+           'renamed pose') or
+         (Frame.PmxCatalogFrame.PoseCatalog[PoseIndex].Name <> 'renamed pose') then
+        raise Exception.Create('pose catalog rename failed');
+      PoseIndex := Frame.PmxCatalogFrame.PoseCatalog.Duplicate(PoseIndex);
+      if (PoseIndex <> 2) or
+         (Frame.PmxCatalogFrame.PoseCatalog.Count <> 3) then
+        raise Exception.Create('pose catalog duplicate failed');
+      PoseIndex := Frame.PmxCatalogFrame.PoseCatalog.Move(PoseIndex, -1);
+      if (PoseIndex <> 1) or
+         not Frame.PmxCatalogFrame.PoseCatalog.Remove(PoseIndex) or
+         not Frame.PmxCatalogFrame.PoseCatalog.Remove(1) or
+         (Frame.PmxCatalogFrame.PoseCatalog.Count <> 1) or
+         not Frame.PmxCatalogFrame.PoseCatalog.IsInitial(0) or
+         Frame.PmxCatalogFrame.PoseCatalog.Remove(0) then
+        raise Exception.Create('pose catalog reorder/delete failed');
 
       ActualCatalogFileName := TPath.Combine(TPath.GetDocumentsPath,
         'MMDAnimationStudio\PMX\PmxCatalog.txt');

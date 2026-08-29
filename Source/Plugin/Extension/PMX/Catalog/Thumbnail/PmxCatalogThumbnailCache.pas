@@ -14,15 +14,20 @@ type
     function CacheFileName(const PmxFileName, VariantKey: string; Width,
       Height: Integer): string;
   public
+    // 指定フォルダをこのキャッシュインスタンスのPNG保存先として設定する。
     constructor Create(const AFolder: string);
     // このキャッシュ領域のPNGを全て削除する。
     function Clear: Boolean;
+    // PMX更新状態と寸法が一致する標準サムネイルを読み込む。
     function Load(const PmxFileName: string; Width, Height: Integer;
       Bitmap: TBitmap): Boolean;
+    // PMX更新状態と寸法を含むキーで標準サムネイルを保存する。
     function Save(const PmxFileName: string; Width, Height: Integer;
       Bitmap: TBitmap): Boolean;
+    // ポーズ等のVariantKeyを加えたサムネイルを読み込む。
     function LoadVariant(const PmxFileName, VariantKey: string; Width,
       Height: Integer; Bitmap: TBitmap): Boolean;
+    // ポーズ等のVariantKeyを加えたサムネイルを保存する。
     function SaveVariant(const PmxFileName, VariantKey: string; Width,
       Height: Integer; Bitmap: TBitmap): Boolean;
   end;

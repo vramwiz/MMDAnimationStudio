@@ -5,6 +5,7 @@
 {$ALIGN 8}
 
 uses
+  System.SysUtils,
   AviUtl2FilterTypes in 'Source\Lib\AviUtl2FilterTypes.pas',
   PmxModel in '..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
   PmxPoseTypes in '..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
@@ -19,6 +20,7 @@ uses
   MmdAiSchema in '..\AviUtl2PluginLib\MMD\AI\MmdAiSchema.pas',
   MmdAiProvider in '..\AviUtl2PluginLib\MMD\AI\MmdAiProvider.pas',
   MmdPoseSharedMemory in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas',
+  MmdPoseSharedTrace in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas',
   SharedMemoryBase in '..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas',
   KeyValueText in '..\AviUtl2PluginLib\Lib\KeyValue\KeyValueText.pas',
   PmxReader in '..\AviUtl2PluginLib\MMD\IO\PmxReader.pas',
@@ -76,17 +78,23 @@ uses
   HorizontalTrackBarControl in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas',
   VerticalScrollBarControl in '..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas',
   MmdPoseEditorTheme in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas',
+  MmdPoseEditorButtonTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas',
+  MmdPoseEditorListTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas',
+  MmdPoseEditorComboTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas',
   MmdPoseEditorLayout in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas',
   MmdPoseEditorToolbarIcons in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas',
   MmdPoseEditor in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas';
 
 function InitializePlugin(Version: Cardinal): Byte; cdecl;
 begin
+  TraceMmdPoseShared('MODEL', 'plugin_initialize', -1, -1, 0, 0, 0, 0,
+    'version=' + UIntToStr(Version));
   Result := 1;
 end;
 
 procedure UninitializePlugin; cdecl;
 begin
+  TraceMmdPoseShared('MODEL', 'plugin_uninitialize', -1, -1, 0, 0, 0, 0);
 end;
 
 function GetFilterPluginTable: PFILTER_PLUGIN_TABLE; cdecl;

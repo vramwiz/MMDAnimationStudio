@@ -5,34 +5,12 @@
 interface
 
 uses
-  System.Generics.Collections;
+  System.Generics.Collections,
+  PmxPoseCatalogItem;
 
 type
-  TPmxPoseCatalogItem = class
-  private
-    FId: string;
-    FInitialEyeBlinkData: string;
-    FInitialExpressionData: string;
-    FInitialLipSyncData: string;
-    FKind: string;
-    FName: string;
-    FPmxId: string;
-    FPmxName: string;
-    FPoseData: string;
-  public
-    property Id: string read FId write FId;
-    property InitialEyeBlinkData: string read FInitialEyeBlinkData
-      write FInitialEyeBlinkData;
-    property InitialExpressionData: string read FInitialExpressionData
-      write FInitialExpressionData;
-    property InitialLipSyncData: string read FInitialLipSyncData
-      write FInitialLipSyncData;
-    property Kind: string read FKind write FKind;
-    property Name: string read FName write FName;
-    property PmxId: string read FPmxId write FPmxId;
-    property PmxName: string read FPmxName write FPmxName;
-    property PoseData: string read FPoseData write FPoseData;
-  end;
+  // 既存の呼び出し側へ公開するポーズ項目型。実体はStorage配下で共有する。
+  TPmxPoseCatalogItem = PmxPoseCatalogItem.TPmxPoseCatalogItem;
 
   TPmxPoseCatalogStorage = class
   private
@@ -56,6 +34,22 @@ type
     destructor Destroy; override;
     // 保存データが0件なら、空ポーズデータの「初期状態」を1件作成する。
     function LoadOrCreateDefault: Boolean;
+    // 空姿勢を持つ通常ポーズを追加し、保存後の位置または-1を返す。
+    function Add: Integer;
+    // VPD由来の姿勢を追加し、保存後の位置または-1を返す。
+    function AddImported(const Name, PoseData, SourceVpdId, SourceVpdName,
+      SourceCategoryName: string; SaveNow: Boolean = True): Integer;
+    // 指定ポーズを新しいPoseUIDで複製し、保存後の位置または-1を返す。
+    function Duplicate(Index: Integer): Integer;
+    // 指定位置が削除禁止の初期状態かを返す。
+    function IsInitial(Index: Integer): Boolean;
+    function IndexOfSourceVpdId(const Value: string): Integer;
+    // 指定位置をOffset分だけ移動し、保存後の位置または-1を返す。
+    function Move(Index, Offset: Integer): Integer;
+    // 空でない名称へ変更し、JSON保存まで完了した場合だけTrueを返す。
+    function Rename(Index: Integer; const Value: string): Boolean;
+    // 初期状態以外を一覧と個別JSONから削除する。
+    function Remove(Index: Integer): Boolean;
     // 全項目を個別JSONへ保存し、順序と初期状態IDを索引JSONへ書き出す。
     function SaveToFile: Boolean;
     property Count: Integer read GetCount;
@@ -67,30 +61,19 @@ implementation
 uses
   Winapi.Windows,
   System.IOUtils,
-  System.JSON,
   System.SysUtils,
   MmdMorphSettingCodec,
   MmdEyeBlinkSettingCodec,
   MmdLipSyncSettingCodec,
-  PmxPoseCatalogDataValidation;
+  PmxPoseCatalogDataValidation,
+  PmxPoseCatalogIndexCodec,
+  PmxPoseCatalogItemCodec;
 
 const
-  PoseCatalogFormatVersion = 5;
   InitialPoseName = #$521D#$671F#$72B6#$614B;
   InitialPoseKind = 'initial';
   NormalPoseKind = 'pose';
-
-function JsonString(Value: TJSONValue; const Name: string): string;
-var
-  Pair: TJSONPair;
-begin
-  Result := '';
-  if not (Value is TJSONObject) then
-    Exit;
-  Pair := TJSONObject(Value).Get(Name);
-  if Assigned(Pair) and (Pair.JsonValue is TJSONString) then
-    Result := TJSONString(Pair.JsonValue).Value;
-end;
+  NewPoseName = #$65B0#$3057#$3044#$30DD#$30FC#$30BA;
 
 constructor TPmxPoseCatalogStorage.Create(const ModelFolder, APmxId,
   APmxName: string);
@@ -126,16 +109,48 @@ begin
   end;
 end;
 
+function TPmxPoseCatalogStorage.AddImported(const Name, PoseData,
+  SourceVpdId, SourceVpdName, SourceCategoryName: string;
+  SaveNow: Boolean): Integer;
+var
+  Item: TPmxPoseCatalogItem;
+begin
+  Result := -1;
+  if (Trim(Name) = '') or (Trim(SourceVpdId) = '') or
+    (IndexOfSourceVpdId(SourceVpdId) >= 0) then Exit;
+  Item := TPmxPoseCatalogItem.Create;
+  Item.Id := CreateId;
+  if Item.Id = '' then
+  begin
+    Item.Free;
+    Exit;
+  end;
+  Item.Name := Trim(Name);
+  Item.Kind := NormalPoseKind;
+  Item.PmxId := FPmxId;
+  Item.PmxName := FPmxName;
+  Item.PoseData := NormalizePoseData(PoseData);
+  Item.SourceVpdId := Trim(SourceVpdId);
+  Item.SourceVpdName := Trim(SourceVpdName);
+  Item.SourceCategoryName := Trim(SourceCategoryName);
+  Item.InitialEyeBlinkData := EmptyMmdEyeBlinkSettingData;
+  Item.InitialExpressionData := EmptyMmdMorphSettingData;
+  Item.InitialLipSyncData := EmptyMmdLipSyncSettingData;
+  Result := FItems.Add(Item);
+  if SaveNow and not SaveToFile then
+  begin
+    FItems.Delete(Result);
+    Result := -1;
+  end;
+end;
 function TPmxPoseCatalogStorage.GetCount: Integer;
 begin
   Result := FItems.Count;
 end;
-
 function TPmxPoseCatalogStorage.GetItem(Index: Integer): TPmxPoseCatalogItem;
 begin
   Result := FItems[Index];
 end;
-
 function TPmxPoseCatalogStorage.ItemFileName(const Id: string): string;
 begin
   Result := TPath.Combine(FItemsFolder, Id + '.json');
@@ -143,75 +158,146 @@ end;
 
 function TPmxPoseCatalogStorage.LoadItem(
   const Id: string): TPmxPoseCatalogItem;
-var
-  Json: TJSONValue;
-  PoseValue: TJSONValue;
 begin
-  Result := nil;
-  try
-    if not TFile.Exists(ItemFileName(Id)) then
-      Exit;
-    Json := TJSONObject.ParseJSONValue(TFile.ReadAllText(
-      ItemFileName(Id), TEncoding.UTF8));
-    try
-      if not (Json is TJSONObject) then
-        Exit;
-      Result := TPmxPoseCatalogItem.Create;
-      Result.Id := JsonString(Json, 'poseId');
-      if Result.Id = '' then
-        Result.Id := JsonString(Json, 'id');
-      Result.PmxId := JsonString(Json, 'pmxId');
-      if Result.PmxId = '' then
-        Result.PmxId := FPmxId;
-      Result.PmxName := JsonString(Json, 'pmxName');
-      if Result.PmxName = '' then
-        Result.PmxName := FPmxName;
-      Result.Name := JsonString(Json, 'name');
-      Result.Kind := JsonString(Json, 'kind');
-      PoseValue := TJSONObject(Json).GetValue('initialEyeBlinkData');
-      if PoseValue is TJSONString then
-        Result.InitialEyeBlinkData := TJSONString(PoseValue).Value
-      else if Assigned(PoseValue) then
-        Result.InitialEyeBlinkData := PoseValue.ToJSON;
-      Result.InitialEyeBlinkData := NormalizeInitialEyeBlinkData(
-        Result.InitialEyeBlinkData);
-      PoseValue := TJSONObject(Json).GetValue('initialLipSyncData');
-      if PoseValue is TJSONString then
-        Result.InitialLipSyncData := TJSONString(PoseValue).Value
-      else if Assigned(PoseValue) then
-        Result.InitialLipSyncData := PoseValue.ToJSON;
-      Result.InitialLipSyncData := NormalizeInitialLipSyncData(
-        Result.InitialLipSyncData);
-      PoseValue := TJSONObject(Json).GetValue('initialExpressionData');
-      if PoseValue is TJSONString then
-        Result.InitialExpressionData := TJSONString(PoseValue).Value
-      else if Assigned(PoseValue) then
-        Result.InitialExpressionData := PoseValue.ToJSON;
-      Result.InitialExpressionData := NormalizeInitialExpressionData(
-        Result.InitialExpressionData);
-      PoseValue := TJSONObject(Json).GetValue('poseData');
-      if PoseValue is TJSONString then
-        Result.PoseData := TJSONString(PoseValue).Value
-      else if Assigned(PoseValue) then
-        Result.PoseData := PoseValue.ToJSON;
-      Result.PoseData := NormalizePoseData(Result.PoseData);
-      if Result.Id = '' then
-        FreeAndNil(Result);
-    finally
-      Json.Free;
-    end;
-  except
-    FreeAndNil(Result);
+  Result := LoadPmxPoseCatalogItem(ItemFileName(Id), FPmxId, FPmxName);
+end;
+
+function TPmxPoseCatalogStorage.Add: Integer;
+var
+  Item: TPmxPoseCatalogItem;
+begin
+  Result := -1;
+  Item := TPmxPoseCatalogItem.Create;
+  Item.Id := CreateId;
+  if Item.Id = '' then
+  begin
+    Item.Free;
+    Exit;
   end;
+  Item.Name := NewPoseName;
+  Item.Kind := NormalPoseKind;
+  Item.PmxId := FPmxId;
+  Item.PmxName := FPmxName;
+  Item.PoseData := EmptyPmxPoseData;
+  Item.InitialEyeBlinkData := EmptyMmdEyeBlinkSettingData;
+  Item.InitialExpressionData := EmptyMmdMorphSettingData;
+  Item.InitialLipSyncData := EmptyMmdLipSyncSettingData;
+  Result := FItems.Add(Item);
+  if not SaveToFile then
+  begin
+    FItems.Delete(Result);
+    Result := -1;
+  end;
+end;
+
+function TPmxPoseCatalogStorage.Duplicate(Index: Integer): Integer;
+var
+  Item: TPmxPoseCatalogItem;
+  Source: TPmxPoseCatalogItem;
+begin
+  Result := -1;
+  if (Index < 0) or (Index >= FItems.Count) then Exit;
+  Source := FItems[Index];
+  Item := TPmxPoseCatalogItem.Create;
+  Item.Id := CreateId;
+  if Item.Id = '' then
+  begin
+    Item.Free;
+    Exit;
+  end;
+  Item.Name := Source.Name + '(Copy)';
+  Item.Kind := NormalPoseKind;
+  Item.PmxId := FPmxId;
+  Item.PmxName := FPmxName;
+  Item.PoseData := Source.PoseData;
+  Item.InitialEyeBlinkData := Source.InitialEyeBlinkData;
+  Item.InitialExpressionData := Source.InitialExpressionData;
+  Item.InitialLipSyncData := Source.InitialLipSyncData;
+  Item.SourceVpdId := '';
+  Item.SourceVpdName := '';
+  Item.SourceCategoryName := '';
+  Result := FItems.Add(Item);
+  if not SaveToFile then
+  begin
+    FItems.Delete(Result);
+    Result := -1;
+  end;
+end;
+
+function TPmxPoseCatalogStorage.IsInitial(Index: Integer): Boolean;
+begin
+  Result := (Index >= 0) and (Index < FItems.Count) and
+    (SameText(FItems[Index].Id, FDefaultPoseId) or
+    SameText(FItems[Index].Kind, InitialPoseKind));
+end;
+
+function TPmxPoseCatalogStorage.IndexOfSourceVpdId(
+  const Value: string): Integer;
+begin
+  for Result := 0 to FItems.Count - 1 do
+    if SameText(FItems[Result].SourceVpdId, Trim(Value)) then Exit;
+  Result := -1;
+end;
+
+function TPmxPoseCatalogStorage.Move(Index, Offset: Integer): Integer;
+var
+  NewIndex: Integer;
+begin
+  Result := -1;
+  NewIndex := Index + Offset;
+  if (Index < 0) or (Index >= FItems.Count) or (NewIndex < 0) or
+    (NewIndex >= FItems.Count) then Exit;
+  FItems.Exchange(Index, NewIndex);
+  if SaveToFile then
+    Result := NewIndex
+  else
+    FItems.Exchange(Index, NewIndex);
+end;
+
+function TPmxPoseCatalogStorage.Remove(Index: Integer): Boolean;
+var
+  FileName: string;
+  Item: TPmxPoseCatalogItem;
+begin
+  Result := False;
+  if (Index < 0) or (Index >= FItems.Count) or IsInitial(Index) then Exit;
+  FileName := ItemFileName(FItems[Index].Id);
+  Item := FItems.Extract(FItems[Index]);
+  if not SaveToFile then
+  begin
+    FItems.Insert(Index, Item);
+    Exit;
+  end;
+  Item.Free;
+  try
+    if TFile.Exists(FileName) then TFile.Delete(FileName);
+  except
+    { 索引からの削除は完了済みなので、孤立JSONの削除失敗は許容する。 }
+  end;
+  Result := True;
+end;
+
+function TPmxPoseCatalogStorage.Rename(Index: Integer;
+  const Value: string): Boolean;
+var
+  NewName: string;
+  OldName: string;
+begin
+  Result := False;
+  NewName := Trim(Value);
+  if (Index < 0) or (Index >= FItems.Count) or (NewName = '') then Exit;
+  OldName := FItems[Index].Name;
+  FItems[Index].Name := NewName;
+  Result := SaveToFile;
+  if not Result then FItems[Index].Name := OldName;
 end;
 
 function TPmxPoseCatalogStorage.LoadOrCreateDefault: Boolean;
 var
+  CatalogIndex: TPmxPoseCatalogIndex;
   Id: string;
-  Ids: TJSONArray;
   Index: Integer;
   Item: TPmxPoseCatalogItem;
-  Json: TJSONValue;
   DefaultFound: Boolean;
 begin
   Result := False;
@@ -219,26 +305,13 @@ begin
   try
     if TFile.Exists(FIndexFileName) then
     begin
-      Json := TJSONObject.ParseJSONValue(TFile.ReadAllText(
-        FIndexFileName, TEncoding.UTF8));
-      try
-        if Json is TJSONObject then
-        begin
-          if FPmxId = '' then
-            FPmxId := JsonString(Json, 'pmxId');
-          FDefaultPoseId := JsonString(Json, 'defaultPoseId');
-          Ids := TJSONObject(Json).GetValue<TJSONArray>('poseIds');
-          if Assigned(Ids) then
-            for Index := 0 to Ids.Count - 1 do
-            begin
-              Id := Ids.Items[Index].Value;
-              Item := LoadItem(Id);
-              if Assigned(Item) then
-                FItems.Add(Item);
-            end;
-        end;
-      finally
-        Json.Free;
+      if not LoadPmxPoseCatalogIndex(FIndexFileName, CatalogIndex) then Exit;
+      if FPmxId = '' then FPmxId := CatalogIndex.PmxId;
+      FDefaultPoseId := CatalogIndex.DefaultPoseId;
+      for Id in CatalogIndex.PoseIds do
+      begin
+        Item := LoadItem(Id);
+        if Assigned(Item) then FItems.Add(Item);
       end;
     end;
 
@@ -290,107 +363,32 @@ end;
 
 function TPmxPoseCatalogStorage.SaveItem(
   Item: TPmxPoseCatalogItem): Boolean;
-var
-  ExpressionJson: TJSONValue;
-  Json: TJSONObject;
-  PoseJson: TJSONValue;
 begin
-  Result := False;
-  if not Assigned(Item) or (Item.Id = '') then
-    Exit;
-  try
-    if not ForceDirectories(FItemsFolder) then
-      Exit;
-    Json := TJSONObject.Create;
-    try
-      Json.AddPair('formatVersion',
-        TJSONNumber.Create(PoseCatalogFormatVersion));
-      Json.AddPair('poseId', Item.Id);
-      Json.AddPair('pmxId', Item.PmxId);
-      Json.AddPair('pmxName', Item.PmxName);
-      Json.AddPair('name', Item.Name);
-      Json.AddPair('kind', Item.Kind);
-      Item.InitialEyeBlinkData := NormalizeInitialEyeBlinkData(
-        Item.InitialEyeBlinkData);
-      ExpressionJson := TJSONObject.ParseJSONValue(Item.InitialEyeBlinkData);
-      if not (ExpressionJson is TJSONObject) then
-      begin
-        ExpressionJson.Free;
-        ExpressionJson := TJSONObject.ParseJSONValue(
-          EmptyMmdEyeBlinkSettingData);
-      end;
-      Json.AddPair('initialEyeBlinkData', ExpressionJson);
-      Item.InitialLipSyncData := NormalizeInitialLipSyncData(
-        Item.InitialLipSyncData);
-      ExpressionJson := TJSONObject.ParseJSONValue(Item.InitialLipSyncData);
-      if not (ExpressionJson is TJSONObject) then
-      begin
-        ExpressionJson.Free;
-        ExpressionJson := TJSONObject.ParseJSONValue(
-          EmptyMmdLipSyncSettingData);
-      end;
-      Json.AddPair('initialLipSyncData', ExpressionJson);
-      Item.InitialExpressionData := NormalizeInitialExpressionData(
-        Item.InitialExpressionData);
-      ExpressionJson := TJSONObject.ParseJSONValue(
-        Item.InitialExpressionData);
-      if not (ExpressionJson is TJSONObject) then
-      begin
-        ExpressionJson.Free;
-        ExpressionJson := TJSONObject.ParseJSONValue(
-          EmptyMmdMorphSettingData);
-      end;
-      Json.AddPair('initialExpressionData', ExpressionJson);
-      Item.PoseData := NormalizePoseData(Item.PoseData);
-      PoseJson := TJSONObject.ParseJSONValue(Item.PoseData);
-      if not (PoseJson is TJSONObject) then
-      begin
-        PoseJson.Free;
-        PoseJson := TJSONObject.ParseJSONValue(EmptyPmxPoseData);
-      end;
-      Json.AddPair('poseData', PoseJson);
-      TFile.WriteAllText(ItemFileName(Item.Id), Json.ToJSON,
-        TEncoding.UTF8);
-      Result := True;
-    finally
-      Json.Free;
-    end;
-  except
-    Result := False;
-  end;
+  Result := SavePmxPoseCatalogItem(ItemFileName(Item.Id), Item);
 end;
 
 function TPmxPoseCatalogStorage.SaveToFile: Boolean;
 var
-  Ids: TJSONArray;
+  CatalogIndex: TPmxPoseCatalogIndex;
+  Index: Integer;
   Item: TPmxPoseCatalogItem;
-  Json: TJSONObject;
 begin
   Result := False;
   try
     if not ForceDirectories(FItemsFolder) then
       Exit;
-    Json := TJSONObject.Create;
-    try
-      Json.AddPair('formatVersion',
-        TJSONNumber.Create(PoseCatalogFormatVersion));
-      Json.AddPair('pmxId', FPmxId);
-      Json.AddPair('defaultPoseId', FDefaultPoseId);
-      Ids := TJSONArray.Create;
-      Json.AddPair('poseIds', Ids);
-      for Item in FItems do
-      begin
-        Item.PmxId := FPmxId;
-        Item.PmxName := FPmxName;
-        if not SaveItem(Item) then
-          Exit;
-        Ids.Add(Item.Id);
-      end;
-      TFile.WriteAllText(FIndexFileName, Json.ToJSON, TEncoding.UTF8);
-      Result := True;
-    finally
-      Json.Free;
+    CatalogIndex.PmxId := FPmxId;
+    CatalogIndex.DefaultPoseId := FDefaultPoseId;
+    SetLength(CatalogIndex.PoseIds, FItems.Count);
+    for Index := 0 to FItems.Count - 1 do
+    begin
+      Item := FItems[Index];
+      Item.PmxId := FPmxId;
+      Item.PmxName := FPmxName;
+      if not SaveItem(Item) then Exit;
+      CatalogIndex.PoseIds[Index] := Item.Id;
     end;
+    Result := SavePmxPoseCatalogIndex(FIndexFileName, CatalogIndex);
   except
     Result := False;
   end;

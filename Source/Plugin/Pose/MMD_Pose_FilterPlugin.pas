@@ -17,6 +17,7 @@ uses
   System.SysUtils,
   PluginFilterTable,
   MmdPoseSharedMemory,
+  MmdPoseSharedTrace,
   MmdPoseEditor;
 
 var
@@ -28,7 +29,7 @@ var
 const
   POSE_EFFECT_NAME = 'ポーズ';
   POSE_ITEM_MODEL_FILE = 'モデルファイル';
-  POSE_ITEM_POSE_DATA = '姿勢データ';
+  POSE_ITEM_POSE_DATA = 'ポーズ';
   TRANSPARENT_PIXEL: TPIXEL_RGBA = (R: 0; G: 0; B: 0; A: 0);
 
 function GetFocusedItem(Edit: PEDIT_SECTION; Obj: OBJECT_HANDLE;
@@ -82,6 +83,8 @@ end;
 
 function PoseProcVideo(Video: PFILTER_PROC_VIDEO): Byte; cdecl;
 var
+  DataLength: Integer;
+  Published: Boolean;
   Snapshot: TMmdPoseSharedSnapshot;
 begin
   Result := 1;
@@ -96,14 +99,25 @@ begin
       Snapshot.TimelineFrame := GetTimelineFrame(Video^.Object_);
       Snapshot.ModelPathHash := HashModelPath(string(ModelFileItem.Value));
       Snapshot.PoseData := string(PoseDataItem.Value);
-      PublishPoseSnapshot(Video^.Object_^.Layer, Snapshot);
+      DataLength := TEncoding.UTF8.GetByteCount(Snapshot.PoseData);
+      Published := PublishPoseSnapshot(Video^.Object_^.Layer, Snapshot);
+      if Published then
+        TraceMmdPoseShared('POSE', 'publish_ok', Video^.Object_^.Layer,
+          Snapshot.TimelineFrame, Snapshot.WriterObjectID,
+          Snapshot.WriterEffectID, Snapshot.ModelPathHash, DataLength)
+      else
+        TraceMmdPoseShared('POSE', 'publish_failed', Video^.Object_^.Layer,
+          Snapshot.TimelineFrame, Snapshot.WriterObjectID,
+          Snapshot.WriterEffectID, Snapshot.ModelPathHash, DataLength);
     end;
     // 参照可能な画像オブジェクトとして存在しつつ、シーンには何も表示しない。
     Video^.SetImageData(@TRANSPARENT_PIXEL, 1, 1);
     if Assigned(Video^.SetDefaultAnchor) then
       Video^.SetDefaultAnchor(1, 1);
   except
-    // Delphi例外をAviUtl2のコールバック境界より外へ漏らさない。
+    on E: Exception do
+      TraceMmdPoseShared('POSE', 'callback_exception', -1, -1, 0, 0, 0,
+        0, E.ClassName + ': ' + E.Message);
   end;
 end;
 
@@ -117,8 +131,8 @@ begin
     AddFile(ModelFileItem, 'モデルファイル', '',
       'PMXモデル (*.pmx)'#0'*.pmx'#0 +
       'すべてのファイル (*.*)'#0'*.*'#0#0);
-    AddString(PoseDataItem, '姿勢データ', '{"version":1,"bones":[]}');
-    AddButton(PoseButtonItem, 'ポーズ設定', PoseButtonCallback);
+    AddString(PoseDataItem, 'ポーズ', '{"version":1,"bones":[]}');
+    AddButton(PoseButtonItem, '設定', PoseButtonCallback);
     PluginTableInitialized := True;
   end;
   Result := GetPluginTable;

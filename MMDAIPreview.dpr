@@ -18,6 +18,10 @@ uses
   MmdMorphSettingValue in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas',
   MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas',
   MmdMorphPreviewPanel in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas',
+  MmdPoseEditorTheme in '..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas',
+  MmdPoseEditorButtonTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas',
+  MmdPoseEditorListTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas',
+  MmdPoseEditorComboTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas',
   MmdAiPreviewMainForm in 'Source\AI\MmdAiPreviewMainForm.pas' {MainForm};
 
 procedure AttachHostConsole;

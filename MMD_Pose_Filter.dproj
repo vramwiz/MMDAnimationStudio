@@ -15,7 +15,7 @@
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\PoseDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\D3D;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMD_Pose_Filter</SanitizedProjectName>
     </PropertyGroup>
@@ -59,13 +59,6 @@
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_RangeChecking>true</DCC_RangeChecking>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <BT_BuildType>Release</BT_BuildType>
-        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_DebugInformation>0</DCC_DebugInformation>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <Manifest_File>(なし)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -75,6 +68,13 @@
         <PostBuildEvent><![CDATA[copy /Y "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2"]]></PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
         <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <BT_BuildType>Release</BT_BuildType>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <Manifest_File>(なし)</Manifest_File>
@@ -92,9 +92,11 @@
         </DelphiCompile>
         <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPose.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas"/>
@@ -107,25 +109,7 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxGeometryReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxMaterialReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxBoneReader.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseHistory.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditOperations.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingListRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseSymmetry.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewportSurface.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary\MmdD3DLiveDragTest.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IO\PmxMorphReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DScene.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DSelection.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DInteraction.pas"/>
@@ -138,7 +122,29 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDevice.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDeform.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseSymmetry.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewportSurface.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary\MmdD3DLiveDragTest.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewport.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseHistory.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditOperations.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingListRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingRows.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingValue.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphSettingList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageAutoFit.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseImageClipboard.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\VerticalScrollBar\VerticalScrollBarControl.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas"/>
         <DCCReference Include="Source\Lib\FilterTable\PluginFilterTable.pas"/>
         <DCCReference Include="Source\Plugin\Pose\MMD_Pose_FilterPlugin.pas"/>
         <BuildConfiguration Include="Base">
@@ -169,4 +175,21 @@
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PreBuildEvent>if not exist &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot; mkdir &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot;</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>copy /Y &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot; &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
+        <PreBuildEvent>if not exist &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot; mkdir &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot;</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>copy /Y &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot; &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot; del /Q &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm&quot; del /Q &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
 </Project>

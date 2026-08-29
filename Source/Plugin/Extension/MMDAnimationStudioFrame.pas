@@ -12,7 +12,8 @@ uses
   Vcl.ImgList,
   Vcl.ToolWin,
   ToolBarPanelManager,
-  PmxCatalogFrame;
+  PmxCatalogFrame,
+  MmdPoseCatalogFrame;
 
 type
   TFrameMMDAnimationStudio = class(TFrame)
@@ -38,9 +39,15 @@ type
     FToolbarManager: TToolBarPanelManager;
     FUpdatingToolbarHeight: Boolean;
     FPmxCatalogFrame: TFramePmxCatalog;
+    FPoseCatalogFrame: TFrameMmdPoseCatalog;
+    FSelectedPmxId: string;
+    FSyncingPmxSelection: Boolean;
     procedure DropFilesCore(const Files: TArray<string>);
     procedure EnsurePmxCatalogFrame;
+    procedure EnsurePoseCatalogFrame;
     procedure InitializeToolbar;
+    procedure PageChanged(Sender: TObject; Index: Integer);
+    procedure PmxSelectionChanged(Sender: TObject);
     procedure UpdateToolbarHeight;
   protected
     procedure Resize; override;
@@ -50,6 +57,7 @@ type
     procedure DropFiles(Control: TWinControl; const Files: TArray<string>);
     procedure Show; reintroduce;
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
+    property PoseCatalogFrame: TFrameMmdPoseCatalog read FPoseCatalogFrame;
   end;
 
 implementation
@@ -58,6 +66,7 @@ uses
   Winapi.CommCtrl,
   Winapi.Windows,
   System.Math,
+  System.IOUtils,
   System.SysUtils,
   Vcl.Graphics,
   MMDAnimationStudioToolbarIcons;
@@ -78,6 +87,9 @@ begin
 
   Color := clBlack;
   PanelToolbar.Color := ToolbarBackground;
+  PanelToolbar.BevelOuter := bvNone;
+  PanelToolbar.BevelKind := bkSoft;
+  PanelToolbar.BevelWidth := 1;
   ToolbarPages.Color := ToolbarBackground;
   ToolbarPages.Font.Color := ToolbarForeground;
 
@@ -88,6 +100,7 @@ begin
   FToolbarManager.ToolBarPressedColor := ToolbarPressed;
   FToolbarManager.ToolBarHotColor := ToolbarHot;
   FToolbarManager.ShowCaptions := False;
+  FToolbarManager.OnChange := PageChanged;
 end;
 
 destructor TFrameMMDAnimationStudio.Destroy;
@@ -109,15 +122,40 @@ end;
 procedure TFrameMMDAnimationStudio.DropFilesCore(const Files: TArray<string>);
 var
   FileName: string;
+  HasPmx, HasVpd, PoseWasActive: Boolean;
 begin
+  HasPmx := False;
+  HasVpd := False;
+  PoseWasActive := PanelPoseMotion.Visible;
   for FileName in Files do
     if SameText(ExtractFileExt(FileName), '.pmx') then
+      HasPmx := True
+    else if SameText(ExtractFileExt(FileName), '.vpd') then
+      HasVpd := True
+    else if TDirectory.Exists(FileName) then
+      try
+        if Length(TDirectory.GetFiles(FileName, '*.vpd',
+          TSearchOption.soAllDirectories)) > 0 then HasVpd := True;
+      except
+        { 読み取れないフォルダは登録処理側で失敗件数として扱う。 }
+      end;
+  if HasPmx then
+  begin
+    EnsurePmxCatalogFrame;
+    FToolbarManager.Activate(0);
+    FPmxCatalogFrame.DropFiles(Files);
+  end;
+  if HasVpd then
+  begin
+    EnsurePmxCatalogFrame;
+    if PoseWasActive then
     begin
-      EnsurePmxCatalogFrame;
-      FToolbarManager.Activate(0);
-      FPmxCatalogFrame.DropFiles(Files);
-      Exit;
-    end;
+      EnsurePoseCatalogFrame;
+      FPoseCatalogFrame.ImportVpdFiles(Files);
+    end
+    else
+      FPmxCatalogFrame.ImportVpdFiles(Files);
+  end;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsurePmxCatalogFrame;
@@ -129,7 +167,24 @@ begin
   FPmxCatalogFrame.Parent := PanelPmx;
   FPmxCatalogFrame.Align := alClient;
   FPmxCatalogFrame.Visible := True;
+  FPmxCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
   FPmxCatalogFrame.Show;
+end;
+
+procedure TFrameMMDAnimationStudio.EnsurePoseCatalogFrame;
+begin
+  EnsurePmxCatalogFrame;
+  if Assigned(FPoseCatalogFrame) then
+  begin
+    FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+    Exit;
+  end;
+
+  FPoseCatalogFrame := TFrameMmdPoseCatalog.Create(Self);
+  FPoseCatalogFrame.Parent := PanelPoseMotion;
+  FPoseCatalogFrame.Align := alClient;
+  FPoseCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
+  FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
 end;
 
 procedure TFrameMMDAnimationStudio.InitializeToolbar;
@@ -168,6 +223,48 @@ begin
   FToolbarManager.Attach(ToolbarPages);
   FToolbarInitialized := True;
   UpdateToolbarHeight;
+end;
+
+procedure TFrameMMDAnimationStudio.PageChanged(Sender: TObject;
+  Index: Integer);
+begin
+  case Index of
+    0:
+      begin
+        EnsurePmxCatalogFrame;
+        FPmxCatalogFrame.SelectPmxId(FSelectedPmxId);
+        FPmxCatalogFrame.Show;
+      end;
+    1:
+      begin
+        EnsurePoseCatalogFrame;
+        FPoseCatalogFrame.SelectPmxId(FSelectedPmxId);
+        FPoseCatalogFrame.Visible := True;
+        FPoseCatalogFrame.Show;
+      end;
+  end;
+end;
+
+procedure TFrameMMDAnimationStudio.PmxSelectionChanged(Sender: TObject);
+begin
+  if FSyncingPmxSelection then Exit;
+  FSyncingPmxSelection := True;
+  try
+    if Sender = FPmxCatalogFrame then
+    begin
+      FSelectedPmxId := FPmxCatalogFrame.SelectedPmxId;
+      if Assigned(FPoseCatalogFrame) then
+        FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+    end
+    else if Sender = FPoseCatalogFrame then
+      FSelectedPmxId := FPoseCatalogFrame.PmxSelector.SelectedPmxId;
+    if Assigned(FPmxCatalogFrame) and (Sender <> FPmxCatalogFrame) then
+      FPmxCatalogFrame.SelectPmxId(FSelectedPmxId);
+    if Assigned(FPoseCatalogFrame) and (Sender <> FPoseCatalogFrame) then
+      FPoseCatalogFrame.SelectPmxId(FSelectedPmxId);
+  finally
+    FSyncingPmxSelection := False;
+  end;
 end;
 
 procedure TFrameMMDAnimationStudio.Resize;
