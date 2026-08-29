@@ -3,7 +3,8 @@ unit MMDAnimationStudioExtension;
 interface
 
 uses
-  Winapi.Windows;
+  Winapi.Windows,
+  AviUtl2PluginTypes;
 
 type
   TMMDSetPluginInformation = procedure(Information: PWideChar); cdecl;
@@ -19,6 +20,7 @@ type
     RegisterImportMenu: Pointer;
     RegisterExportMenu: Pointer;
     RegisterWindowClient: TMMDRegisterWindowClient;
+    CreateEditHandle: function: PEditHandle; cdecl;
   end;
 
 const

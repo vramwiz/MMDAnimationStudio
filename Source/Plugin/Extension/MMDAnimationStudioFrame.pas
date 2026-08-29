@@ -12,6 +12,8 @@ uses
   Vcl.ImgList,
   Vcl.ToolWin,
   ToolBarPanelManager,
+  ExplorerFrame,
+  LauncherFrame,
   PmxCatalogFrame,
   MmdPoseCatalogFrame,
   MmdFaceCatalogFrame;
@@ -42,12 +44,16 @@ type
     FPmxCatalogFrame: TFramePmxCatalog;
     FPoseCatalogFrame: TFrameMmdPoseCatalog;
     FFaceCatalogFrame: TFrameMmdFaceCatalog;
+    FExplorerFrame: TFrameExplorer;
+    FLauncherFrame: TFrameLauncher;
     FSelectedPmxId: string;
     FSyncingPmxSelection: Boolean;
     procedure DropFilesCore(const Files: TArray<string>);
     procedure EnsurePmxCatalogFrame;
     procedure EnsurePoseCatalogFrame;
     procedure EnsureFaceCatalogFrame;
+    procedure EnsureExplorerFrame;
+    procedure EnsureLauncherFrame;
     procedure InitializeToolbar;
     procedure PageChanged(Sender: TObject; Index: Integer);
     procedure PmxSelectionChanged(Sender: TObject);
@@ -62,6 +68,8 @@ type
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
     property PoseCatalogFrame: TFrameMmdPoseCatalog read FPoseCatalogFrame;
     property FaceCatalogFrame: TFrameMmdFaceCatalog read FFaceCatalogFrame;
+    property ExplorerFrame: TFrameExplorer read FExplorerFrame;
+    property LauncherFrame: TFrameLauncher read FLauncherFrame;
   end;
 
 implementation
@@ -128,6 +136,18 @@ var
   FileName: string;
   HasPmx, HasVpd, PoseWasActive: Boolean;
 begin
+  if PanelLaunch.Visible then
+  begin
+    EnsureLauncherFrame;
+    FLauncherFrame.DropFiles(Files);
+    Exit;
+  end;
+  if PanelExplorer.Visible then
+  begin
+    EnsureExplorerFrame;
+    FExplorerFrame.DropFile(Files);
+    Exit;
+  end;
   HasPmx := False;
   HasVpd := False;
   PoseWasActive := PanelPoseMotion.Visible;
@@ -160,6 +180,32 @@ begin
     else
       FPmxCatalogFrame.ImportVpdFiles(Files);
   end;
+  if not HasPmx and not HasVpd then
+  begin
+    EnsureExplorerFrame;
+    FToolbarManager.Activate(4);
+    FExplorerFrame.DropFile(Files);
+  end;
+end;
+
+procedure TFrameMMDAnimationStudio.EnsureExplorerFrame;
+begin
+  if Assigned(FExplorerFrame) then
+    Exit;
+
+  FExplorerFrame := TFrameExplorer.Create(Self);
+  FExplorerFrame.Parent := PanelExplorer;
+  FExplorerFrame.Align := alClient;
+end;
+
+procedure TFrameMMDAnimationStudio.EnsureLauncherFrame;
+begin
+  if Assigned(FLauncherFrame) then
+    Exit;
+
+  FLauncherFrame := TFrameLauncher.Create(Self);
+  FLauncherFrame.Parent := PanelLaunch;
+  FLauncherFrame.Align := alClient;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsurePmxCatalogFrame;
@@ -269,6 +315,16 @@ begin
         FFaceCatalogFrame.Visible := True;
         FFaceCatalogFrame.Show;
       end;
+    4:
+      begin
+        EnsureExplorerFrame;
+        FExplorerFrame.Show;
+      end;
+    6:
+      begin
+        EnsureLauncherFrame;
+        FLauncherFrame.Show;
+      end;
   end;
 end;
 
@@ -338,6 +394,8 @@ procedure TFrameMMDAnimationStudio.Show;
 begin
   InitializeToolbar;
   EnsurePmxCatalogFrame;
+  // ランチャーページを開く前でもCtrl+Alt+数字を利用できるようにする。
+  EnsureLauncherFrame;
   inherited Show;
 end;
 

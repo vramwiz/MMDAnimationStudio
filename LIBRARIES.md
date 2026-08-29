@@ -2,6 +2,27 @@
 
 複数画面から再利用するGUI部品の所在と選定基準を記録する。
 
+## AviUtl2共通配色
+
+- ユニット: `AviUtl2StyleColors`
+- ソース: `..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas`
+- 利用先: Syncroh2、MMDAnimationStudio、共有ランチャー
+
+旧Syncroh2側の配色を基準とし、背景、文字、選択、ツールバー、一覧、ランチャー稼働状態の色はこのユニットを正本とする。
+各製品へ同名ユニットをコピーせず、DPR／DPROJから共有ソースを直接参照する。
+音声ソフトの水色は当該ランチャーが起動・管理中、緑は外部起動を検出した状態を表す。
+
+## 共有Explorer
+
+- 画面: `..\AviUtl2PluginLib\Explorer\ExplorerFrame.pas`
+- AviUtl2境界: `..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAviUtlBridge.pas`
+- エイリアス生成: `..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAliasBuilder.pas`
+
+`TFrameExplorer`は画面、履歴、フォルダ監視、一覧、設定を共通実装として持つ。
+フレーム時間と選択オブジェクト取得は呼出元が`SetExplorerAviUtlBridge`で登録し、
+画像・音声D&Dは共有ビルダーでAviUtl2エイリアスを生成する。製品固有のPSD管理や
+セリフ管理をExplorerへ依存させない。
+
 ## MMDポーズ編集の暗色テーマ
 
 - 共通色、項目描画、タイトルバー: `MMD\Editor\MmdPoseEditorTheme.pas`

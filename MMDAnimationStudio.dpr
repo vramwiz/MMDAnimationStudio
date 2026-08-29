@@ -4,8 +4,33 @@ uses
   Winapi.Windows,
   System.SysUtils,
   AppFolderUtils in '..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas',
+  AviUtl2StyleColors in '..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas',
+  AviUtl2PluginTypes in '..\Syncroh2\AviUtl\Plugin\AviUtl2PluginTypes.pas',
+  AviUtl2PluginCore in '..\Syncroh2\AviUtl\Plugin\AviUtl2PluginCore.pas',
+  AviUtl2AliasSelected in '..\Syncroh2\AviUtl\Plugin\Alias\AviUtl2AliasSelected.pas',
+  AviUtl2TimeConvert in '..\Syncroh2\AviUtl\AviUtl2TimeConvert.pas',
   ShortcutAction in '..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas',
   ConfirmDialogForm in '..\AviUtl2PluginLib\Lib\ConfirmDialog\ConfirmDialogForm.pas' {FormConfirmDialog},
+  RTTIPersistent in '..\AviUtl2PluginLib\Lib\RTTIPersistent\RTTIPersistent.pas',
+  RTTIPersistentIni in '..\AviUtl2PluginLib\Lib\RTTIPersistent\RTTIPersistentIni.pas',
+  RTTIPersistentFrame in '..\AviUtl2PluginLib\Lib\RTTIPersistent\RTTIPersistentFrame.pas',
+  SectionFileManager in '..\AviUtl2PluginLib\Lib\SectionFileManager\SectionFileManager.pas',
+  ListViewEx in '..\AviUtl2PluginLib\Lib\ListViewEdit\ListViewEx.pas',
+  ToolbarButtons in '..\AviUtl2PluginLib\Lib\ToolBar\ToolbarButtons.pas',
+  ToolbarIcon in '..\AviUtl2PluginLib\Lib\ToolBar\ToolbarIcon.pas',
+  WindowInfoList in '..\AviUtl2PluginLib\Lib\WindowInfoList\WindowInfoList.pas',
+  ExplorerAviUtlBridge in '..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAviUtlBridge.pas',
+  ExplorerAliasBuilder in '..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAliasBuilder.pas',
+  ExplorerFrame in '..\AviUtl2PluginLib\Explorer\ExplorerFrame.pas' {FrameExplorer: TFrame},
+  LauncherFrame in '..\AviUtl2PluginLib\Launcher\LauncherFrame.pas' {FrameLauncher: TFrame},
+  LauncherListFrame in '..\AviUtl2PluginLib\Launcher\LauncherListFrame.pas' {FrameLauncherList: TFrame},
+  LauncherListItems in '..\AviUtl2PluginLib\Launcher\LauncherListItems.pas',
+  LauncherListTypes in '..\AviUtl2PluginLib\Launcher\LauncherListTypes.pas',
+  LauncherListView in '..\AviUtl2PluginLib\Launcher\LauncherListView.pas',
+  LauncherGlobalHotkeys in '..\AviUtl2PluginLib\Launcher\LauncherGlobalHotkeys.pas',
+  LauncherRunningState in '..\AviUtl2PluginLib\Launcher\LauncherRunningState.pas',
+  LauncherShellUtils in '..\AviUtl2PluginLib\Launcher\LauncherShellUtils.pas',
+  LauncherWizardFrame in '..\AviUtl2PluginLib\Launcher\LauncherWizardFrame.pas' {FrameLauncherWizard: TFrame},
   MMDAnimationStudioExtension in 'Source\Plugin\Extension\MMDAnimationStudioExtension.pas',
   MMDAnimationStudioToolbarIcons in 'Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas',
   MMDAnimationStudioFrame in 'Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
@@ -98,8 +123,11 @@ procedure UninitializePlugin; cdecl;
 begin
   try
     UnregisterMMDAnimationStudioWindow;
+    ClearExplorerAviUtlBridge;
+    EditHandle := nil;
   except
-    { DLL境界から例外を漏らさない。 }
+    ClearExplorerAviUtlBridge;
+    EditHandle := nil;
   end;
 end;
 
@@ -111,10 +139,14 @@ begin
     if Host = nil then
       Exit;
 
+    if Assigned(Host^.CreateEditHandle) then
+      EditHandle := Host^.CreateEditHandle;
+    SetExplorerAviUtlBridge(AviUtl2Convert, AviUtl2GetSelectedAlias);
     Host^.SetPluginInformation(MMDPluginDisplayName);
     RegisterMMDAnimationStudioWindow(Host);
   except
-    { DLL境界から例外を漏らさない。 }
+    ClearExplorerAviUtlBridge;
+    EditHandle := nil;
   end;
 end;
 

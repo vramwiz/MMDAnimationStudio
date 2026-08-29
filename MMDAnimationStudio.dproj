@@ -15,7 +15,7 @@
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\StudioDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_UnitSearchPath>Source\Plugin\Extension;Source\Plugin\Extension\Style;Source\Plugin\Extension\PMX\Catalog;Source\Plugin\Extension\PMX\Catalog\Storage;Source\Plugin\Extension\PMX\Catalog\Filter;Source\Plugin\Extension\PMX\Catalog\Selector;Source\Plugin\Extension\PMX\Catalog\Menu;Source\Plugin\Extension\PMX\Catalog\View;Source\Plugin\Extension\PMX\Catalog\Thumbnail;Source\Plugin\Extension\PMX\Catalog\Pose;Source\Plugin\Extension\PMX\Catalog\Pose\Storage;Source\Plugin\Extension\PMX\Catalog\Pose\View;Source\Plugin\Extension\PMX\Catalog\Pose\Editor;Source\Plugin\Extension\PMX\Catalog\Pose\Drag;Source\Plugin\Extension\PMX\Catalog\Pose\Toolbar;Source\Plugin\Extension\PMX\Catalog\Pose\Menu;Source\Plugin\Extension\PMX\Catalog\Pose\Group;Source\Plugin\Extension\PMX\Catalog\Face;Source\Plugin\Extension\PMX\Catalog\Face\Storage;Source\Plugin\Extension\PMX\Catalog\Face\View;Source\Plugin\Extension\PMX\Catalog\Face\Toolbar;Source\Plugin\Extension\PMX\Catalog\Face\Menu;Source\Plugin\Extension\PMX\Catalog\Face\Group;Source\Plugin\Extension\Pose\Catalog;Source\Plugin\Extension\Pose\Catalog\Drag;Source\Plugin\Extension\Face\Catalog;Source\Plugin\Extension\VPD\Catalog;Source\Plugin\Extension\VPD\Import;Source\Plugin\Extension\VPD\Reuse;..\AviUtl2PluginLib\Serif;..\AviUtl2PluginLib\Lib\AppFolderUtils;..\AviUtl2PluginLib\Lib\ShortcutAction;..\AviUtl2PluginLib\Lib\ConfirmDialog;..\AviUtl2PluginLib\Lib\DropFile;..\AviUtl2PluginLib\Lib\DragAgent;..\AviUtl2PluginLib\Lib\ItemListView;..\AviUtl2PluginLib\Lib\VerticalScrollBar;..\AviUtl2PluginLib\Lib\ToolBar;..\AviUtl2PluginLib\Lib\ToolBarPanelManager;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\VPD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\Plugin\Extension;Source\Plugin\Extension\PMX\Catalog;Source\Plugin\Extension\PMX\Catalog\Storage;Source\Plugin\Extension\PMX\Catalog\Filter;Source\Plugin\Extension\PMX\Catalog\Selector;Source\Plugin\Extension\PMX\Catalog\Menu;Source\Plugin\Extension\PMX\Catalog\View;Source\Plugin\Extension\PMX\Catalog\Thumbnail;Source\Plugin\Extension\PMX\Catalog\Pose;Source\Plugin\Extension\PMX\Catalog\Pose\Storage;Source\Plugin\Extension\PMX\Catalog\Pose\View;Source\Plugin\Extension\PMX\Catalog\Pose\Editor;Source\Plugin\Extension\PMX\Catalog\Pose\Drag;Source\Plugin\Extension\PMX\Catalog\Pose\Toolbar;Source\Plugin\Extension\PMX\Catalog\Pose\Menu;Source\Plugin\Extension\PMX\Catalog\Pose\Group;Source\Plugin\Extension\PMX\Catalog\Face;Source\Plugin\Extension\PMX\Catalog\Face\Storage;Source\Plugin\Extension\PMX\Catalog\Face\View;Source\Plugin\Extension\PMX\Catalog\Face\Toolbar;Source\Plugin\Extension\PMX\Catalog\Face\Menu;Source\Plugin\Extension\PMX\Catalog\Face\Group;Source\Plugin\Extension\Pose\Catalog;Source\Plugin\Extension\Pose\Catalog\Drag;Source\Plugin\Extension\Face\Catalog;Source\Plugin\Extension\VPD\Catalog;Source\Plugin\Extension\VPD\Import;Source\Plugin\Extension\VPD\Reuse;..\AviUtl2PluginLib\Serif;..\AviUtl2PluginLib\Explorer;..\AviUtl2PluginLib\Explorer\AviUtl;..\AviUtl2PluginLib\Explorer\Hist;..\AviUtl2PluginLib\Explorer\Tree;..\AviUtl2PluginLib\Explorer\ListView;..\AviUtl2PluginLib\Explorer\ListView\Normal;..\AviUtl2PluginLib\Explorer\ListView\Picture;..\AviUtl2PluginLib\Explorer\ListView\Sound;..\AviUtl2PluginLib\Explorer\ListView\Alias;..\AviUtl2PluginLib\Lib\FolderWatch;..\AviUtl2PluginLib\Lib\ListViewEdit;..\AviUtl2PluginLib\Lib\SpeedButtonAviUtlStyle;..\AviUtl2PluginLib\Lib\ColorPicker;..\AviUtl2PluginLib\Lib\FolderSelect;..\AviUtl2PluginLib\Lib\ListBoxEdit;..\AviUtl2PluginLib\Lib\ListViewThumbnail;..\AviUtl2PluginLib\Lib\BitmapChace;..\AviUtl2PluginLib\Lib\ImageLoader;..\AviUtl2PluginLib\Lib\FileInfoList;..\AviUtl2PluginLib\Lib\ClipboardWatcher;..\AviUtl2PluginLib\Lib\SoundFileUtils;..\AviUtl2PluginLib\Lib\WaveAnalyzer;..\AviUtl2PluginLib\Lib\ConfigPanel;..\AviUtl2PluginLib\Lib\AudioPlayer;..\AviUtl2PluginLib\Lib\TextEncoding;..\AviUtl2PluginLib\Lib\SectionFileManager;..\AviUtl2PluginLib\Lib\RTTIPersistent;..\Syncroh2\AviUtl;..\Syncroh2\AviUtl\Text;..\Syncroh2\AviUtl\Plugin;..\Syncroh2\AviUtl\Plugin\Alias;..\Syncroh2\AviUtl\Plugin\Cursor;..\Syncroh2\AviUtl\Plugin\Object;..\AviUtl2PluginLib\Lib\Style;..\AviUtl2PluginLib\Lib\AppFolderUtils;..\AviUtl2PluginLib\Lib\ShortcutAction;..\AviUtl2PluginLib\Lib\ConfirmDialog;..\AviUtl2PluginLib\Lib\DropFile;..\AviUtl2PluginLib\Lib\DragAgent;..\AviUtl2PluginLib\Lib\ItemListView;..\AviUtl2PluginLib\Lib\VerticalScrollBar;..\AviUtl2PluginLib\Lib\ToolBar;..\AviUtl2PluginLib\Lib\ToolBarPanelManager;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\VPD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;System.Win;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMDAnimationStudio</SanitizedProjectName>
     </PropertyGroup>
@@ -89,6 +89,52 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginTypes.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginCore.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\Plugin\Alias\AviUtl2AliasSelected.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\AviUtl2TimeConvert.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\ConfirmDialog\ConfirmDialogForm.pas">
+            <Form>FormConfirmDialog</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TForm</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\RTTIPersistent\RTTIPersistent.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\RTTIPersistent\RTTIPersistentIni.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\RTTIPersistent\RTTIPersistentFrame.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\SectionFileManager\SectionFileManager.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\ListViewEdit\ListViewEx.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\ToolBar\ToolbarButtons.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\ToolBar\ToolbarIcon.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\WindowInfoList\WindowInfoList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAviUtlBridge.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAliasBuilder.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Explorer\ExplorerFrame.pas">
+            <Form>FrameExplorer</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherFrame.pas">
+            <Form>FrameLauncher</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherListFrame.pas">
+            <Form>FrameLauncherList</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherListItems.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherListTypes.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherListView.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherGlobalHotkeys.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherRunningState.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherShellUtils.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Launcher\LauncherWizardFrame.pas">
+            <Form>FrameLauncherWizard</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioExtension.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioFrame.pas">
@@ -135,27 +181,21 @@
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Face\Menu\PmxFaceCatalogContextMenu.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Face\Editor\PmxFaceCatalogEditor.pas"/>
         <DCCReference Include="Source\Plugin\Extension\Pose\Catalog\MmdPoseCatalogFrame.pas"/>
-        <DCCReference Include="Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragAlias.pas"/>
-        <DCCReference Include="Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragController.pas"/>
-        <DCCReference Include="Source\Plugin\Extension\Face\Catalog\Drag\MmdFaceObjectDragAlias.pas"/>
-        <DCCReference Include="Source\Plugin\Extension\Face\Catalog\Drag\MmdFaceObjectDragController.pas"/>
         <DCCReference Include="Source\Plugin\Extension\Face\Catalog\MmdFaceCatalogFrame.pas">
             <Form>FrameMmdFaceCatalog</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Source\Plugin\Extension\Face\Catalog\Drag\MmdFaceObjectDragAlias.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Face\Catalog\Drag\MmdFaceObjectDragController.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragAlias.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragController.pas"/>
         <DCCReference Include="Source\Plugin\Extension\VPD\Catalog\MmdVpdCatalogItem.pas"/>
         <DCCReference Include="Source\Plugin\Extension\VPD\Catalog\MmdVpdCatalogCodec.pas"/>
         <DCCReference Include="Source\Plugin\Extension\VPD\Catalog\MmdVpdCatalog.pas"/>
         <DCCReference Include="Source\Plugin\Extension\VPD\Import\MmdVpdPoseImporter.pas"/>
         <DCCReference Include="Source\Plugin\Extension\VPD\Reuse\MmdVpdReuseForm.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\DragAgent\DragAgent.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\ConfirmDialog\ConfirmDialogForm.pas">
-            <Form>FormConfirmDialog</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TForm</DesignClass>
-        </DCCReference>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailCache.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailRenderer.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas"/>

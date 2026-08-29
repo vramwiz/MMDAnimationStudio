@@ -58,12 +58,31 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 表情・目パチ・口パク編集の頭部プレビューは、D3D子ウィンドウ生成後に選択ページ状態を再適用し、「頭」を画面中央へ倍率3.2で表示する。これにより表情ページから直接開いた場合も全身・ボーン表示へ戻らず、モデルだけの読み取り専用プレビューになる。表情モーフ一覧は表示時に左ペインの確定実寸へ展開してから`alClient`へ戻し、高DPIでも一覧下の空白を作らず「すべて解除」を下端へ固定する。「頭」が無ければ「両目」、左右目の中点、首の順に中心を決める。後から生成する「閉じる」ボタンはフォームのDPI調整済みフォントを継承し、文字だけが二重拡大されないようにした。
 - `MMD_Face_Filter`を追加した。AviUtl2の`MMD`グループへ`表情`として登録し、`モデルファイル／表情／設定`を持つ。透明画像を返しながらレイヤー別共有メモリへモーフJSONを発行し、モデル表示の既存`表情参照レイヤー`が同一PMXだけを受信する。参照表情は初期表情より優先し、目パチ・口パクはその後へ合成する。空表情による初期表情解除も有効とする。
 - `MMD_Face_Filter`のWin64 Debug／Release出力設定を`MMD_Pose_Filter`へ統一し、`.auf2`生成を同じビルドイベントへ揃えた。表情一覧へD&Dを接続し、選択PMXの`モデルファイル`、FaceUIDの`表情`JSON、空の`設定`と標準描画を持つ単一表情オブジェクトをUTF-8 BOMなしエイリアスとして生成する。一時ファイルは画面インスタンスごとに分離し、終了時に破棄する。
+- 2026-08-30にランチャー画面を接続した。`AviUtl2PluginLib\Launcher`と必要な共通ユニットをコピーせず直接参照し、MMDAnimationStudio表示時に共有`TFrameLauncher`を生成して「起動」ページへ配置する。ページ表示、実行ファイル／ショートカットのD&D登録、グローバルホットキーを既存実装のまま利用し、保存先は`MMDAnimationStudio\Launcher`とする。Win64 Debug／Releaseを警告0・エラー0でビルド・配置し、専用UIスモークテストで表示、実行ファイル登録、INI保存、破棄を確認した。
+- 2026-08-30にSyncroh2側の既存`AviUtl2StyleColors`を基準配色として`AviUtl2PluginLib\Lib\Style`へ移し、Syncroh2とMMDAnimationStudioの双方がコピーせず直接参照する構成へ統一した。MMDAnimationStudio側にだけ存在した配色値は採用せず、一覧の選択色やホバー色もSyncroh2基準とする。ランチャーの通常稼働色、音声ソフトを当該ランチャーが起動した水色、外部起動を検出した緑も同ユニットの定数とする。
+- 2026-08-30に共有ExplorerのAviUtl2入出力境界を分離した。画像・音声D&Dのエイリアス生成は`ExplorerAliasBuilder`へ移し、Syncroh2の総合`AliasManager`とPSD設定への依存を除去した。フレーム時間と選択オブジェクトのエイリアス取得は`ExplorerAviUtlBridge`の登録式コールバックとし、Syncroh2とMMDAnimationStudioが各自の編集ハンドルを接続する。エイリアスの項目名、フレーム計算、UTF-8 BOMなし出力は従来互換を維持する。
+- 2026-08-30にMMDAnimationStudioのExplorerページへ共有`TFrameExplorer`をコピーせず直接接続した。初回表示時に遅延生成し、通常ファイル／フォルダのD&DをExplorerへ渡す。履歴、フォルダ設定、キャッシュ、エイリアスは`SetAppFolderRoot('MMDAnimationStudio')`によりMMDAnimationStudio配下へ保存する。専用UIスモークテストでブリッジ、画像エイリアス形式、画面表示、フォルダD&Dを確認した。
 
 ## 次の作業
 
 表情管理画面の次段階を扱う。
 
 1. VPD取込の破損・部分失敗表示とPMX別関節可動領域判定を継続する。
+
+## セリフ／Explorer／ランチャーの統合方針
+
+- Explorerとランチャーは、`D:\DelphiProg\AviUtl2Plugin\AviUtl2PluginLib`の既存共有フレームをコピーせず直接参照し、MMDAnimationStudioの各パネルへ遅延生成する。
+- Syncroh2とMMDAnimationStudioの同時起動は想定しない。ランチャーの`Ctrl+Alt+0`～`9`は共有実装のまま使用し、製品間競合を避けるための独自変更は加えない。
+- 画面配色は旧Syncroh2側の定義を基準とした`AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas`を正本とし、Syncroh2とMMDAnimationStudioに製品別コピーを置かない。ランチャー固有の状態色もこの正本へ追加する。
+- Explorer本体は共有`TFrameExplorer`をそのまま参照する。画像・音声エイリアス生成は共有`ExplorerAliasBuilder`、AviUtl2編集状態へのアクセスは`ExplorerAviUtlBridge`を境界とし、ExplorerからSyncroh2のPSD／セリフ実装を参照しない。
+- Explorer、ランチャー、セリフが使用するデータは、既存の`SetAppFolderRoot('MMDAnimationStudio')`を正本とし、通常はマイドキュメントの`MMDAnimationStudio`配下にある機能別フォルダへ保存する。
+- セリフは、セリフ／シーン／配役／プロジェクト管理、音声・LAB・AIUEO解析、VOICEVOX、監視、GUI等のコアを既存共有実装から利用する。Syncroh2側ソースのコピーは作らない。
+- MMDAnimationStudioでは、セリフ入力にSyncroh2のモジュールとスクリプトを使用しない。可能な限りAviUtl2のMMD専用フィルタープラグインで実装し、透明画像を返しながら現在フレームのセリフ情報を発行する。
+- セリフの共有メモリはSyncroh2互換を維持する。`Local\ShareTalk`、`Local\ShareTalkIndex`、`Local\ShareTalkHistory`の名前、スロット数、文字数、ペイロードキー、`SIH2`／`SIR1`形式を変更しない。MMDのモデル表示と既存互換受信側がどちらの送信元も読める状態を保つ。
+- 共有メモリのペイロード生成と発行処理は共通ライブラリへ分離し、旧Syncroh2モジュールとMMD専用セリフフィルターの両方が同じcodec／publisherを使用する方針とする。Index／Historyを複数DLLから更新できるよう、DLL内だけの`TMonitor`ではなく共有名のWindows Mutex等によるプロセス内横断の排他を設ける。
+- AviUtl2上のセリフオブジェクト形式は製品別とする。Syncroh2は既存の`セリフ入力@Syncroh2_Script`、MMDAnimationStudioはMMD専用フィルター名と項目構成を使用する。
+- エイリアス生成、D&D、セリフオブジェクト判定、選択値取得、F2再編集、値更新、UID照合、移動、削除、完全エイリアス検証は入出力境界として製品別に分岐する。分岐を各所へ散らさず、エフェクト名と各項目名を持つ製品別プロファイルまたはアダプターへ集約する。
+- 新規生成は呼出元製品の形式だけを出力する。読込みと判定は必要に応じてSyncroh2形式とMMD形式の両方を受理し、旧プロジェクトと相互運用を維持する。
 
 ### ポーズ管理GUIの完成整理
 
