@@ -9,6 +9,8 @@ uses
   MMDAnimationStudioFrame in 'Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
   PmxCatalogFrame in 'Source\Plugin\Extension\PMX\Catalog\PmxCatalogFrame.pas' {FramePmxCatalog: TFrame},
   PmxCatalogStorage in 'Source\Plugin\Extension\PMX\Catalog\PmxCatalogStorage.pas',
+  PmxCatalogCharacterFilter in 'Source\Plugin\Extension\PMX\Catalog\Filter\PmxCatalogCharacterFilter.pas',
+  PmxCatalogContextMenu in 'Source\Plugin\Extension\PMX\Catalog\Menu\PmxCatalogContextMenu.pas',
   PmxCatalogListView in 'Source\Plugin\Extension\PMX\Catalog\View\PmxCatalogListView.pas',
   PmxPoseCatalogStorage in 'Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas',
   PmxPoseCatalogDataValidation in 'Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogDataValidation.pas',

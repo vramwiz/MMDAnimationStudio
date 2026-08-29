@@ -15,7 +15,7 @@
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\StudioDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_UnitSearchPath>Source\Plugin\Extension;Source\Plugin\Extension\Style;Source\Plugin\Extension\PMX\Catalog;Source\Plugin\Extension\PMX\Catalog\View;Source\Plugin\Extension\PMX\Catalog\Thumbnail;Source\Plugin\Extension\PMX\Catalog\Pose;Source\Plugin\Extension\PMX\Catalog\Pose\View;Source\Plugin\Extension\PMX\Catalog\Pose\Editor;Source\Plugin\Extension\PMX\Catalog\Pose\Drag;..\AviUtl2PluginLib\Serif;..\AviUtl2PluginLib\Lib\AppFolderUtils;..\AviUtl2PluginLib\Lib\DropFile;..\AviUtl2PluginLib\Lib\DragAgent;..\AviUtl2PluginLib\Lib\ItemListView;..\AviUtl2PluginLib\Lib\VerticalScrollBar;..\AviUtl2PluginLib\Lib\ToolBarPanelManager;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\Plugin\Extension;Source\Plugin\Extension\Style;Source\Plugin\Extension\PMX\Catalog;Source\Plugin\Extension\PMX\Catalog\Filter;Source\Plugin\Extension\PMX\Catalog\Menu;Source\Plugin\Extension\PMX\Catalog\View;Source\Plugin\Extension\PMX\Catalog\Thumbnail;Source\Plugin\Extension\PMX\Catalog\Pose;Source\Plugin\Extension\PMX\Catalog\Pose\View;Source\Plugin\Extension\PMX\Catalog\Pose\Editor;Source\Plugin\Extension\PMX\Catalog\Pose\Drag;..\AviUtl2PluginLib\Serif;..\AviUtl2PluginLib\Lib\AppFolderUtils;..\AviUtl2PluginLib\Lib\DropFile;..\AviUtl2PluginLib\Lib\DragAgent;..\AviUtl2PluginLib\Lib\ItemListView;..\AviUtl2PluginLib\Lib\VerticalScrollBar;..\AviUtl2PluginLib\Lib\ToolBarPanelManager;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;System.Win;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMDAnimationStudio</SanitizedProjectName>
     </PropertyGroup>
@@ -102,6 +102,8 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\PmxCatalogStorage.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Filter\PmxCatalogCharacterFilter.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Menu\PmxCatalogContextMenu.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\View\PmxCatalogListView.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogDataValidation.pas"/>

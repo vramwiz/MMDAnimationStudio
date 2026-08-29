@@ -1,9 +1,6 @@
 ﻿unit PmxCatalogFrame;
-
 // PMX管理ページの表示と、PMXファイル受信イベントの境界を担当する。
-
 interface
-
 uses
   System.Classes,
   Vcl.Controls,
@@ -11,6 +8,8 @@ uses
   Vcl.Forms,
   Vcl.StdCtrls,
   PmxCatalogStorage,
+  PmxCatalogCharacterFilter,
+  PmxCatalogContextMenu,
   PmxCatalogListView,
   PmxPoseCatalogStorage,
   PmxPoseCatalogListView,
@@ -18,11 +17,8 @@ uses
   DragAgent,
   PmxCatalogThumbnailCache,
   PmxCatalogThumbnailRenderer;
-
 type
-  TPmxCatalogFilesDroppedEvent = procedure(Sender: TObject;
-    const Files: TArray<string>) of object;
-
+  TPmxCatalogFilesDroppedEvent = procedure(Sender: TObject; const Files: TArray<string>) of object;
   TFramePmxCatalog = class(TFrame)
     PanelHeader: TPanel;
     LabelTitle: TLabel;
@@ -30,8 +26,10 @@ type
     LabelDropStatus: TLabel;
   private
     FCatalog: TPmxCatalogStorage;
+    FCatalogContextMenu: TPmxCatalogContextMenu;
+    FCharacterCombo: TPmxCatalogCharacterCombo;
     FCatalogListView: TPmxCatalogListView;
-    FDivider: TPanel;
+    FDivider: TSplitter;
     FLeftPanel: TPanel;
     FPoseCatalog: TPmxPoseCatalogStorage;
     FPoseCatalogListView: TPmxPoseCatalogListView;
@@ -46,6 +44,7 @@ type
     FThumbnailRenderer: TPmxCatalogThumbnailRenderer;
     FLayoutPPI: Integer;
     procedure ApplyDpiLayout;
+    procedure CharacterComboChanged(Sender: TObject);
     procedure CatalogSelectionChanged(Sender: TObject);
     function PoseDragCanStart(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer): Boolean;
@@ -63,21 +62,18 @@ type
     procedure Resize; override;
     procedure Show; reintroduce;
     property Catalog: TPmxCatalogStorage read FCatalog;
+    property CharacterCombo: TPmxCatalogCharacterCombo read FCharacterCombo;
     property CatalogListView: TPmxCatalogListView read FCatalogListView;
     property PoseCatalog: TPmxPoseCatalogStorage read FPoseCatalog;
-    property PoseCatalogListView: TPmxPoseCatalogListView
-      read FPoseCatalogListView;
+    property PoseCatalogListView: TPmxPoseCatalogListView read FPoseCatalogListView;
     property DropEventCount: Integer read FDropEventCount;
     property LastDroppedFile: string read FLastDroppedFile;
-    property OnFilesDropped: TPmxCatalogFilesDroppedEvent
-      read FOnFilesDropped write FOnFilesDropped;
+    property OnFilesDropped: TPmxCatalogFilesDroppedEvent read FOnFilesDropped
+      write FOnFilesDropped;
   end;
-
 implementation
-
 uses
   Winapi.Windows,
-  System.Math,
   System.IOUtils,
   System.SysUtils,
   System.Types,
@@ -89,8 +85,9 @@ uses
 
 const
   PmxDropEventCaption = 'PMX'#$30C9#$30ED#$30C3#$30D7#$30A4#$30D9#$30F3#$30C8#$767A#$706B;
-  PmxListPaneWidth = 128;
-  PmxThumbnailSize = 96;
+  PmxListPaneWidth = 105;
+  PmxDividerWidth = 3;
+  PmxThumbnailSize = 64;
   PmxCaptionAreaHeight = 28;
 
 procedure TFramePmxCatalog.ApplyDpiLayout;
@@ -98,15 +95,21 @@ var
   PPI: Integer;
   ThumbnailSize: Integer;
 begin
-  PPI := CurrentPPI;
-  if (PPI <= 0) or (FLayoutPPI = PPI) or
-    not Assigned(FLeftPanel) or not Assigned(FDivider) or
+  if not Assigned(FLeftPanel) or not Assigned(FDivider) or
     not Assigned(FCatalogListView) or not Assigned(FPoseCatalogListView) then
+    Exit;
+  // AviUtl2の親フレームと子コントロールでCurrentPPIが異なる場合があるため、
+  // 実際に寸法を描画する一覧コントロールのDPIへ統一する。
+  PPI := FCatalogListView.CurrentPPI;
+  if (PPI <= 0) or (FLayoutPPI = PPI) then
     Exit;
 
   FLayoutPPI := PPI;
-  FLeftPanel.Width := MulDiv(PmxListPaneWidth, PPI, 96);
-  FDivider.Width := Max(1, MulDiv(1, PPI, 96));
+  // AviUtl2のドッキング領域は既に実表示座標なので、外枠とベベル幅を
+  // さらにDPI拡大しない。内部サムネイル寸法だけを下で拡大する。
+  FLeftPanel.Width := PmxListPaneWidth;
+  FDivider.Width := PmxDividerWidth;
+  FDivider.Left := FLeftPanel.Width;
 
   ThumbnailSize := MulDiv(PmxThumbnailSize, PPI, 96);
   FCatalogListView.ImageSize := ThumbnailSize;
@@ -116,23 +119,35 @@ begin
   FPoseCatalogListView.RowHeight := ThumbnailSize +
     MulDiv(PmxCaptionAreaHeight, PPI, 96);
 end;
-
 constructor TFramePmxCatalog.Create(AOwner: TComponent);
 var
   PmxFolder: string;
 begin
   inherited;
   PmxFolder := GetAppFolder('PMX');
-  FCatalog := TPmxCatalogStorage.Create(
-    PmxFolder + 'Catalog.json', PmxFolder + 'PmxCatalog.txt');
+  FCatalog := TPmxCatalogStorage.Create(PmxFolder + 'Catalog.json',
+    PmxFolder + 'PmxCatalog.txt');
   FCatalog.LoadFromFile;
 
-  FThumbnailCache := TPmxCatalogThumbnailCache.Create(
-    PmxFolder + 'Cache\Model');
-  FPoseThumbnailCache := TPmxCatalogThumbnailCache.Create(
-    PmxFolder + 'Cache\Pose');
+  FThumbnailCache := TPmxCatalogThumbnailCache.Create(PmxFolder + 'Cache\Model');
+  FPoseThumbnailCache := TPmxCatalogThumbnailCache.Create(PmxFolder + 'Cache\Pose');
   FThumbnailRenderer := TPmxCatalogThumbnailRenderer.Create(Self);
   FThumbnailRenderer.Parent := Self;
+
+  FLeftPanel := TPanel.Create(Self);
+  FLeftPanel.Parent := Self;
+  FLeftPanel.Align := alLeft;
+  FLeftPanel.Width := PmxListPaneWidth;
+  FLeftPanel.BevelOuter := bvNone;
+  FLeftPanel.ParentBackground := False;
+  FLeftPanel.Color := Color;
+
+  FDivider := TSplitter.Create(Self);
+  FDivider.Parent := Self;
+  FDivider.Align := alLeft;
+  FDivider.Width := PmxDividerWidth;
+  FDivider.Beveled := True;
+  FDivider.Left := FLeftPanel.Width;
 
   FRightPanel := TPanel.Create(Self);
   FRightPanel.Parent := Self;
@@ -141,25 +156,10 @@ begin
   FRightPanel.ParentBackground := False;
   FRightPanel.Color := Color;
 
-  // VCLスタイルでTSplitterのColorが上書きされるため、固定幅のウィンドウを
-  // 持つPanelを左右の境界として使用する。
-  FDivider := TPanel.Create(Self);
-  FDivider.Parent := Self;
-  FDivider.Align := alLeft;
-  FDivider.Width := 1;
-  FDivider.BevelOuter := bvNone;
-  FDivider.ParentBackground := False;
-  FDivider.ParentColor := False;
-  FDivider.Color := clWhite;
-  FDivider.Enabled := False;
-
-  FLeftPanel := TPanel.Create(Self);
-  FLeftPanel.Parent := Self;
-  FLeftPanel.Align := alLeft;
-  FLeftPanel.Width := MulDiv(PmxListPaneWidth, CurrentPPI, 96);
-  FLeftPanel.BevelOuter := bvNone;
-  FLeftPanel.ParentBackground := False;
-  FLeftPanel.Color := Color;
+  FCharacterCombo := TPmxCatalogCharacterCombo.Create(Self);
+  FCharacterCombo.Parent := FLeftPanel;
+  FCharacterCombo.Align := alTop;
+  FCharacterCombo.OnChange := CharacterComboChanged;
 
   FPoseCatalogListView := TPmxPoseCatalogListView.Create(Self);
   FPoseCatalogListView.Parent := FRightPanel;
@@ -176,6 +176,10 @@ begin
 
   FCatalogListView.OnSelectionChanged := CatalogSelectionChanged;
   FCatalogListView.SetCatalog(FCatalog);
+  FCatalogContextMenu := TPmxCatalogContextMenu.Create(FCatalogListView,
+    FPoseCatalogListView, FThumbnailCache, FPoseThumbnailCache);
+  FCatalogContextMenu.SetCatalog(FCatalog);
+  FCatalogContextMenu.OnChanged := RefreshList;
 
   FDragAliasFileName := GetAppFolder('Temp') + 'PmxPose-' +
     IntToHex(NativeUInt(Self), SizeOf(Pointer) * 2) + '.object';
@@ -198,6 +202,7 @@ begin
   except
     { 一時エイリアスの後始末失敗は終了処理へ影響させない。 }
   end;
+  FCatalogContextMenu.Free;
   FPoseCatalogListView.Free;
   FCatalogListView.Free;
   FPoseCatalog.Free;
@@ -206,6 +211,16 @@ begin
   FThumbnailCache.Free;
   FCatalog.Free;
   inherited;
+end;
+
+procedure TFramePmxCatalog.CharacterComboChanged(Sender: TObject);
+begin
+  FCatalogListView.SetCharacterFilter(FCharacterCombo.Text);
+  if FCatalogListView.DisplayCount > 0 then
+    FCatalogListView.ItemIndex := 0
+  else
+    FCatalogListView.ItemIndex := -1;
+  CatalogSelectionChanged(FCatalogListView);
 end;
 
 function TFramePmxCatalog.PoseDragCanStart(Sender: TObject;
@@ -222,10 +237,10 @@ begin
   Index := FPoseCatalogListView.ItemAtPos(Point(X, Y));
   if (Index < 0) or (Index >= FPoseCatalog.Count) or
     (Index <> FPoseCatalogListView.ItemIndex) or
-    (FCatalogListView.ItemIndex < 0) or
-    (FCatalogListView.ItemIndex >= FCatalog.Count) then
+    (FCatalogListView.SelectedSourceIndex < 0) or
+    (FCatalogListView.SelectedSourceIndex >= FCatalog.Count) then
     Exit;
-  Model := FCatalog.Items[FCatalogListView.ItemIndex];
+  Model := FCatalog.Items[FCatalogListView.SelectedSourceIndex];
   Pose := FPoseCatalog[Index];
   Result := TryWritePmxPoseObjectAlias(Model.SourcePath, Pose.PoseData,
     Pose.InitialExpressionData, Pose.InitialEyeBlinkData,
@@ -248,7 +263,7 @@ var
 begin
   FreeAndNil(FPoseCatalog);
   Model := nil;
-  Index := FCatalogListView.ItemIndex;
+  Index := FCatalogListView.SelectedSourceIndex;
   if Assigned(FCatalog) and (Index >= 0) and (Index < FCatalog.Count) then
   begin
     Model := FCatalog.Items[Index];
@@ -271,10 +286,10 @@ begin
     Exit;
   Index := FPoseCatalogListView.ItemIndex;
   if (Index < 0) or (Index >= FPoseCatalog.Count) or
-    (FCatalogListView.ItemIndex < 0) or
-    (FCatalogListView.ItemIndex >= FCatalog.Count) then
+    (FCatalogListView.SelectedSourceIndex < 0) or
+    (FCatalogListView.SelectedSourceIndex >= FCatalog.Count) then
     Exit;
-  Model := FCatalog.Items[FCatalogListView.ItemIndex];
+  Model := FCatalog.Items[FCatalogListView.SelectedSourceIndex];
   Pose := FPoseCatalog[Index];
   OldInitialExpressionData := Pose.InitialExpressionData;
   OldPoseData := Pose.PoseData;
@@ -339,6 +354,7 @@ begin
   FCatalog := TPmxCatalogStorage.Create(FileName);
   FCatalog.LoadFromFile;
   FCatalogListView.SetCatalog(FCatalog);
+  FCatalogContextMenu.SetCatalog(FCatalog);
   RefreshList;
 end;
 
@@ -348,8 +364,16 @@ begin
   FLeftPanel.Visible := FCatalog.Count > 0;
   FDivider.Visible := FCatalog.Count > 0;
   FRightPanel.Visible := FCatalog.Count > 0;
+  // TComboBox.Itemsはハンドルを要求するため、フレームの親接続後だけ候補を構築する。
+  if Assigned(Parent) then
+  begin
+    FCharacterCombo.Rebuild(FCatalog);
+    FCatalogListView.SetCharacterFilter(FCharacterCombo.Text);
+  end
+  else
+    FCatalogListView.SetCharacterFilter(PmxCatalogAllCharactersCaption);
   FCatalogListView.Reload;
-  if (FCatalog.Count > 0) and Assigned(Parent) then
+  if (FCatalogListView.DisplayCount > 0) and Assigned(Parent) then
   begin
     if FCatalogListView.ItemIndex < 0 then
       FCatalogListView.ItemIndex := 0;
@@ -367,8 +391,6 @@ end;
 
 procedure TFramePmxCatalog.Show;
 begin
-  // このフレームは動的生成後にAviUtl2のウィンドウへ接続される。
-  // 実際の親が決まってからCurrentPPIを使い、96 DPI時の値を再計算する。
   ApplyDpiLayout;
   RefreshList;
   inherited Show;

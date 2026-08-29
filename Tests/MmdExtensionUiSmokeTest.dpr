@@ -20,6 +20,10 @@ uses
   MMDAnimationStudioFrame in '..\Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
   PmxCatalogFrame in '..\Source\Plugin\Extension\PMX\Catalog\PmxCatalogFrame.pas' {FramePmxCatalog: TFrame},
   PmxCatalogStorage in '..\Source\Plugin\Extension\PMX\Catalog\PmxCatalogStorage.pas',
+  PmxCatalogCharacterFilter in
+    '..\Source\Plugin\Extension\PMX\Catalog\Filter\PmxCatalogCharacterFilter.pas',
+  PmxCatalogContextMenu in
+    '..\Source\Plugin\Extension\PMX\Catalog\Menu\PmxCatalogContextMenu.pas',
   PmxCatalogListView in '..\Source\Plugin\Extension\PMX\Catalog\View\PmxCatalogListView.pas',
   PmxPoseCatalogStorage in '..\Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas',
   PmxPoseCatalogDataValidation in
@@ -84,6 +88,13 @@ begin
       Frame.DropFiles(HostPanel, DroppedFiles);
       if Frame.PmxCatalogFrame.Catalog.Count <> 1 then
         raise Exception.Create('duplicate PMX path was registered');
+      if not Assigned(Frame.PmxCatalogFrame.CatalogListView.PopupMenu) or
+         (Frame.PmxCatalogFrame.CatalogListView.PopupMenu.Items.Count <> 3) or
+         (Frame.PmxCatalogFrame.CatalogListView.PopupMenu.Items[0].Caption <>
+           #$767B#$9332#$89E3#$9664) or
+         (Frame.PmxCatalogFrame.CatalogListView.PopupMenu.Items[2].Caption <>
+           #$6700#$65B0#$306E#$72B6#$614B#$306B#$66F4#$65B0) then
+        raise Exception.Create('PMX context menu was not attached');
       if Frame.PmxCatalogFrame.Catalog.Items[0].Id = '' then
         raise Exception.Create('PMX UID was not created');
       if not TFile.Exists(TPath.Combine(
@@ -202,6 +213,11 @@ begin
                 if not ThumbnailCache.Load(PmxFileName, 128, 128,
                   LoadedBitmap) then
                   raise Exception.Create('PMX thumbnail cache load failed');
+                if not ThumbnailCache.Clear then
+                  raise Exception.Create('PMX thumbnail cache clear failed');
+                if ThumbnailCache.Load(PmxFileName, 128, 128,
+                  LoadedBitmap) then
+                  raise Exception.Create('PMX thumbnail cache was not cleared');
               finally
                 LoadedBitmap.Free;
                 ThumbnailCache.Free;
@@ -218,6 +234,14 @@ begin
           CatalogLines.Free;
         end;
       end;
+      if not Frame.PmxCatalogFrame.Catalog.RemoveAt(0) or
+         (Frame.PmxCatalogFrame.Catalog.Count <> 0) then
+        raise Exception.Create('PMX registration was not removed');
+      if not TFile.Exists(PoseFileName) then
+        raise Exception.Create('registration removal deleted model data');
+      if not Frame.PmxCatalogFrame.Catalog.LoadFromFile or
+         (Frame.PmxCatalogFrame.Catalog.Count <> 0) then
+        raise Exception.Create('removed PMX registration was restored');
       TDirectory.Delete(TestCatalogRoot, True);
       Writeln('frame-shown');
     finally

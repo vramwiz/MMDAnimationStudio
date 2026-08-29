@@ -10,6 +10,8 @@ uses
 const
   A2SCEditBackground = TColor($003A3A3A);
   A2SCEditText = clWhite;
+  A2SCComboBackground = TColor($003A3A3A);
+  A2SCComboText = clWhite;
   A2SCListViewBackground = TColor($001E1E1E);
   A2SCListViewAltBackground = TColor($002A2A2A);
   A2SCListViewText = TColor($00DCDCDC);

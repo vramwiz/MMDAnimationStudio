@@ -15,6 +15,8 @@ type
       Height: Integer): string;
   public
     constructor Create(const AFolder: string);
+    // このキャッシュ領域のPNGを全て削除する。
+    function Clear: Boolean;
     function Load(const PmxFileName: string; Width, Height: Integer;
       Bitmap: TBitmap): Boolean;
     function Save(const PmxFileName: string; Width, Height: Integer;
@@ -57,6 +59,26 @@ constructor TPmxCatalogThumbnailCache.Create(const AFolder: string);
 begin
   inherited Create;
   FFolder := IncludeTrailingPathDelimiter(AFolder);
+end;
+
+function TPmxCatalogThumbnailCache.Clear: Boolean;
+var
+  FileName: string;
+begin
+  Result := True;
+  if not TDirectory.Exists(FFolder) then
+    Exit;
+  try
+    for FileName in TDirectory.GetFiles(FFolder, '*.png',
+      TSearchOption.soTopDirectoryOnly) do
+      try
+        TFile.Delete(FileName);
+      except
+        Result := False;
+      end;
+  except
+    Result := False;
+  end;
 end;
 
 function TPmxCatalogThumbnailCache.CacheFileName(const PmxFileName,

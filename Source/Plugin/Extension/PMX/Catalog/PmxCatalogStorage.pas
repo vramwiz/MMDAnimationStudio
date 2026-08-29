@@ -45,6 +45,8 @@ type
     function IndexOfPath(const FileName: string): Integer;
     function LoadFromFile: Boolean;
     function ModelFolder(const Id: string): string;
+    // 一覧から登録だけを解除する。PMX本体とUID別データは削除しない。
+    function RemoveAt(Index: Integer): Boolean;
     function SaveToFile: Boolean;
     property Count: Integer read GetCount;
     property FileName: string read FCatalogFileName;
@@ -281,6 +283,27 @@ end;
 function TPmxCatalogStorage.ModelFolder(const Id: string): string;
 begin
   Result := TPath.Combine(FModelsFolder, Id);
+end;
+
+function TPmxCatalogStorage.RemoveAt(Index: Integer): Boolean;
+var
+  Item: TPmxCatalogItem;
+begin
+  Result := False;
+  if (Index < 0) or (Index >= FItems.Count) then
+    Exit;
+
+  Item := FItems.Extract(FItems[Index]);
+  try
+    Result := SaveToFile;
+    if not Result then
+      FItems.Insert(Index, Item)
+    else
+      Item.Free;
+  except
+    FItems.Insert(Index, Item);
+    raise;
+  end;
 end;
 
 function TPmxCatalogStorage.NormalizePmxPath(const FileName: string): string;

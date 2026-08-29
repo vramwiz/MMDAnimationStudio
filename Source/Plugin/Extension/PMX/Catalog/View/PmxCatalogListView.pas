@@ -1,4 +1,4 @@
-unit PmxCatalogListView;
+﻿unit PmxCatalogListView;
 
 // PMXカタログをモデル正面サムネイル付きで表示し、未生成画像を逐次処理する。
 
@@ -6,6 +6,7 @@ interface
 
 uses
   System.Classes,
+  System.Generics.Collections,
   System.Types,
   Vcl.Controls,
   Vcl.ExtCtrls,
@@ -24,7 +25,11 @@ type
     FThumbnailQueue: TStringList;
     FThumbnailRenderer: TPmxCatalogThumbnailRenderer;
     FThumbnailTimer: TTimer;
+    FCharacterFilter: string;
+    FVisibleIndexes: TList<Integer>;
+    function FilterText(SourceIndex: Integer): string;
     procedure QueueThumbnail(const FileName: string);
+    procedure RebuildVisibleIndexes;
     procedure ThumbnailTimer(Sender: TObject);
   protected
     function GetItemCount: Integer; override;
@@ -34,11 +39,15 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function DisplayIndexOfSource(SourceIndex: Integer): Integer;
     function DisplayName(Index: Integer): string;
     procedure Reload;
+    procedure SetCharacterFilter(const CharacterName: string);
     procedure SetCatalog(ACatalog: TPmxCatalogStorage);
     procedure SetThumbnailServices(ACache: TPmxCatalogThumbnailCache;
       ARenderer: TPmxCatalogThumbnailRenderer);
+    function SelectedSourceIndex: Integer;
+    function SourceIndexOfDisplay(DisplayIndex: Integer): Integer;
   end;
 
 implementation
@@ -46,11 +55,18 @@ implementation
 uses
   System.Math,
   System.SysUtils,
-  AviUtl2StyleColors;
+  AviUtl2StyleColors,
+  PmxCatalogCharacterFilter;
+
+const
+  ModelThumbnailVariant = 'head-centered-v1';
 
 constructor TPmxCatalogListView.Create(AOwner: TComponent);
 begin
   inherited;
+  // Layout設定は即時にGetItemCountを呼ぶため、表示索引を先に用意する。
+  FVisibleIndexes := TList<Integer>.Create;
+  FCharacterFilter := PmxCatalogAllCharactersCaption;
   Layout := illIcon;
   SelectionStyle := ilssImageOverlay;
   CaptionVisible := True;
@@ -73,7 +89,13 @@ begin
   FThumbnailTimer.Free;
   FThumbnailQueue.Free;
   FFailedPaths.Free;
+  FVisibleIndexes.Free;
   inherited;
+end;
+
+function TPmxCatalogListView.DisplayIndexOfSource(SourceIndex: Integer): Integer;
+begin
+  Result := FVisibleIndexes.IndexOf(SourceIndex);
 end;
 
 function TPmxCatalogListView.DisplayName(Index: Integer): string;
@@ -86,12 +108,15 @@ procedure TPmxCatalogListView.DrawItemImage(Index: Integer;
 var
   Bitmap: TBitmap;
   FileName: string;
+  SourceIndex: Integer;
 begin
   Target.Brush.Color := A2SCListViewAltBackground;
   Target.FillRect(Bounds);
-  if (FCatalog = nil) or (Index < 0) or (Index >= FCatalog.Count) then
+  SourceIndex := SourceIndexOfDisplay(Index);
+  if (FCatalog = nil) or (SourceIndex < 0) or
+    (SourceIndex >= FCatalog.Count) then
     Exit;
-  FileName := FCatalog[Index];
+  FileName := FCatalog[SourceIndex];
   if not FileExists(FileName) then
     Exit;
 
@@ -102,8 +127,8 @@ begin
     Bitmap.Canvas.Brush.Color := A2SCListViewAltBackground;
     Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
     if not Assigned(FThumbnailCache) or
-      not FThumbnailCache.Load(FileName, Bitmap.Width, Bitmap.Height,
-        Bitmap) then
+      not FThumbnailCache.LoadVariant(FileName, ModelThumbnailVariant,
+        Bitmap.Width, Bitmap.Height, Bitmap) then
       QueueThumbnail(FileName);
     Target.StretchDraw(Bounds, Bitmap);
   finally
@@ -113,8 +138,8 @@ end;
 
 function TPmxCatalogListView.GetItemCount: Integer;
 begin
-  if Assigned(FCatalog) then
-    Result := FCatalog.Count
+  if Assigned(FVisibleIndexes) then
+    Result := FVisibleIndexes.Count
   else
     Result := 0;
 end;
@@ -122,9 +147,20 @@ end;
 function TPmxCatalogListView.GetItemText(Index: Integer): string;
 begin
   Result := '';
+  Index := SourceIndexOfDisplay(Index);
   if (FCatalog = nil) or (Index < 0) or (Index >= FCatalog.Count) then
     Exit;
   Result := FCatalog.Items[Index].DisplayName;
+end;
+
+function TPmxCatalogListView.FilterText(SourceIndex: Integer): string;
+begin
+  Result := '';
+  if (FCatalog = nil) or (SourceIndex < 0) or
+    (SourceIndex >= FCatalog.Count) then
+    Exit;
+  Result := FCatalog.Items[SourceIndex].DisplayName + ' ' +
+    ExtractFileName(FCatalog.Items[SourceIndex].SourcePath);
 end;
 
 procedure TPmxCatalogListView.QueueThumbnail(const FileName: string);
@@ -141,7 +177,38 @@ begin
   FThumbnailTimer.Enabled := False;
   FThumbnailQueue.Clear;
   FFailedPaths.Clear;
+  RebuildVisibleIndexes;
   InvalidateList;
+end;
+
+procedure TPmxCatalogListView.RebuildVisibleIndexes;
+var
+  Def: TPmxCatalogCharacterDef;
+  DefIndex: Integer;
+  SourceIndex: Integer;
+begin
+  FVisibleIndexes.Clear;
+  if FCatalog = nil then
+    Exit;
+  DefIndex := PmxCatalogCharacterIndexOfName(FCharacterFilter);
+  for SourceIndex := 0 to FCatalog.Count - 1 do
+    if PmxCatalogCharacterIsAll(FCharacterFilter) or (DefIndex < 0) then
+      FVisibleIndexes.Add(SourceIndex)
+    else
+    begin
+      Def := PmxCatalogCharacterDef(DefIndex);
+      if PmxCatalogCharacterMatches(Def, FilterText(SourceIndex)) then
+        FVisibleIndexes.Add(SourceIndex);
+    end;
+end;
+
+procedure TPmxCatalogListView.SetCharacterFilter(
+  const CharacterName: string);
+begin
+  if SameText(FCharacterFilter, CharacterName) then
+    Exit;
+  FCharacterFilter := CharacterName;
+  Reload;
 end;
 
 procedure TPmxCatalogListView.SetCatalog(ACatalog: TPmxCatalogStorage);
@@ -159,6 +226,11 @@ begin
   Reload;
 end;
 
+function TPmxCatalogListView.SelectedSourceIndex: Integer;
+begin
+  Result := SourceIndexOfDisplay(ItemIndex);
+end;
+
 procedure TPmxCatalogListView.ThumbnailTimer(Sender: TObject);
 var
   Bitmap: TBitmap;
@@ -173,7 +245,7 @@ begin
 
   FileName := FThumbnailQueue[0];
   FThumbnailQueue.Delete(0);
-  DisplayIndex := FCatalog.IndexOfPath(FileName);
+  DisplayIndex := DisplayIndexOfSource(FCatalog.IndexOfPath(FileName));
   if DisplayIndex >= 0 then
   begin
     R := ItemImageRect(DisplayIndex);
@@ -182,7 +254,8 @@ begin
       if FThumbnailRenderer.RenderPmx(FileName, Max(1, R.Width),
         Max(1, R.Height), Bitmap) then
       begin
-        FThumbnailCache.Save(FileName, Bitmap.Width, Bitmap.Height, Bitmap);
+        FThumbnailCache.SaveVariant(FileName, ModelThumbnailVariant,
+          Bitmap.Width, Bitmap.Height, Bitmap);
         ReloadItem(DisplayIndex);
       end
       else if FFailedPaths.IndexOf(FileName) < 0 then
@@ -192,6 +265,15 @@ begin
     end;
   end;
   FThumbnailTimer.Enabled := FThumbnailQueue.Count > 0;
+end;
+
+function TPmxCatalogListView.SourceIndexOfDisplay(
+  DisplayIndex: Integer): Integer;
+begin
+  if (DisplayIndex >= 0) and (DisplayIndex < FVisibleIndexes.Count) then
+    Result := FVisibleIndexes[DisplayIndex]
+  else
+    Result := -1;
 end;
 
 end.

@@ -14,6 +14,8 @@ type
   TPmxCatalogThumbnailRenderer = class(TCustomControl)
   private
     FRenderer: TMmdD3DRenderer;
+    function RenderPmxInternal(const FileName, PoseData: string; Width,
+      Height: Integer; Bitmap: TBitmap; FocusHead: Boolean): Boolean;
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -68,12 +70,59 @@ end;
 function TPmxCatalogThumbnailRenderer.RenderPmx(const FileName: string;
   Width, Height: Integer; Bitmap: Vcl.Graphics.TBitmap): Boolean;
 begin
-  Result := RenderPmxPose(FileName, '', Width, Height, Bitmap);
+  Result := RenderPmxInternal(FileName, '', Width, Height, Bitmap, True);
 end;
 
 function TPmxCatalogThumbnailRenderer.RenderPmxPose(const FileName,
   PoseData: string; Width, Height: Integer;
   Bitmap: Vcl.Graphics.TBitmap): Boolean;
+begin
+  Result := RenderPmxInternal(FileName, PoseData, Width, Height, Bitmap,
+    False);
+end;
+
+function TryHeadCamera(Model: TPmxModel; const Poses: TPmxBonePoses;
+  const MorphWeights: TPmxMorphWeights; Width, Height: Integer;
+  out Camera: TMmdPreviewCamera): Boolean;
+const
+  HeadZoom = 4.0;
+var
+  HeadIndex: Integer;
+  Index: Integer;
+  Joint: TMmdPreviewJoint;
+  Point: TPmxVector3;
+  Scene: TMmdPreviewScene;
+begin
+  Result := False;
+  HeadIndex := -1;
+  for Index := 0 to High(Model.Bones) do
+    if SameText(Model.Bones[Index].Name, #$982D) or
+      SameText(Model.Bones[Index].Name, 'head') then
+    begin
+      HeadIndex := Index;
+      Break;
+    end;
+  if HeadIndex < 0 then
+    Exit;
+
+  BuildPreviewScene(Model, Poses, MorphWeights, EmptyPreviewTarget,
+    EmptyPreviewTarget, Scene);
+  for Joint in Scene.Joints do
+    if Joint.BoneIndex = HeadIndex then
+    begin
+      Camera := DefaultPreviewCamera;
+      Point := ProjectPreviewPosition(Joint.Position, Scene.Projection,
+        Camera, Width, Height);
+      Camera.Zoom := HeadZoom;
+      Camera.PanX := -Point.X * Camera.Zoom * Width * 0.5;
+      Camera.PanY := Point.Y * Camera.Zoom * Height * 0.5;
+      Exit(True);
+    end;
+end;
+
+function TPmxCatalogThumbnailRenderer.RenderPmxInternal(const FileName,
+  PoseData: string; Width, Height: Integer;
+  Bitmap: Vcl.Graphics.TBitmap; FocusHead: Boolean): Boolean;
 var
   Camera: TMmdPreviewCamera;
   Model: TPmxModel;
@@ -103,6 +152,8 @@ begin
     Target := EmptyPreviewTarget;
     Camera := DefaultPreviewCamera;
     FRenderer.SetScene(Model, Poses, MorphWeights, Target, Target);
+    if FocusHead then
+      TryHeadCamera(Model, Poses, MorphWeights, Width, Height, Camera);
     FRenderer.SetCamera(Camera);
     FRenderer.SetDisplayVisibility(True, False);
     Result := FRenderer.CaptureModelImage(Bitmap);
