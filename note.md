@@ -90,6 +90,7 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 2026-08-30にMMDAnimationStudioメイン拡張だけへ外部更新可能なバージョン番号を追加した。ルート`Version.inc`の`MMD_ANIMATION_STUDIO_VERSION`を`MMDAnimationStudio.dpr`だけが取り込み、AviUtl2のプラグイン情報を`MMDアニメーションスタジオ 1.0.0`形式で登録する。他のMMD Filter／Module／Scriptプロジェクトには埋め込まない。Win64 Debugビルドと`.aux2`配置に合格した。
 - 2026-08-30にZIP配布用`Setup\InstallSetup.bat`を追加した。配置済みRelease成果物から拡張、Model／Pose／Face／SerifDraw、`sk4d.dll`、MMD Script／Module、READMEだけを収集し、`Setup\MMDAnimationStudio.zip`へSyncroh2と同じ`Plugin`／`Script`直下構成で格納する。カタログは各ファイルをAviUtl2の`Plugin\MMD`／`Script\MMD`へコピーする。開発用MMDAIPreview、DLL、RSM、ログは含めない。一時収集先`Setup\Package`とZIPはGit除外、バッチは追跡対象とし、実生成と格納内容を確認済み。
 - 2026-08-30にAviUtl2カタログ用`Setup\MMDAnimationStudio.catalog.json`を追加した。IDは`VRAMWIZ.MMDAnimationStudio`、GitHub Release取得先は`vramwiz/MMDAnimationStudio`、資産名は`MMDAnimationStudio.zip`固定とする。初回版は`v1.0.0`、検出対象は`{pluginsDir}/MMD/MMDAnimationStudio.aux2`、最終ReleaseビルドのXXH3-128は`4a76613283b7c183d9cb30d3b07b0dc2`。Release全体ビルド、ZIP再生成、全9コピー元の存在、資産名正規表現、JSON構文を確認済み。
+- 2026-08-30に拡張画面へマウスを入れただけでExplorerページへ切り替わる問題を修正した。ホストから届くファイル0件のドロップ通知が通常ファイル扱いとなり、Explorerを自動選択していたことが原因だった。空通知は現在ページを変えず無視し、PMXページ維持のUI回帰テスト、Win64 Releaseビルド、実機用`.aux2`配置に合格した。
 
 ## 次の作業
 

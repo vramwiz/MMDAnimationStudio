@@ -138,6 +138,11 @@ var
   FileName: string;
   HasPmx, HasVpd, PoseWasActive: Boolean;
 begin
+  { ホストがマウス進入時などに空のドロップ通知を送る場合がある。
+    空通知では表示ページを変更せず、そのまま無視する。 }
+  if Length(Files) = 0 then
+    Exit;
+
   if PanelLaunch.Visible then
   begin
     EnsureLauncherFrame;

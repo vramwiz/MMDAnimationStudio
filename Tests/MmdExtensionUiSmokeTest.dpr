@@ -224,6 +224,13 @@ begin
       Application.ProcessMessages;
       if Frame.ToolbarPages.Height <= Frame.ToolbarPages.ButtonHeight then
         raise Exception.Create('toolbar did not expand for wrapped buttons');
+      Frame.ButtonPmx.Click;
+      Application.ProcessMessages;
+      SetLength(DroppedFiles, 0);
+      Frame.DropFiles(HostPanel, DroppedFiles);
+      Application.ProcessMessages;
+      if not Frame.PanelPmx.Visible or Frame.PanelExplorer.Visible then
+        raise Exception.Create('empty drop notification changed the active page');
       SetLength(DroppedFiles, 1);
       TestCatalogRoot := TPath.Combine(TPath.GetTempPath,
         'MMDAnimationStudio-' + TPath.GetRandomFileName);
