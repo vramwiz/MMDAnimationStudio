@@ -1,0 +1,2 @@
+active_count=1
+active_layer=2 source=1 serif_length=3

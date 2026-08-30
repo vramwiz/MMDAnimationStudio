@@ -1,0 +1,18 @@
+-- MMDAnimationStudio Serif input script
+@MMDセリフ
+--label:MMD
+--information:MMDセリフを共有メモリへ発行
+--string@character:キャラクター
+--string@emotion:感情
+--select@direction:演出,なし=-1,涙=0,汗=1,怒=2,困=3,驚=4,照=5,泣=6,笑=7,赤面=8,青ざめ=9,震え=10,沈黙=11,目閉じ=12,ハート=13,音符=14,星=15,はてな=16,びっくり=17,集中線=18,影=19,焦り=20,閃き=21,呆れ=22,落ち込み=23,混乱=24,ため息=25,吐息=26,湯気=27,花=28,血=29
+--text@message:セリフ
+--string@aiueo:母音
+--text@lab:LAB
+--string@uid:UID
+--script:
+local func = obj.module("MMD_Serif_Module")
+if func then
+    local frame = obj.frame
+    local current_frame = obj.getvalue("frame_s") + frame
+    func.set_text(obj.framerate,frame,obj.layer,message,character,emotion,direction,aiueo,obj.totaltime,lab,tostring(obj.id),current_frame)
+end

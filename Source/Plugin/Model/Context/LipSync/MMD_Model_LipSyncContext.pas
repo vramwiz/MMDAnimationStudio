@@ -39,7 +39,17 @@ implementation
 
 uses
   System.Math,
-  System.SysUtils;
+  System.SysUtils
+{$IFDEF DEBUG}
+  , MMD_Model_DebugLog,
+  Winapi.Windows
+{$ENDIF}
+  ;
+
+{$IFDEF DEBUG}
+var
+  LipSyncContextLogCount: Integer;
+{$ENDIF}
 
 constructor TMmdModelLipSyncContext.Create;
 begin
@@ -71,6 +81,13 @@ begin
   except
     FValid := False;
   end;
+{$IFDEF DEBUG}
+  if InterlockedIncrement(LipSyncContextLogCount) <= 300 then
+    MmdModelDebugLog(Format(
+      'LipSync setting: length=%d valid=%d initialized=%d open=%s weight=%.4f',
+      [Length(Text), Ord(FValid), Ord(FSetting.Initialized),
+       FSetting.OpenClose.MorphName, FSetting.OpenClose.Weight]));
+{$ENDIF}
 end;
 
 function TMmdModelLipSyncContext.Resolve(const Model: TPmxModel): Boolean;
@@ -93,17 +110,38 @@ begin
   Result := FOpenCloseIndex >= 0;
   for Phoneme := Low(TMmdLipSyncPhoneme) to High(TMmdLipSyncPhoneme) do
     Result := Result or (FPhonemeIndices[Phoneme] >= 0);
+{$IFDEF DEBUG}
+  if InterlockedIncrement(LipSyncContextLogCount) <= 300 then
+    MmdModelDebugLog(Format(
+      'LipSync resolve: valid=%d result=%d morphs=%d open=%s:%d A=%s:%d I=%s:%d U=%s:%d E=%s:%d O=%s:%d N=%s:%d',
+      [Ord(FValid), Ord(Result), Length(Model.Morphs),
+       FSetting.OpenClose.MorphName, FOpenCloseIndex,
+       FSetting.Phonemes[mlpA].MorphName, FPhonemeIndices[mlpA],
+       FSetting.Phonemes[mlpI].MorphName, FPhonemeIndices[mlpI],
+       FSetting.Phonemes[mlpU].MorphName, FPhonemeIndices[mlpU],
+       FSetting.Phonemes[mlpE].MorphName, FPhonemeIndices[mlpE],
+       FSetting.Phonemes[mlpO].MorphName, FPhonemeIndices[mlpO],
+       FSetting.Phonemes[mlpN].MorphName, FPhonemeIndices[mlpN]]));
+{$ENDIF}
 end;
 
 function TMmdModelLipSyncContext.UpdateWeights(
   const Sample: TMmdLipSyncSample; HasSample: Boolean; Frame: Integer;
   Fps, SpeedSec: Double; Strength: Single): Boolean;
 var
+{$IFDEF DEBUG}
+  ActiveIndex: Integer;
+  ActiveWeight: Single;
+{$ENDIF}
   Alpha, TargetWeight: Single;
   I, MorphIndex: Integer;
   Target: TPmxMorphWeights;
 begin
   Result := False;
+{$IFDEF DEBUG}
+  ActiveIndex := -1;
+  ActiveWeight := 0;
+{$ENDIF}
   if not FValid or (FModel = nil) then
     Exit;
   InitializeMorphWeights(FModel, Target);
@@ -146,7 +184,23 @@ begin
   FLastFrame := Frame;
   for I := 0 to High(FCurrentWeights) do
     if Abs(FCurrentWeights[I]) > 0.000001 then
-      Exit(True);
+    begin
+{$IFDEF DEBUG}
+      if Abs(FCurrentWeights[I]) > Abs(ActiveWeight) then
+      begin
+        ActiveIndex := I;
+        ActiveWeight := FCurrentWeights[I];
+      end;
+{$ENDIF}
+      Result := True;
+    end;
+{$IFDEF DEBUG}
+  if InterlockedIncrement(LipSyncContextLogCount) <= 300 then
+    MmdModelDebugLog(Format(
+      'LipSync weights: frame=%d has_sample=%d kind=%d phoneme=%d open=%.4f strength=%.4f result=%d active_index=%d active_weight=%.4f',
+      [Frame, Ord(HasSample), Ord(Sample.Kind), Ord(Sample.Phoneme),
+       Sample.OpenAmount, Strength, Ord(Result), ActiveIndex, ActiveWeight]));
+{$ENDIF}
 end;
 
 end.

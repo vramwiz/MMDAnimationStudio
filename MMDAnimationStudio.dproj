@@ -19,6 +19,12 @@
         <DCC_Namespace>System;System.Win;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMDAnimationStudio</SanitizedProjectName>
     </PropertyGroup>
+    <PropertyGroup>
+        <DCC_UnitSearchPath>Source\Plugin\Serif\Host;..\AviUtl2PluginLib\Serif\Alias;..\AviUtl2PluginLib\Serif\Analyzer;..\AviUtl2PluginLib\Serif\AviUtl;..\AviUtl2PluginLib\Serif\AviUtl\Alias;..\AviUtl2PluginLib\Serif\AviUtl\Selection;..\AviUtl2PluginLib\Serif\AviUtl\Send;..\AviUtl2PluginLib\Serif\AviUtl\Timeline;..\AviUtl2PluginLib\Serif\Board;..\AviUtl2PluginLib\Serif\Board\Render;..\AviUtl2PluginLib\Serif\Board\Render\Table;..\AviUtl2PluginLib\Serif\Chara;..\AviUtl2PluginLib\Serif\Config;..\AviUtl2PluginLib\Serif\Host\Bootstrap;..\AviUtl2PluginLib\Serif\Monitor;..\AviUtl2PluginLib\Serif\Project;..\AviUtl2PluginLib\Serif\Project\AviUtl;..\AviUtl2PluginLib\Serif\Project\Lifecycle;..\AviUtl2PluginLib\Serif\Project\Session;..\AviUtl2PluginLib\Serif\Runtime\Context;..\AviUtl2PluginLib\Serif\Runtime\Controller;..\AviUtl2PluginLib\Serif\Scenario;..\AviUtl2PluginLib\Serif\Scenario\Chara;..\AviUtl2PluginLib\Serif\Scenario\Msg;..\AviUtl2PluginLib\Serif\Scene;..\AviUtl2PluginLib\Serif\Scene\Msg;..\AviUtl2PluginLib\Serif\SpeechSynthesis;..\AviUtl2PluginLib\Serif\UI\Composition;..\AviUtl2PluginLib\Serif\UI\Navigation;..\AviUtl2PluginLib\Serif\Voicevox;..\AviUtl2PluginLib\Serif\Voicevox\Registration;..\AviUtl2PluginLib\Serif\Watcher;..\AviUtl2PluginLib\Serif\Watcher\Settings;..\AviUtl2PluginLib\Serif\Watcher\State;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
+    <PropertyGroup>
+        <DCC_UnitSearchPath>..\AviUtl2PluginLib\Serif\Draw;..\AviUtl2PluginLib\Lib\ProjectManager;..\AviUtl2PluginLib\Lib\AutoLineBreakAdjuster;..\AviUtl2PluginLib\Lib\VectorRenderer;..\AviUtl2PluginLib\Lib\ListBoxEx;..\AviUtl2PluginLib\Lib\BitmapEx;..\AviUtl2PluginLib\Lib\HorizontalScrollBar;..\AviUtl2PluginLib\Lib\VoicevoxToolbar;..\AviUtl2PluginLib\Lib\VerticalSlider;..\Syncroh2\AviUtl\AliasList;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
@@ -75,6 +81,7 @@
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_Hints>false</DCC_Hints>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <Manifest_File>(なし)</Manifest_File>
@@ -104,6 +111,9 @@
         <DCCReference Include="..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas"/>
         <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginTypes.pas"/>
         <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginCore.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\Plugin\Project\AviUtl2PluginProject.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginScene.pas"/>
+        <DCCReference Include="..\Syncroh2\AviUtl\Plugin\Cursor\AviUtl2PluginCursorControl.pas"/>
         <DCCReference Include="..\Syncroh2\AviUtl\Plugin\Alias\AviUtl2AliasSelected.pas"/>
         <DCCReference Include="..\Syncroh2\AviUtl\AviUtl2TimeConvert.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas"/>
@@ -120,6 +130,8 @@
         <DCCReference Include="..\AviUtl2PluginLib\Lib\ToolBar\ToolbarButtons.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\ToolBar\ToolbarIcon.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\WindowInfoList\WindowInfoList.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\MainToolInfo\MainToolInfoService.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\PSDImage\PSDImageDebugLog.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAviUtlBridge.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAliasBuilder.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Explorer\ExplorerFrame.pas">
@@ -147,7 +159,23 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlProfile.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlAliasProvider.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\SerifFrame.pas">
+            <Form>FrameSerif</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\Host\Bootstrap\SerifHostBootstrap.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\Host\SerifHostNotifications.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\Scene\Msg\SerifDirectionCatalog.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\AviUtl\Send\SerifAviUtlObjectCreate.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlNames.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlProfile.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAliasProvider.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAdapter.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\Host\MmdSerifHost.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioExtension.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioFrame.pas">
             <Form>FrameMMDAnimationStudio</Form>

@@ -62,12 +62,33 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 2026-08-30にSyncroh2側の既存`AviUtl2StyleColors`を基準配色として`AviUtl2PluginLib\Lib\Style`へ移し、Syncroh2とMMDAnimationStudioの双方がコピーせず直接参照する構成へ統一した。MMDAnimationStudio側にだけ存在した配色値は採用せず、一覧の選択色やホバー色もSyncroh2基準とする。ランチャーの通常稼働色、音声ソフトを当該ランチャーが起動した水色、外部起動を検出した緑も同ユニットの定数とする。
 - 2026-08-30に共有ExplorerのAviUtl2入出力境界を分離した。画像・音声D&Dのエイリアス生成は`ExplorerAliasBuilder`へ移し、Syncroh2の総合`AliasManager`とPSD設定への依存を除去した。フレーム時間と選択オブジェクトのエイリアス取得は`ExplorerAviUtlBridge`の登録式コールバックとし、Syncroh2とMMDAnimationStudioが各自の編集ハンドルを接続する。エイリアスの項目名、フレーム計算、UTF-8 BOMなし出力は従来互換を維持する。
 - 2026-08-30にMMDAnimationStudioのExplorerページへ共有`TFrameExplorer`をコピーせず直接接続した。初回表示時に遅延生成し、通常ファイル／フォルダのD&DをExplorerへ渡す。履歴、フォルダ設定、キャッシュ、エイリアスは`SetAppFolderRoot('MMDAnimationStudio')`によりMMDAnimationStudio配下へ保存する。専用UIスモークテストでブリッジ、画像エイリアス形式、画面表示、フォルダD&Dを確認した。
+- 2026-08-30にセリフ共通参照の前段として、共有Serifの責務分離を開始した。監視フォルダーの共通INI管理を`Watcher\Settings\SerifWatcherSettings`、Syncroh2形式セリフの選択・再編集を`AviUtl\Selection\SerifAviUtlSelection`、D&Dエイリアス生成と一時ファイル所有を`AviUtl\Alias\SerifAviUtlDragAlias`へ分離した。既存`AviUtl2Serif`の公開APIは互換ラッパーとして維持する。`Syncroh2_Desktop`と`Syncroh2_Extension2`のWin64 Releaseは、変更前後とも既存79警告・エラー0でビルドした。
+- 2026-08-30に`AviUtl2Serif`の残存実装を追加分離した。セリフ／音声オブジェクト生成と連続送信状態は`AviUtl\Send\SerifAviUtlSender`、本文・演出・感情・母音・UIDの取得更新と移動・削除は`AviUtl\Timeline\SerifAviUtlTimeline`が所有する。`AviUtl2Serif`は従来公開APIの互換窓口だけとし、両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`SerifFrame`からVOICEVOX生成物登録とプロジェクトデータセッションを分離した。`Voicevox\Registration\SerifVoicevoxRegistration`が一時音声の解析、F2再編集、新規配置、配置失敗時の未送信登録、ファイル後始末を担当し、`Project\Session\SerifProjectSession`がScene／Charas／Watchers／Configの読込・保存・クローズと新規時の初期化を担当する。`SerifFrame`には選択シーンの受渡し、画面更新、AviUtl2プロジェクト通知の調停を残した。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`SerifFrame`からAviUtl2プロジェクト関連付けとシーン同期を`Project\AviUtl\SerifProjectAviUtlSync`へ、自動フォルダー準備・一覧登録・一時プロジェクト昇格を`Project\Lifecycle\SerifProjectLifecycle`へ分離した。同期ユニットはGUIを直接参照せず、フォルダー確保・読込・シーン適用をメソッドコールバックで調停する。`SerifFrame`の公開APIは維持し、両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`SerifFrame`の子フレーム生成・親子接続・イベント配線を`UI\Composition\SerifUiComposition`、ツールバー構築・ページ表示・操作ヒントを`UI\Navigation\SerifUiNavigation`、監視状態の旧値正規化・開始停止・共通設定保存を`Watcher\State\SerifWatcherController`へ分離した。既存フィールドと破棄順、公開APIは維持し、両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に登録式`AviUtl\Adapter\Core\SerifAviUtlProfile`とSyncroh2実装`AviUtl\Adapter\Syncroh2\SerifAviUtlSyncroh2Adapter`を追加した。エフェクト名、項目名、プロジェクトキーをSyncroh2実装へ集約し、選択・タイムライン・プロジェクト同期・セリフ表示D&D／プリセット検証は登録プロファイルを参照する。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に登録式`AviUtl\Adapter\Core\SerifAviUtlAliasProvider`を追加した。共通Serifは入力セリフ追加、旧表示D&D、新表示D&Dを値レコードとコールバックだけで要求し、`AliasManagerScriptSerif`と`AliasManagerFilterSerifDraw`の型・生成形式はSyncroh2アダプター内だけで扱う。未使用だったシーンGUIのAliasManager参照も削除した。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`SerifAviUtlAliasProvider`をバッチ生成境界へ拡張した。バッチ初期化、音声オブジェクト追加、AviUtl2へ渡す本文取得、D&Dファイル保存をSyncroh2アダプターへ移し、`SerifAviUtlSender`から`AliasManager`と`AliasManagerNormalAudio`への直接依存を除去した。セリフと音声の追加順、フレーム・音量・パン・グループ値は従来どおりとし、両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30にセリフボード画像のD&D生成も`SerifAviUtlAliasProvider`へ移した。`AviUtl2SerifBoard`は従来互換APIと3秒相当の生成条件を維持しながら値レコードだけを渡し、画像用`AliasManagerObjectPicture`はSyncroh2アダプター内だけで参照する。旧CP932だった同ユニットは内容を保ってUTF-8へ正規化した。これにより共有Serif内のAliasManager直接参照はSyncroh2アダプターだけとなった。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`Runtime\Context\SerifRuntimeContext`を追加し、プロジェクト、シーン、配役、監視2種、補助ウィンドウ監視、解析、設定、取込メッセージ、シナリオ配役／メッセージの11種を一括所有させた。フォルダー同期、孤立一時プロジェクト掃除、シナリオ読込、終了時のシーン保存もContextの生成・破棄境界へ移した。`SerifFrame`は既存処理互換の非所有参照だけを保持し、UI部品、画面状態、一時プロジェクトロックの所有を続ける。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`Runtime\Controller\SerifRuntimeController`を追加した。配役名変更の既存シーン／取込中メッセージへの反映、配役・設定・シーン保存、監視ファイル解析と配置失敗時の未送信登録、VOICEVOX登録後保存をUI非依存関数へ移した。`SerifFrame`の該当イベントは表示更新と外部通知だけを担当し、同ファイルは827行から763行になった。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30に`Host\Bootstrap\SerifHostBootstrap`を追加した。製品ID、保存ルート名、親Control、カーソル通知を1レコードで受け、保存先確保、AviUtl2 Profile／Alias Providerの登録確認と製品ID一致を検証してから、親接続・`alClient`・通知設定済みの共有`TFrameSerif`を生成する。Syncroh2拡張の遅延生成と単体GUIの`SerifForm`をこの入口へ移し、生成後の音声合成プロジェクト同期とランチャーHWND適用は従来どおりホスト側に残した。両Syncroh2プロジェクトのWin64 Releaseリビルドは既存79警告・エラー0を維持した。
+- 2026-08-30にMMDAnimationStudio専用のSerif AviUtl2境界を`Source\Plugin\Serif\AviUtl`へ追加した。入力形式は`セリフ`フィルターと標準描画の組合せ、項目は`キャラクター／感情／演出／セリフ／母音／LAB／UID`、プロジェクトキーは`MMDSerifFolder`とした。Profile、Alias Provider、起動時登録を3ユニットへ分離し、エイリアス生成はSyncroh2のAliasManager、Module、Scriptを参照しない。専用テストで製品ID、フレーム、改行エスケープ、項目名、Syncroh2文字列非混入を確認した。MMDAnimationStudioのWin64 Releaseは警告0・エラー0、Syncroh2 Desktop／Extension2は既存79警告・エラー0を維持した。
+- 2026-08-30に`MMD_Serif_Filter`を追加し、MMDグループの専用入力フィルターとして`キャラクター／感情／演出／セリフ／母音／LAB／UID`の7文字列項目と1x1完全透明出力を登録した。項目名はProfile／Alias Provider／Filterが`MmdSerifAviUtlNames`を共用する。追加時点では共有メモリを未接続とし、MMD側のセリフ表示フィルターと描画処理は作らない方針を確定した。Providerの表示エイリアス生成は空結果へ変更し、メインツールバーのセリフアイコンとページ領域は将来接続用に維持した。専用Filterテーブル／透明出力テスト、Debug／Release、6プロジェクトのグループReleaseは警告0・エラー0で完了した。
+- 2026-08-30に`PanelSerif`へ共有`TFrameSerif`をHost Bootstrap経由で遅延接続した。MMD専用`MmdSerifHost`がAviUtl2のプロジェクト読込／保存とシーン変更を受け、コールバック後のVCLタイマーで台本と音声合成設定を同期する。カーソル移動は共有SceneMsgPanelが実行し、Syncroh2固有の選択同期ガードは持ち込まない。MMD Profileは表示エフェクトを持たないため、共有フレーム内の表示Alias／ボードページも隠す。専用UIスモークテスト、MMD 6プロジェクトReleaseは警告0・エラー0、Syncroh2 Desktop／Extension2は警告75件・エラー0で完了した。
+- 同接続のビルドで判明した共通Serifの残存依存を整理した。PSD更新は`SerifHostNotifications`の登録式コールバックへ変更し、Syncroh2だけが従来更新関数を登録する。セリフ送信用オブジェクト生成はAliasManager型を参照しない`SerifAviUtlObjectCreate`へ分離し、情報欄通知の`MainToolInfoService`は共有Libへ移した。演出順送りは共通`SerifDirectionCatalog`を参照する。
+- 2026-08-30に`SerifTalkSharedCodec`と`SerifTalkSharedMemory`を共通Libへ追加した。`MMD_Serif_Filter`は評価中の7項目、相対／タイムラインフレーム、FPS、総時間から現在LAB行と発話状態を含むSyncroh2互換文字列を生成し、SDKレイヤー+1の`Local\ShareTalk`スロットへ発行する。MMDフィルターとモデル表示は同じ名前付きWindows MutexでDLL間の読み書きを排他する。静的テストに加え、配置済み`.auf2`を別モジュールとしてロードして別EXE側から共有値を読む境界テスト、Serif／ModelのReleaseリビルド、6プロジェクトのグループReleaseに警告0・エラー0で合格した。Syncroh2 Desktop／Extension2のReleaseリビルドも既存75警告・エラー0を維持した。
+- 2026-08-30に`MMD_Serif_Filter`の公開名とエイリアス内の日本語がソース文字コード判定により文字化けする問題を修正した。`MMDセリフ`、7項目名、情報文字列、エイリアスの標準エフェクト／項目名をUnicodeコードポイント定義へ統一し、フィルターテーブルと生成エイリアスをコードポイントで直接照合する回帰テストを追加した。専用2テストとMMD 6プロジェクトのWin64 Releaseビルドはすべて合格した。
+- 2026-08-30に`MMDAnimationStudio`のWin64 Debugだけが、共通SerifのDebug条件参照`PSDImageDebugLog`を解決できず失敗する問題を修正した。同ユニットを`.dpr`と`.dproj`へ明示登録し、Win64 Debug／Releaseの両リビルドに合格した。
+- 2026-08-30にセリフ共有メモリのモデル受信段階を検証した。AviUtl2実プロセスの`Local\ShareTalk`から実オブジェクト由来のセリフ、配役、LAB、フレーム値を確認し、配置済みセリフDLLからモデル入力までの終端間テストを追加した。LABの`A`、母音文字列の`I`、通常セリフの開閉量を確認し、口パクモーフ反映テストとMMD 6プロジェクトのWin64 Releaseビルドも合格した。
+- 2026-08-30にMMDセリフがSyncroh2の新`SerifDraw`へ渡らない原因を、`Local\ShareTalkIndex`／`Local\ShareTalkHistory`の未発行と特定した。共通`SerifSharedIndex`互換の`SerifTalkSharedIndexPublisher`を追加し、MMDセリフの各評価で本文スロット、現在フレーム索引、履歴を発行するようにした。配置済みMMDセリフDLLからSyncroh2の実`TSerifDrawReceiver`までの終端間テスト、MMD 6プロジェクトRelease、`Syncroh2_Filter_SerifDraw` Releaseに合格した。
+- 2026-08-30にモデル側のセリフ受信を参照オブジェクト評価式へ変更した。画面上の参照レイヤーから1を引いて`GetImageObject`し、取得した送信元IDとモデルの現在タイムラインフレームが`ShareTalk`と一致する場合だけ口パク値を受理する。送信元の強制評価、レイヤー変換、同フレーム受信、残留値拒否のテストとMMD 6プロジェクトReleaseに合格した。
+- 2026-08-30にMMDセリフの根本構成を修正した。図形＋`MMD_Serif_Filter`を廃止し、独立した`MMDセリフ@MMDAnimationStudio_Script`オブジェクトと`MMD_Serif_Module.mod2`へ置換した。ScriptはSyncroh2互換の12引数で`set_text`を呼び、Moduleが`ShareTalk`／Index／Historyを発行する。AliasはScriptを基底エフェクト、標準描画を第2エフェクトとして生成する。旧配置済み`.auf2`は再登録を防ぐため`__recovery\obsolete_serif_filter_20260830`へ退避した。専用Alias／Moduleテスト、配置済みModuleからSyncroh2 `SerifDraw`とモデル参照口パクまでの終端間テスト、MMD 6プロジェクトのDebug／Release、Syncroh2 Desktop／Extension2／SerifDrawのReleaseに合格した。MMD Debugには共通Serif由来の既存Hint 11件、Syncroh2には既存警告が残るが、今回追加コードのエラーは0件である。
 
 ## 次の作業
 
-表情管理画面の次段階を扱う。
-
-1. VPD取込の破損・部分失敗表示とPMX別関節可動領域判定を継続する。
+MMD専用セリフの生成、共有、既存SerifDraw表示、旧／新セリフ双方の口パク確認までを完成扱いとする。MMD側の専用セリフ描画は完成範囲に含めない。
 
 ## セリフ／Explorer／ランチャーの統合方針
 
@@ -100,7 +121,7 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 共有Explorerの設定、ファイル表示、上端ツール、履歴／ツリー切替、お気に入り、ツリーの6コンテナを`TDarkPanel`へ移行した。将来独自GUIへ置換する`Explorer\ListView`配下の一覧実装と内部コンテナは対象外のまま維持する。
 - 共有セリフGUIの最上位にあるクライアント、各ページ、監視欄の10コンテナを`TDarkPanel`へ移行した。セリフ入力、監視、一覧等の内部機能には触れず、ページ切替先となる外枠だけを共通テーマへ接続する。
 - セリフ監視欄右側のVOICEVOX状態表示を`TDarkLabel`へ移行した。従来の13px基準と淡色表示は`DesignFontHeight`／`TextColor`で維持し、`ApplyDpi`内の個別フォント計算を削除した。
-- 共有セリフ監視フレームの状態表示領域を`TDarkPanel`／`TDarkLabel`へ移行した。状態に応じて変わる文字色は`TextColor`へ統一し、13px基準、中央配置、開始／停止ボタンの従来寸法は維持する。
+- 共有セリフ監視フレームの状態表示領域を`TDarkPanel`／`TDarkLabel`へ移行した。状態に応じて変わる文字色は`TextColor`へ統一し、状態表示と開始／停止ボタンの文字は13px基準、中央配置、開始／停止ボタンの従来寸法は維持する。開始／停止ボタンは親フレームの大きなフォントを継承しない。
 - モデル表示フィルターのプロジェクト参照へ、分離後の`DarkTheme\Core`と`DarkTheme\VclControls`各ユニットを追加した。設定画面が共通ダーク部品を参照しても、他プロジェクトの生成済みDCUに依存せず単独ビルドできる構成とする。
 - 共有セリフ描画フレームの見出し、タイトル、コマンド領域を`TDarkPanel`／`TDarkLabel`へ移行した。一覧本体には触れず、ツールバー専用色、20px／24pxの既存配置、13px基準のタイトル文字を維持する。
 - 共有セリフのシーン選択領域を`TDarkPanel`へ移行した。上端の基準高さ29pxは`DesignHeight`へ移し、個別の高さDPI計算と背景色設定を削除した。コンボ配置固有の内側余白と一覧本体は変更しない。
@@ -108,10 +129,10 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - Explorer本体は共有`TFrameExplorer`をそのまま参照する。画像・音声エイリアス生成は共有`ExplorerAliasBuilder`、AviUtl2編集状態へのアクセスは`ExplorerAviUtlBridge`を境界とし、ExplorerからSyncroh2のPSD／セリフ実装を参照しない。
 - Explorer、ランチャー、セリフが使用するデータは、既存の`SetAppFolderRoot('MMDAnimationStudio')`を正本とし、通常はマイドキュメントの`MMDAnimationStudio`配下にある機能別フォルダへ保存する。
 - セリフは、セリフ／シーン／配役／プロジェクト管理、音声・LAB・AIUEO解析、VOICEVOX、監視、GUI等のコアを既存共有実装から利用する。Syncroh2側ソースのコピーは作らない。
-- MMDAnimationStudioでは、セリフ入力にSyncroh2のモジュールとスクリプトを使用しない。可能な限りAviUtl2のMMD専用フィルタープラグインで実装し、透明画像を返しながら現在フレームのセリフ情報を発行する。
+- MMDAnimationStudioではSyncroh2のモジュールとスクリプトを使用せず、同じAviUtl2 Script Module ABIに従うMMD専用Module／Scriptを持つ。セリフは図形へ付けるFilterではなく独立Scriptオブジェクトとする。
 - セリフの共有メモリはSyncroh2互換を維持する。`Local\ShareTalk`、`Local\ShareTalkIndex`、`Local\ShareTalkHistory`の名前、スロット数、文字数、ペイロードキー、`SIH2`／`SIR1`形式を変更しない。MMDのモデル表示と既存互換受信側がどちらの送信元も読める状態を保つ。
-- 共有メモリのペイロード生成と発行処理は共通ライブラリへ分離し、旧Syncroh2モジュールとMMD専用セリフフィルターの両方が同じcodec／publisherを使用する方針とする。Index／Historyを複数DLLから更新できるよう、DLL内だけの`TMonitor`ではなく共有名のWindows Mutex等によるプロセス内横断の排他を設ける。
-- AviUtl2上のセリフオブジェクト形式は製品別とする。Syncroh2は既存の`セリフ入力@Syncroh2_Script`、MMDAnimationStudioはMMD専用フィルター名と項目構成を使用する。
+- 共有メモリのペイロード生成と発行処理は共通ライブラリへ分離し、旧Syncroh2モジュールとMMD専用セリフModuleの両方が同じcodec／publisherを使用する。Index／Historyを複数DLLから更新できるよう、共有名のWindows Mutexでプロセス内横断の排他を設ける。
+- AviUtl2上のセリフオブジェクト形式は製品別とする。Syncroh2は既存の`セリフ入力@Syncroh2_Script`、MMDAnimationStudioは`MMDセリフ@MMDAnimationStudio_Script`とする。
 - エイリアス生成、D&D、セリフオブジェクト判定、選択値取得、F2再編集、値更新、UID照合、移動、削除、完全エイリアス検証は入出力境界として製品別に分岐する。分岐を各所へ散らさず、エフェクト名と各項目名を持つ製品別プロファイルまたはアダプターへ集約する。
 - 新規生成は呼出元製品の形式だけを出力する。読込みと判定は必要に応じてSyncroh2形式とMMD形式の両方を受理し、旧プロジェクトと相互運用を維持する。
 
@@ -194,6 +215,19 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 左のPMXを選択すると右にそのPMXのポーズ一覧を表示する。ポーズが未登録なら空ポーズデータの「初期状態」を自動作成し、標準姿勢として表示する。
 - 右のポーズをダブルクリックするとPMX管理と同じ設定フォームをポーズ専用構成で開く。上部のページ切替ツールバーとモーフ等の設定ページは作らない。画面下の「閉じる」またはタイトルバーの×で現在の姿勢を採用し、個別JSONの保存後に姿勢データをキーとしてサムネイルを再生成する。
 - 右のポーズ一覧はPMX管理と同じ操作ツールバー、ポップアップメニュー、ショートカットを共用する。PMX管理ではモデル表示、ポーズ画面では`モデルファイル／ポーズ／設定`を持つポーズオブジェクトをD&D出力する。
+
+## 直近のMMDセリフ実機確認（2026-08-30）
+
+- MMDセリフのScript + ModuleはShareTalk、SerifIndex、履歴へ正しく発行しており、Syncroh2のSerifDrawが同一フレームの本文、UID、発音状態を受信できることを確認した。
+- 同一フレームを時間を置いて再描画すると、AviUtl2がScriptをキャッシュして共有索引の時刻だけが期限切れになる。SerifDrawは索引と共有スロットのフレーム一致に加え、`GetImageObject`で送信元レイヤーのオブジェクト実在を確認できた場合だけ期限切れの同一フレーム値を受理する。削除済み送信元の残留値は受理しない。
+- `sample3.aup2`のSerifDraw設定は旧`SD2`形式だった。現行デコーダーがこれを拒否して既定の中央配置へ戻したため、短いMMDセリフがモデルと重なり、未表示に見えていた。互換なSD2の本文・配置・配役別色を読み込み、次回保存時にSD7へ更新できるようにした。
+- AIMIRAIでframe 17を再描画し、SD2のfont=160、placement=4、position=(-5.236,384)が復元され、MMDセリフ「テスト」が指定位置へ表示されることを確認した。
+- `MMD_Serif_Module`はDebug / Releaseともコンパイル成功。Releaseの配置はAviUtl2が`MMD_Serif_Module.mod2`を読み込み中だとWindowsのファイルロックでPostBuildだけ失敗するため、AviUtl2終了後に実行する。
+- 旧Syncroh2セリフと新MMDセリフの両方で口パクが失敗した原因は、Script側の`obj.id`をSDK側の`POBJECT_INFO.ID`と同じID体系として比較していたことだった。実機では前者が`1`または`2`、後者が`2161861778443075553`であり一致しない。参照レイヤーのオブジェクト実在、共有本文、現在フレーム、空でない送信元IDを検証し、異なる体系のID同士は比較しないよう修正した。
+- AIMIRAIで新MMDセリフのframe 22がLABの`E`を「え」モーフ（index 28、weight 1.0）へ、旧Syncroh2セリフのframe 90がLABの`O`を「お」モーフ（index 29、weight 1.0）へ適用することを確認した。字幕と口形の双方が正常に表示された。
+- 口パク経路のDebugログを`C:\ProgramData\aviutl2\Plugin\MMD\MMD_Model_debug.log`へ追加した。Releaseではログ処理を含めず、MMD Model FilterのWin64 Debug / Releaseを警告0・エラー0で確認した。
+- 完成整理で455行だった`MMDAnimationStudioFrame`からツールバー配色、ページ連動、アイコン生成、DPI高さ計算を`Extension\UI\Navigation\MMDAnimationStudioToolbarController`へ分離し、384行へ縮小した。ページ切替で生成直後の既定PMX選択が切替前の選択を上書きしない境界も同ControllerとFrame間へ明示した。今回追加・変更した機能ユニットは最大384行、同一フォルダ最大4件とし、ユニット目的と公開APIの責務・入出力・副作用コメントを監査した。
+- MMDAnimationStudio、MMD Serif Module、MMD Model FilterのWin64 Debug / Releaseを最終ビルドし、セリフModule／Adapterテストと拡張UIスモークに合格した。MMDAnimationStudioだけは共有Serif由来の既知Hint 11件を維持し、今回追加コードの警告・エラーは0件である。
 
 ## 文書
 

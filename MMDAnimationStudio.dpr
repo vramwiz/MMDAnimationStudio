@@ -19,6 +19,9 @@ uses
   AviUtl2StyleColors in '..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas',
   AviUtl2PluginTypes in '..\Syncroh2\AviUtl\Plugin\AviUtl2PluginTypes.pas',
   AviUtl2PluginCore in '..\Syncroh2\AviUtl\Plugin\AviUtl2PluginCore.pas',
+  AviUtl2PluginProject in '..\Syncroh2\AviUtl\Plugin\Project\AviUtl2PluginProject.pas',
+  AviUtl2PluginScene in '..\Syncroh2\AviUtl\Plugin\AviUtl2PluginScene.pas',
+  AviUtl2PluginCursorControl in '..\Syncroh2\AviUtl\Plugin\Cursor\AviUtl2PluginCursorControl.pas',
   AviUtl2AliasSelected in '..\Syncroh2\AviUtl\Plugin\Alias\AviUtl2AliasSelected.pas',
   AviUtl2TimeConvert in '..\Syncroh2\AviUtl\AviUtl2TimeConvert.pas',
   ShortcutAction in '..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas',
@@ -31,6 +34,8 @@ uses
   ToolbarButtons in '..\AviUtl2PluginLib\Lib\ToolBar\ToolbarButtons.pas',
   ToolbarIcon in '..\AviUtl2PluginLib\Lib\ToolBar\ToolbarIcon.pas',
   WindowInfoList in '..\AviUtl2PluginLib\Lib\WindowInfoList\WindowInfoList.pas',
+  MainToolInfoService in '..\AviUtl2PluginLib\Lib\MainToolInfo\MainToolInfoService.pas',
+  PSDImageDebugLog in '..\AviUtl2PluginLib\Lib\PSDImage\PSDImageDebugLog.pas',
   ExplorerAviUtlBridge in '..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAviUtlBridge.pas',
   ExplorerAliasBuilder in '..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAliasBuilder.pas',
   ExplorerFrame in '..\AviUtl2PluginLib\Explorer\ExplorerFrame.pas' {FrameExplorer: TFrame},
@@ -43,7 +48,20 @@ uses
   LauncherRunningState in '..\AviUtl2PluginLib\Launcher\LauncherRunningState.pas',
   LauncherShellUtils in '..\AviUtl2PluginLib\Launcher\LauncherShellUtils.pas',
   LauncherWizardFrame in '..\AviUtl2PluginLib\Launcher\LauncherWizardFrame.pas' {FrameLauncherWizard: TFrame},
+  SerifAviUtlProfile in '..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlProfile.pas',
+  SerifAviUtlAliasProvider in '..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlAliasProvider.pas',
+  SerifFrame in '..\AviUtl2PluginLib\Serif\SerifFrame.pas' {FrameSerif: TFrame},
+  SerifHostBootstrap in '..\AviUtl2PluginLib\Serif\Host\Bootstrap\SerifHostBootstrap.pas',
+  SerifHostNotifications in '..\AviUtl2PluginLib\Serif\Host\SerifHostNotifications.pas',
+  SerifDirectionCatalog in '..\AviUtl2PluginLib\Serif\Scene\Msg\SerifDirectionCatalog.pas',
+  SerifAviUtlObjectCreate in '..\AviUtl2PluginLib\Serif\AviUtl\Send\SerifAviUtlObjectCreate.pas',
+  MmdSerifAviUtlNames in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlNames.pas',
+  MmdSerifAviUtlProfile in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlProfile.pas',
+  MmdSerifAviUtlAliasProvider in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAliasProvider.pas',
+  MmdSerifAviUtlAdapter in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAdapter.pas',
+  MmdSerifHost in 'Source\Plugin\Serif\Host\MmdSerifHost.pas',
   MMDAnimationStudioExtension in 'Source\Plugin\Extension\MMDAnimationStudioExtension.pas',
+  MMDAnimationStudioToolbarController in 'Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas',
   MMDAnimationStudioToolbarIcons in 'Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas',
   MMDAnimationStudioFrame in 'Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
   PmxCatalogFrame in 'Source\Plugin\Extension\PMX\Catalog\PmxCatalogFrame.pas' {FramePmxCatalog: TFrame},
@@ -155,6 +173,12 @@ begin
       EditHandle := Host^.CreateEditHandle;
     SetExplorerAviUtlBridge(AviUtl2Convert, AviUtl2GetSelectedAlias);
     Host^.SetPluginInformation(MMDPluginDisplayName);
+    if Assigned(Host^.RegisterProjectLoadHandler) then
+      Host^.RegisterProjectLoadHandler(@OnProjectLoad);
+    if Assigned(Host^.RegisterProjectSaveHandler) then
+      Host^.RegisterProjectSaveHandler(@OnProjectSave);
+    if Assigned(Host^.RegisterChangeSceneHandler) then
+      Host^.RegisterChangeSceneHandler(@SceneChangeHandler);
     RegisterMMDAnimationStudioWindow(Host);
   except
     ClearExplorerAviUtlBridge;

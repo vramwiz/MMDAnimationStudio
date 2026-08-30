@@ -1,11 +1,14 @@
 unit MMDAnimationStudioToolbarIcons;
 
+// MMDAnimationStudioのページ種別を示すDPI対応ツールバーアイコンを一括生成する。
+
 interface
 
 uses
   Vcl.Graphics,
   Vcl.ImgList;
 
+// Imagesを指定サイズのページアイコンへ置換する。色は通常表示と選択同期表示へ使用する。
 procedure BuildMMDAnimationStudioToolbarIcons(Images: TCustomImageList;
   IconSize: Integer; NormalColor, SyncColor: TColor);
 

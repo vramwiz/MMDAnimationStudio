@@ -11,12 +11,12 @@ video.height=1080
 video.rate=30
 video.scale=1
 audio.rate=44100
-cursor.frame=138
-cursor.layer=1
+cursor.frame=17
+cursor.layer=0
 preview.frame=0
 display.frame=0
 display.layer=0
-display.zoom=20000
+display.zoom=75000
 display.order=0
 display.camera=
 display.grid.x=16,-16
@@ -30,14 +30,18 @@ display.tempo.beat=4
 display.tempo.start=0.000000
 display.tempo.offset=0.000000
 [0]
-layer=2
-focus=1
-frame=0,191
+layer=1
+frame=16,36
+group=1
 [0.0]
-effect.name=表情
-モデルファイル=D:\VoiceroidProj\MMD\ふらすこ式風きりたん_ver0.05\ふらすこ式風きりたん_ver0.05.pmx
-表情={"version":1,"morphs":[{"name":"\u3042","weight":1.0}]}
-設定=
+effect.name=MMDセリフ@MMDAnimationStudio_Script
+キャラクター=四国めたん
+感情=ノーマル
+演出=なし
+セリフ=テスト
+母音=
+LAB=t0,.0997675,Pause\nt.0997675,.0539779,Consonant\nt.1537454,.0835282,E\nt.2372736,.0421738,Consonant\nt.2794474,.0695197,U\nt.3489671,.0642475,Consonant\nt.4132146,.1267854,O\n
+UID={307997D9-6B1E-4E80-B82A-1919174F9749}
 [0.1]
 effect.name=標準描画
 X=0.00
@@ -57,9 +61,96 @@ Group2=1
 透明度=0.00
 合成モード=通常
 [1]
-layer=3
-frame=0,311
+layer=1
+frame=77,108
+group=2
 [1.0]
+effect.name=セリフ入力@Syncroh2_Script
+キャラ=四国めたん
+感情=ノーマル
+演出=なし
+セリフ=テストセリフ
+母音=
+LAB=t0,.0985529,Pause\nt.0985529,.0536411,Consonant\nt.152194,.0851649,E\nt.2373589,.0312304,Consonant\nt.2685893,.0634311,U\nt.3320204,.0588418,Consonant\nt.3908622,.0659342,O\nt.4567964,.0705763,Consonant\nt.5273727,.078112,E\nt.6054847,.02659,Consonant\nt.6320747,.0860634,I\nt.7181381,.0756648,Consonant\nt.7938029,.0861971,U\n
+UID={2205D1BB-8F6D-4DAD-84E8-FAAF53C40315}
+[1.1]
+effect.name=標準描画
+X=0.00
+Y=0.00
+Z=0.00
+Group=1
+中心X=0.00
+中心Y=0.00
+中心Z=0.00
+Group3=1
+X軸回転=0.00
+Y軸回転=0.00
+Z軸回転=0.00
+Group2=1
+拡大率=0.000
+縦横比=0.000
+透明度=0.00
+合成モード=通常
+[2]
+layer=2
+frame=16,36
+group=1
+[2.0]
+effect.name=音声ファイル
+再生位置=0.000,0.651,再生範囲,0
+再生速度=100.00
+ファイル=C:\Users\zan12\Documents\MMDAnimationStudio\Serif\20260830150821959_07157A01\20260830_152841_552_000.wav
+トラック=0
+ループ再生=0
+[2.1]
+effect.name=音声再生
+音量=100.00
+左右=0.00
+[3]
+layer=2
+frame=77,108
+group=2
+[3.0]
+effect.name=音声ファイル
+再生位置=0.000,1.003,再生範囲,0
+再生速度=100.00
+ファイル=C:\Users\zan12\Documents\Syncroh2\Serif\20260830150818797_4CE7823B\20260830_151112_662_000.wav
+トラック=0
+ループ再生=0
+[3.1]
+effect.name=音声再生
+音量=100.00
+左右=0.00
+[4]
+layer=3
+frame=104,295
+[4.0]
+effect.name=表情
+モデルファイル=D:\VoiceroidProj\MMD\ふらすこ式風きりたん_ver0.05\ふらすこ式風きりたん_ver0.05.pmx
+表情={"version":1,"morphs":[{"name":"\u3042","weight":1.0}]}
+設定=
+[4.1]
+effect.name=標準描画
+X=0.00
+Y=0.00
+Z=0.00
+Group=1
+中心X=0.00
+中心Y=0.00
+中心Z=0.00
+Group3=1
+X軸回転=0.00
+Y軸回転=0.00
+Z軸回転=0.00
+Group2=1
+拡大率=100.000
+縦横比=0.000
+透明度=0.00
+合成モード=通常
+[5]
+layer=4
+frame=0,311
+[5.0]
 effect.name=カメラ制御
 X=0.00
 Y=0.00
@@ -75,10 +166,11 @@ Group2=1
 深度ぼけ=0.00
 視野角=0.00
 対象レイヤー数=0
-[2]
-layer=4
+[6]
+layer=5
+focus=1
 frame=0,311
-[2.0]
+[6.0]
 effect.name=モデル表示
 モデルファイル=D:\VoiceroidProj\MMD\ふらすこ式風きりたん_ver0.05\ふらすこ式風きりたん_ver0.05.pmx
 設定=
@@ -86,7 +178,7 @@ MMD倍率=15.0
 表情参照レイヤー=3
 ポーズ参照レイヤー=1
 モーション参照レイヤー=1
-セリフ参照レイヤー=1
+セリフ参照レイヤー=2
 ソング参照レイヤー=1
 目パチ間隔（秒）=4.00
 目パチ速度（秒）=0.10
@@ -99,10 +191,10 @@ MMD倍率=15.0
 表情={"version":1,"morphs":[]}
 目パチデータ={"version":2,"morph":"\u307E\u3070\u305F\u304D","closedWeight":1.0,"interval":4.0,"speed":0.1,"offset":0.0}
 口パクデータ={"version":2,"initialized":true,"openClose":{"morph":"\u3042","weight":1.0},"phonemes":{"a":{"morph":"\u3042","weight":1.0},"i":{"morph":"\u3044","weight":1.0},"u":{"morph":"\u3046","weight":1.0},"e":{"morph":"\u3048","weight":1.0},"o":{"morph":"\u304A","weight":1.0},"n":{"morph":"\u3093","weight":1.0}},"speed":0.1,"strength":1.0}
-[2.1]
+[6.1]
 effect.name=標準描画
-X=0.00
-Y=920.00
+X=-640.00
+Y=850.00
 Z=0.00
 Group=1
 中心X=0.00
@@ -113,10 +205,42 @@ X軸回転=0.00
 Y軸回転=0.00
 Z軸回転=0.00
 Group2=1
-拡大率=388.000
+拡大率=446.000
 縦横比=0.000
 透明度=0.00
 合成モード=通常
+[7]
+layer=7
+frame=0,228
+[7.0]
+effect.name=フィルタオブジェクト
+[7.1]
+effect.name=新旧朗2 セリフ表示
+設定=
+テキストパラメータ1=SD2;fs=160;ow=16;ob=0;fc=FFFFFFFF;oc=FF247EFF;bc=FF247EFF;fn=597520476F74686963205549;st=1;se=0;sx=10;sy=10;sb=4;ss=0;sc=A0000000;ls=0;cs=0;al=1;op=255;pl=4;x=-5.236;y=384;layers=7,77.091,16,FFFFFFFF,FF247EFF,597520476F74686963205549,1,1,32.691,36.182,4,0,A0000000,0,0,1,0,255,FF247EFF/9,160,16,FFFFFFFF,FF56A70A,597520476F74686963205549,1,0,10,10,4,0,A0000000,0,0,1,0,255,FF7FF213
+前 種類=なし
+前 方向=標準
+前 奥行き=奥から
+前 値1=0000000000000000
+常時 感情表現=0
+常時 速さ=1.00
+同期 種類=なし
+同期 色塗り=文字単位
+同期 通過後=戻す
+同期 形=自動
+同期 色=ffff00
+同期 サイズ=120.00
+同期 オフセットX=0
+同期 オフセットY=0
+後 種類=なし
+後 方向=標準
+後 奥行き=奥へ
+後 値1=0000000000000000
 [plugin.0]
 plugin.name=Syncroh2_Extension2
+SerifFolderName=C:\Users\zan12\Documents\Syncroh2\Serif\20260830150818797_4CE7823B\
+SpeechSynthesisProjectID={AE2B924B-17AD-456F-ACC4-176A1D0D5B07}
+MMDSerifFolder=C:\Users\zan12\Documents\MMDAnimationStudio\Serif\20260830150821959_07157A01\
+[plugin.1]
+plugin.name=MMDAnimationStudio
 SpeechSynthesisProjectID={AE2B924B-17AD-456F-ACC4-176A1D0D5B07}

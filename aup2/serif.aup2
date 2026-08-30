@@ -1,0 +1,167 @@
+[project]
+version=2010301
+file=D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\aup2\serif.aup2
+display.scene=0
+preview.scene=0
+[scene.0]
+scene=0
+name=Root
+video.width=1920
+video.height=1080
+video.rate=30
+video.scale=1
+audio.rate=44100
+cursor.frame=9
+cursor.layer=2
+preview.frame=0
+display.frame=0
+display.layer=0
+display.zoom=10000
+display.order=0
+display.camera=
+display.grid.x=16,-16
+display.grid.y=16,-16
+display.grid.width=200
+display.grid.height=200
+display.grid.step=200.000000
+display.grid.range=10000.000000
+display.tempo.bpm=120.000000
+display.tempo.beat=4
+display.tempo.start=0.000000
+display.tempo.offset=0.000000
+[0]
+layer=0
+focus=1
+frame=0,20
+group=1
+[0.0]
+effect.name=図形
+図形の種類=四角形
+サイズ=1
+縦横比=0.00
+ライン幅=4000
+色=ffffff
+角を丸くする=0
+[0.1]
+effect.name=標準描画
+X=0.00
+Y=0.00
+Z=0.00
+Group=1
+中心X=0.00
+中心Y=0.00
+中心Z=0.00
+Group3=1
+X軸回転=0.00
+Y軸回転=0.00
+Z軸回転=0.00
+Group2=1
+拡大率=100.000
+縦横比=0.000
+透明度=0.00
+合成モード=通常
+[0.2]
+effect.name=MMDセリフ
+キャラクター=四国めたん
+感情=ノーマル
+演出=-1
+セリフ=テスト
+母音=
+LAB=t0,.0997675,Pause\nt.0997675,.0539779,Consonant\nt.1537454,.0835282,E\nt.2372736,.0421738,Consonant\nt.2794474,.0695197,U\nt.3489671,.0642475,Consonant\nt.4132146,.1267854,O\n
+UID={53354836-89C5-4B52-946D-860BF7B1D74B}
+[1]
+layer=0
+frame=68,88
+group=2
+[1.0]
+effect.name=セリフ入力@Syncroh2_Script
+キャラ=四国めたん
+感情=ノーマル
+演出=なし
+セリフ=テスト
+母音=
+LAB=t0,.0997675,Pause\nt.0997675,.0539779,Consonant\nt.1537454,.0835282,E\nt.2372736,.0421738,Consonant\nt.2794474,.0695197,U\nt.3489671,.0642475,Consonant\nt.4132146,.1267854,O\n
+UID={28218E0D-A16E-4E61-8DD8-BCECC026B4C1}
+[1.1]
+effect.name=標準描画
+X=0.00
+Y=0.00
+Z=0.00
+Group=1
+中心X=0.00
+中心Y=0.00
+中心Z=0.00
+Group3=1
+X軸回転=0.00
+Y軸回転=0.00
+Z軸回転=0.00
+Group2=1
+拡大率=0.000
+縦横比=0.000
+透明度=0.00
+合成モード=通常
+[2]
+layer=1
+frame=0,20
+group=1
+[2.0]
+effect.name=音声ファイル
+再生位置=0.000,0.651,再生範囲,0
+再生速度=100.00
+ファイル=C:\Users\zan12\Documents\MMDAnimationStudio\Serif\20260830144119953_5A2652AF\20260830_144128_458_000.wav
+トラック=0
+ループ再生=0
+[2.1]
+effect.name=音声再生
+音量=100.00
+左右=0.00
+[3]
+layer=1
+frame=68,88
+group=2
+[3.0]
+effect.name=音声ファイル
+再生位置=0.000,0.651,再生範囲,0
+再生速度=100.00
+ファイル=C:\Users\zan12\Documents\Syncroh2\Serif\20260830144204777_48284319\20260830_144418_840_000.wav
+トラック=0
+ループ再生=0
+[3.1]
+effect.name=音声再生
+音量=100.00
+左右=0.00
+[4]
+layer=5
+frame=0,95
+[4.0]
+effect.name=フィルタオブジェクト
+[4.1]
+effect.name=新旧朗2 セリフ表示
+設定=
+テキストパラメータ1=SD7;fs=54;ow=30;ob=0;oe=1;fc=FFFFFFFF;oc=FF000000;bc=FF000000;fn=597520476F74686963205549;st=1;se=0;sx=20;sy=20;sb=8;ss=0;sc=A0000000;ls=0;cs=0;al=1;pl=4;x=0;y=0;rp=4;rx=0;ry=0;rfs=54;row=30;rob=0;roe=1;rfc=FFFFFFFF;roc=FF000000;rbc=FF000000;rfn=597520476F74686963205549;rst=1;rse=0;rsx=0;rsy=0;rsb=0;rss=0;rsc=FF000000;rls=0;rcs=0;rv=0;fk=0;fas=0;fsh=0;fcr=32;fdl=24;fdg=24;ftw=250;fth=64;ftx=24;fbp=0;fbw=100;fbl=60;fbd=0;fx=0;fy=0;fw=1280;fh=180;ffv=1;fov=1;fow=2;fos=0;fsv=0;fsb=0;fsx=8;fsy=8;fss=0;ffc=70303030;ffm=0;fgs=30;foc=FFE6E6E6;fic=FFE6E6E6;flg=0;fpc=FFFFFFFF;fpx=28;fpy=20;fpr=16;fsc=6E000000;colors=;frames=;rolecolors=
+前 種類=なし
+前 方向=標準
+前 奥行き=奥から
+前 値1=0000000000000000
+常時 感情表現=0
+常時 速さ=1.00
+同期 種類=なし
+同期 色塗り=文字単位
+同期 通過後=戻す
+同期 形=自動
+同期 色=ffff00
+同期 サイズ=120.00
+同期 オフセットX=0
+同期 オフセットY=0
+後 種類=なし
+後 方向=標準
+後 奥行き=奥へ
+後 値1=0000000000000000
+[plugin.0]
+plugin.name=Syncroh2_Extension2
+SerifFolderName=C:\Users\zan12\Documents\Syncroh2\Serif\20260830144204777_48284319\
+SpeechSynthesisProjectID={2DD039AB-84B1-4254-BDFD-74D0329FD7C0}
+MMDSerifFolder=C:\Users\zan12\Documents\MMDAnimationStudio\Serif\20260830144119953_5A2652AF\
+[plugin.1]
+plugin.name=MMDAnimationStudio
+SpeechSynthesisProjectID={2DD039AB-84B1-4254-BDFD-74D0329FD7C0}

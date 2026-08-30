@@ -1,5 +1,7 @@
 unit MMDAnimationStudioExtension;
 
+// AviUtl2拡張ウィンドウの登録、VCLホスト生成、ファイルドロップ境界を所有する。
+
 interface
 
 uses
@@ -7,27 +9,17 @@ uses
   AviUtl2PluginTypes;
 
 type
-  TMMDSetPluginInformation = procedure(Information: PWideChar); cdecl;
-  TMMDRegisterWindowClient = procedure(Name: PWideChar; WindowHandle: HWND); cdecl;
-
-  PMMDHostAppTable = ^TMMDHostAppTable;
-  TMMDHostAppTable = record
-    SetPluginInformation: TMMDSetPluginInformation;
-    RegisterInputPlugin: Pointer;
-    RegisterOutputPlugin: Pointer;
-    RegisterFilterPlugin: Pointer;
-    RegisterScriptModule: Pointer;
-    RegisterImportMenu: Pointer;
-    RegisterExportMenu: Pointer;
-    RegisterWindowClient: TMMDRegisterWindowClient;
-    CreateEditHandle: function: PEditHandle; cdecl;
-  end;
+  // AviUtl2 SDKの登録テーブルを部分再定義せず、プロジェクト／シーン通知を
+  // 含む共通定義をそのまま利用する。
+  PMMDHostAppTable = PHostAppTable;
 
 const
   MMDPluginDisplayName: PWideChar =
     #$004D#$004D#$0044#$30A2#$30CB#$30E1#$30FC#$30B7#$30E7#$30F3#$30B9#$30BF#$30B8#$30AA;
 
+// Hostへ拡張ウィンドウを1件登録し、MMDAnimationStudioのルート画面を生成する。
 procedure RegisterMMDAnimationStudioWindow(Host: PMMDHostAppTable);
+// 登録済み画面とWin32資源を破棄する。未登録の場合は何もしない。
 procedure UnregisterMMDAnimationStudioWindow;
 
 implementation

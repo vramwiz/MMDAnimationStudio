@@ -24,6 +24,7 @@ uses
   PmxPose,
   PmxReader,
   MMD_Model_Context,
+  MMD_Model_DebugLog,
   MMD_Model_FaceInput,
   MMD_Model_LipSyncInput,
   MMD_Model_LipSyncProtocol,
@@ -57,6 +58,9 @@ var
   SettingsButtonItem: TFILTER_ITEM_BUTTON;
   SongLayerItem: TFILTER_ITEM_TRACK;
   StandardPoseDataItem: TFILTER_ITEM_STRING;
+{$IFDEF DEBUG}
+  ModelLipSyncLogCount: Integer;
+{$ENDIF}
 
 threadvar
   BonePoses: TPmxBonePoses;
@@ -87,6 +91,7 @@ var
   LipSyncActive, LipSyncConfigured, LipSyncHasSample: Boolean;
   LipSyncSample: TMmdLipSyncSample;
   LipSyncSpeed: Double;
+  LipSyncStrength: Single;
   MorphActive: Boolean;
   Model: TPmxModel;
   ModelFileName: string;
@@ -182,17 +187,41 @@ begin
           Context.UpdateLipSync(string(LipSyncDataItem.Value));
           LipSyncConfigured := not ExpressionUsesLip and
             Context.ResolveLipSync(Model);
+{$IFDEF DEBUG}
+          if ModelLipSyncLogCount < 300 then
+          begin
+            Inc(ModelLipSyncLogCount);
+            MmdModelDebugLog(Format(
+              'LipSync gate: frame=%d data_len=%d expression_uses_lip=%d configured=%d serif_layer=%.3f song_layer=%.3f fps=%.3f',
+              [Frame, Length(string(LipSyncDataItem.Value)),
+               Ord(ExpressionUsesLip), Ord(LipSyncConfigured),
+               SerifLayerItem.Value, SongLayerItem.Value, Fps]));
+          end;
+{$ENDIF}
         end;
         if LipSyncConfigured then
         begin
           LipSyncSpeed := EnsureRange(LipSyncSpeedItem.Value, 0.01, 100.0);
-          LipSyncHasSample := ReadMmdLipSyncSample(
+          LipSyncStrength := EnsureRange(LipSyncStrengthItem.Value / 100,
+            0.0, 1.0);
+          LipSyncHasSample := ReadReferencedMmdLipSyncSample(Video,
             Round(EnsureRange(SerifLayerItem.Value, 1.0, 99.0)),
             Round(EnsureRange(SongLayerItem.Value, 1.0, 99.0)),
             LipSyncSpeed, LipSyncSample);
           LipSyncActive := Context.UpdateLipSyncWeights(LipSyncSample,
             LipSyncHasSample, Frame, Fps, LipSyncSpeed,
-            EnsureRange(LipSyncStrengthItem.Value / 100, 0.0, 1.0));
+            LipSyncStrength);
+{$IFDEF DEBUG}
+          if ModelLipSyncLogCount < 300 then
+          begin
+            Inc(ModelLipSyncLogCount);
+            MmdModelDebugLog(Format(
+              'LipSync apply: frame=%d has_sample=%d kind=%d phoneme=%d open=%.4f speed=%.4f strength=%.4f active=%d',
+              [Frame, Ord(LipSyncHasSample), Ord(LipSyncSample.Kind),
+               Ord(LipSyncSample.Phoneme), LipSyncSample.OpenAmount,
+               LipSyncSpeed, LipSyncStrength, Ord(LipSyncActive)]));
+          end;
+{$ENDIF}
           if LipSyncActive then
           begin
             if not EyeBlinkConfigured then
@@ -211,7 +240,18 @@ begin
           end;
         end;
       except
+        on E: Exception do
+        begin
+{$IFDEF DEBUG}
+          if ModelLipSyncLogCount < 300 then
+          begin
+            Inc(ModelLipSyncLogCount);
+            MmdModelDebugLog('LipSync exception: ' + E.ClassName + ': ' +
+              E.Message);
+          end;
+{$ENDIF}
         LipSyncActive := False;
+        end;
       end;
 
       if Context.ExternalExpressionValid then

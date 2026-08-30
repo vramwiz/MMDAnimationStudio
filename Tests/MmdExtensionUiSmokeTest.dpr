@@ -15,29 +15,31 @@ uses
   Vcl.Menus,
   System.IOUtils,
   DarkPanel in
-    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
   DarkLabel in
-    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas',
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas',
   DarkButton in
-    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas',
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas',
   DarkComboBox in
-    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas',
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas',
   DarkEdit in
-    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas',
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas',
   ItemListView in
-    '..\AviUtl2PluginLib\Lib\ItemListView\ItemListView.pas',
+    '..\..\AviUtl2PluginLib\Lib\ItemListView\ItemListView.pas',
   ShortcutAction in
-    '..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas',
+    '..\..\AviUtl2PluginLib\Lib\ShortcutAction\ShortcutAction.pas',
   ConfirmDialogForm in
-    '..\AviUtl2PluginLib\Lib\ConfirmDialog\ConfirmDialogForm.pas' {FormConfirmDialog},
+    '..\..\AviUtl2PluginLib\Lib\ConfirmDialog\ConfirmDialogForm.pas' {FormConfirmDialog},
   MmdMorphSettingCodec in
-    '..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
   MmdEyeBlinkSettingCodec in
-    '..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
   MmdLipSyncSettingCodec in
-    '..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
   MmdModelSettingEditor in
-    '..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas',
+    '..\..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas',
+  MMDAnimationStudioToolbarController in
+    '..\Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas',
   MMDAnimationStudioFrame in '..\Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
   PmxCatalogFrame in '..\Source\Plugin\Extension\PMX\Catalog\PmxCatalogFrame.pas' {FramePmxCatalog: TFrame},
   PmxCatalogStorage in '..\Source\Plugin\Extension\PMX\Catalog\PmxCatalogStorage.pas',
@@ -128,6 +130,7 @@ var
   TestPoseEditor: TTestPoseEditor;
   PoseGroup: TPmxPoseCatalogGroup;
   ReloadedPoseGroups: TPmxPoseCatalogGroups;
+  Stage: string;
 
 function TTestPoseEditor.EditPose(Sender: TObject; Model: TPmxCatalogItem;
   Item: TPmxPoseCatalogItem): Boolean;
@@ -140,8 +143,13 @@ end;
 begin
   try
     Application.Initialize;
+    Stage := 'host-form';
     HostForm := TForm.Create(nil);
     try
+      // フォーカス遷移を含むUI部品を実ホストと同じ表示可能状態で検証する。
+      HostForm.Show;
+      Application.ProcessMessages;
+      Stage := 'confirm-dialog';
       ConfirmDialog := TFormConfirmDialog.Create(HostForm);
       try
         ConfirmDialog.ApplyDpi(192);
@@ -166,6 +174,8 @@ begin
         if ConfirmDialog.btnOk.Visible or ConfirmDialog.btnCancel.Visible or
           (VisibleDarkButtonCount <> 2) or not Assigned(DarkOkButton) then
           raise Exception.Create('confirm dialog dark buttons were not applied');
+        ConfirmDialog.Show;
+        Application.ProcessMessages;
         ConfirmDialog.ModalResult := mrNone;
         DarkOkButton.Perform(WM_LBUTTONDOWN, MK_LBUTTON, 1 or (1 shl 16));
         DarkOkButton.Perform(WM_LBUTTONUP, 0, 1 or (1 shl 16));
@@ -174,6 +184,7 @@ begin
       finally
         ConfirmDialog.Free;
       end;
+      Stage := 'pose-only-form';
       PoseOnlyForm := TMmdModelSettingEditorForm.Create(nil);
       try
         PoseOnlyForm.ConfigureSettingControls(False, True);
@@ -187,6 +198,7 @@ begin
       finally
         PoseOnlyForm.Free;
       end;
+      Stage := 'extension-frame';
       HostPanel := TPanel.Create(HostForm);
       HostPanel.Parent := HostForm;
       HostPanel.Align := alClient;
@@ -273,13 +285,17 @@ begin
         raise Exception.Create('second PMX was not selected');
       Frame.ButtonPoseMotion.Click;
       Application.ProcessMessages;
-      if not Assigned(Frame.PoseCatalogFrame) or
-         not Frame.PanelPoseMotion.Visible or
-         (Frame.PoseCatalogFrame.PmxSelector.ListView.SelectionStyle <>
-           ilssRow) or
-         not SameText(Frame.PoseCatalogFrame.PmxSelector.SelectedPmxId,
-           SecondPmxId) then
-        raise Exception.Create('pose page PMX selection was not synchronized');
+      if not Assigned(Frame.PoseCatalogFrame) then
+        raise Exception.Create('pose page was not created');
+      if not Frame.PanelPoseMotion.Visible then
+        raise Exception.Create('pose page was not activated');
+      if Frame.PoseCatalogFrame.PmxSelector.ListView.SelectionStyle <>
+        ilssRow then
+        raise Exception.Create('pose page row selection style was not applied');
+      if not SameText(Frame.PoseCatalogFrame.PmxSelector.SelectedPmxId,
+        SecondPmxId) then
+        raise Exception.CreateFmt('pose page PMX selection mismatch: %s <> %s',
+          [Frame.PoseCatalogFrame.PmxSelector.SelectedPmxId, SecondPmxId]);
       if not Assigned(Frame.PoseCatalogFrame.PoseCatalog) or
          (Frame.PoseCatalogFrame.PoseCatalog.Count <> 1) or
          not Frame.PoseCatalogFrame.PoseCatalog.IsInitial(0) or
@@ -592,7 +608,7 @@ begin
   except
     on E: Exception do
     begin
-      Writeln(E.ClassName + ': ' + E.Message);
+      Writeln(Stage + ': ' + E.ClassName + ': ' + E.Message);
       ExitCode := 1;
     end;
   end;

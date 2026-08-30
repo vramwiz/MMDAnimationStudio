@@ -1,5 +1,7 @@
 unit MMDAnimationStudioFrame;
 
+// MMDAnimationStudioの各機能ページを遅延生成し、選択PMXと外部通知をページ間で調停する。
+
 interface
 
 uses
@@ -12,12 +14,14 @@ uses
   Vcl.ImgList,
   Vcl.ToolWin,
   DarkPanel,
-  ToolBarPanelManager,
   ExplorerFrame,
   LauncherFrame,
   PmxCatalogFrame,
   MmdPoseCatalogFrame,
-  MmdFaceCatalogFrame;
+  MmdFaceCatalogFrame,
+  SerifFrame,
+  MmdSerifHost,
+  MMDAnimationStudioToolbarController;
 
 type
   TFrameMMDAnimationStudio = class(TFrame)
@@ -39,12 +43,11 @@ type
     PanelLaunch: TDarkPanel;
     ToolbarImages: TImageList;
   private
-    FToolbarInitialized: Boolean;
-    FToolbarManager: TToolBarPanelManager;
-    FUpdatingToolbarHeight: Boolean;
+    FToolbarController: TMmdStudioToolbarController;
     FPmxCatalogFrame: TFramePmxCatalog;
     FPoseCatalogFrame: TFrameMmdPoseCatalog;
     FFaceCatalogFrame: TFrameMmdFaceCatalog;
+    FSerifHost: TMmdSerifHost;
     FExplorerFrame: TFrameExplorer;
     FLauncherFrame: TFrameLauncher;
     FSelectedPmxId: string;
@@ -53,22 +56,32 @@ type
     procedure EnsurePmxCatalogFrame;
     procedure EnsurePoseCatalogFrame;
     procedure EnsureFaceCatalogFrame;
+    procedure EnsureSerifFrame;
     procedure EnsureExplorerFrame;
     procedure EnsureLauncherFrame;
-    procedure InitializeToolbar;
+    function GetSerifFrame: TFrameSerif;
+    procedure PageChanging(Sender: TObject; Index: Integer);
     procedure PageChanged(Sender: TObject; Index: Integer);
     procedure PmxSelectionChanged(Sender: TObject);
-    procedure UpdateToolbarHeight;
+    procedure ProjectLoaded;
+    procedure ProjectSaving(const OldProjectFilePath,
+      NewProjectFilePath: string);
+    procedure SceneChanged(SceneID: Integer);
   protected
     procedure Resize; override;
   public
+    // ページ管理とAviUtl2通知接続を初期化する。各機能ページは必要になるまで生成しない。
     constructor Create(AOwner: TComponent); override;
+    // AviUtl2通知を解除し、ページ管理とセリフホストを破棄する。
     destructor Destroy; override;
+    // ドロップ内容と表示ページに応じてPMX、VPD、Explorer、Launcherへ入力を振り分ける。
     procedure DropFiles(Control: TWinControl; const Files: TArray<string>);
+    // 初回表示に必要なツールバー、PMX一覧、Launcherのホットキー受付を準備する。
     procedure Show; reintroduce;
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
     property PoseCatalogFrame: TFrameMmdPoseCatalog read FPoseCatalogFrame;
     property FaceCatalogFrame: TFrameMmdFaceCatalog read FFaceCatalogFrame;
+    property SerifFrame: TFrameSerif read GetSerifFrame;
     property ExplorerFrame: TFrameExplorer read FExplorerFrame;
     property LauncherFrame: TFrameLauncher read FLauncherFrame;
   end;
@@ -76,49 +89,37 @@ type
 implementation
 
 uses
-  Winapi.CommCtrl,
-  Winapi.Windows,
-  System.Math,
   System.IOUtils,
   System.SysUtils,
   Vcl.Graphics,
-  MMDAnimationStudioToolbarIcons;
+  AviUtl2PluginProject,
+  AviUtl2PluginScene;
 
 {$R *.dfm}
-
-const
-  ToolbarBackground = TColor($002B2B2B);
-  ToolbarForeground = clWhite;
-  ToolbarHighlight = TColor($00627DE7);
-  ToolbarHot = TColor($00B03C3C);
-  ToolbarPressed = TColor($001F1F1F);
-  ToolbarChecked = TColor($00FF6666);
 
 constructor TFrameMMDAnimationStudio.Create(AOwner: TComponent);
 begin
   inherited;
 
   Color := clBlack;
-  PanelToolbar.Color := ToolbarBackground;
-  PanelToolbar.BevelOuter := bvNone;
-  PanelToolbar.BevelKind := bkSoft;
-  PanelToolbar.BevelWidth := 1;
-  ToolbarPages.Color := ToolbarBackground;
-  ToolbarPages.Font.Color := ToolbarForeground;
+  FToolbarController := TMmdStudioToolbarController.Create(PanelToolbar,
+    ToolbarPages, ToolbarImages, [PanelPmx, PanelPoseMotion,
+    PanelExpression, PanelSerif, PanelExplorer, PanelMusic, PanelLaunch],
+    PageChanging, PageChanged);
 
-  FToolbarManager := TToolBarPanelManager.Create;
-  FToolbarManager.ToolBarBackgroundColor := ToolbarBackground;
-  FToolbarManager.ToolBarFontColor := ToolbarForeground;
-  FToolbarManager.ToolBarCheckedColor := ToolbarChecked;
-  FToolbarManager.ToolBarPressedColor := ToolbarPressed;
-  FToolbarManager.ToolBarHotColor := ToolbarHot;
-  FToolbarManager.ShowCaptions := False;
-  FToolbarManager.OnChange := PageChanged;
+  FSerifHost := TMmdSerifHost.Create(Self, PanelSerif);
+  AviUtl2ProjectSetOnLoad(ProjectLoaded);
+  AviUtl2ProjectSetOnSave(ProjectSaving);
+  AviUtl2SceneSetOnChange(SceneChanged);
 end;
 
 destructor TFrameMMDAnimationStudio.Destroy;
 begin
-  FToolbarManager.Free;
+  AviUtl2SceneSetOnChange(nil);
+  AviUtl2ProjectSetOnSave(nil);
+  AviUtl2ProjectSetOnLoad(nil);
+  FSerifHost.Free;
+  FToolbarController.Free;
   inherited;
 end;
 
@@ -167,7 +168,7 @@ begin
   if HasPmx then
   begin
     EnsurePmxCatalogFrame;
-    FToolbarManager.Activate(0);
+    FToolbarController.Activate(0);
     FPmxCatalogFrame.DropFiles(Files);
   end;
   if HasVpd then
@@ -184,7 +185,7 @@ begin
   if not HasPmx and not HasVpd then
   begin
     EnsureExplorerFrame;
-    FToolbarManager.Activate(4);
+    FToolbarController.Activate(4);
     FExplorerFrame.DropFile(Files);
   end;
 end;
@@ -254,47 +255,22 @@ begin
   FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
 end;
 
-procedure TFrameMMDAnimationStudio.InitializeToolbar;
-var
-  ButtonSize: Integer;
-  Index: Integer;
+procedure TFrameMMDAnimationStudio.EnsureSerifFrame;
 begin
-  if FToolbarInitialized then
-    Exit;
+  FSerifHost.EnsureFrame;
+end;
 
-  ButtonSize := MulDiv(28, CurrentPPI, 96);
-  ToolbarPages.ButtonWidth := ButtonSize;
-  ToolbarPages.ButtonHeight := ButtonSize;
-  ToolbarPages.Height := ButtonSize;
-  ToolbarPages.ShowCaptions := False;
-  ToolbarPages.ShowHint := True;
-
-  for Index := 0 to ToolbarPages.ButtonCount - 1 do
-  begin
-    if ToolbarPages.Buttons[Index].Hint = '' then
-      ToolbarPages.Buttons[Index].Hint := ToolbarPages.Buttons[Index].Caption;
-    ToolbarPages.Buttons[Index].ShowHint := True;
-  end;
-
-  BuildMMDAnimationStudioToolbarIcons(ToolbarImages,
-    MulDiv(20, CurrentPPI, 96), ToolbarForeground, ToolbarHighlight);
-  ToolbarPages.Images := ToolbarImages;
-
-  FToolbarManager.AddPanel(PanelPmx);
-  FToolbarManager.AddPanel(PanelPoseMotion);
-  FToolbarManager.AddPanel(PanelExpression);
-  FToolbarManager.AddPanel(PanelSerif);
-  FToolbarManager.AddPanel(PanelExplorer);
-  FToolbarManager.AddPanel(PanelMusic);
-  FToolbarManager.AddPanel(PanelLaunch);
-  FToolbarManager.Attach(ToolbarPages);
-  FToolbarInitialized := True;
-  UpdateToolbarHeight;
+function TFrameMMDAnimationStudio.GetSerifFrame: TFrameSerif;
+begin
+  Result := FSerifHost.Frame;
 end;
 
 procedure TFrameMMDAnimationStudio.PageChanged(Sender: TObject;
   Index: Integer);
+var
+  TargetPmxId: string;
 begin
+  TargetPmxId := FSelectedPmxId;
   case Index of
     0:
       begin
@@ -305,16 +281,24 @@ begin
     1:
       begin
         EnsurePoseCatalogFrame;
-        FPoseCatalogFrame.SelectPmxId(FSelectedPmxId);
+        // 初回生成時の既定選択通知で、切替前の選択を上書きさせない。
+        FSelectedPmxId := TargetPmxId;
+        FPoseCatalogFrame.SelectPmxId(TargetPmxId);
         FPoseCatalogFrame.Visible := True;
         FPoseCatalogFrame.Show;
       end;
     2:
       begin
         EnsureFaceCatalogFrame;
-        FFaceCatalogFrame.SelectPmxId(FSelectedPmxId);
+        FSelectedPmxId := TargetPmxId;
+        FFaceCatalogFrame.SelectPmxId(TargetPmxId);
         FFaceCatalogFrame.Visible := True;
         FFaceCatalogFrame.Show;
+      end;
+    3:
+      begin
+        EnsureSerifFrame;
+        FSerifHost.Show;
       end;
     4:
       begin
@@ -327,6 +311,31 @@ begin
         FLauncherFrame.Show;
       end;
   end;
+end;
+
+procedure TFrameMMDAnimationStudio.PageChanging(Sender: TObject;
+  Index: Integer);
+begin
+  // ページを隠すと一覧が先頭へ戻ることがあるため、可視中の選択を切替前に保存する。
+  if PanelPmx.Visible and Assigned(FPmxCatalogFrame) and
+    (FPmxCatalogFrame.SelectedPmxId <> '') then
+    FSelectedPmxId := FPmxCatalogFrame.SelectedPmxId;
+end;
+
+procedure TFrameMMDAnimationStudio.ProjectLoaded;
+begin
+  FSerifHost.ProjectLoaded;
+end;
+
+procedure TFrameMMDAnimationStudio.ProjectSaving(const OldProjectFilePath,
+  NewProjectFilePath: string);
+begin
+  FSerifHost.ProjectSaving(OldProjectFilePath, NewProjectFilePath);
+end;
+
+procedure TFrameMMDAnimationStudio.SceneChanged(SceneID: Integer);
+begin
+  FSerifHost.SceneChanged(SceneID);
 end;
 
 procedure TFrameMMDAnimationStudio.PmxSelectionChanged(Sender: TObject);
@@ -360,40 +369,12 @@ end;
 procedure TFrameMMDAnimationStudio.Resize;
 begin
   inherited;
-  UpdateToolbarHeight;
-end;
-
-procedure TFrameMMDAnimationStudio.UpdateToolbarHeight;
-var
-  ButtonRect: TRect;
-  Index: Integer;
-  RequiredHeight: Integer;
-begin
-  if not FToolbarInitialized or FUpdatingToolbarHeight or
-     not ToolbarPages.HandleAllocated then
-    Exit;
-
-  FUpdatingToolbarHeight := True;
-  try
-    ToolbarPages.Perform(TB_AUTOSIZE, 0, 0);
-    RequiredHeight := MulDiv(28, CurrentPPI, 96);
-    for Index := 0 to ToolbarPages.ButtonCount - 1 do
-      if ToolbarPages.Perform(TB_GETITEMRECT, Index,
-        LPARAM(@ButtonRect)) <> 0 then
-        RequiredHeight := Max(RequiredHeight, ButtonRect.Bottom);
-
-    if ToolbarPages.Height <> RequiredHeight then
-      ToolbarPages.Height := RequiredHeight;
-    if PanelToolbar.Height <> RequiredHeight then
-      PanelToolbar.Height := RequiredHeight;
-  finally
-    FUpdatingToolbarHeight := False;
-  end;
+  FToolbarController.UpdateHeight(CurrentPPI);
 end;
 
 procedure TFrameMMDAnimationStudio.Show;
 begin
-  InitializeToolbar;
+  FToolbarController.Initialize(CurrentPPI);
   EnsurePmxCatalogFrame;
   // ランチャーページを開く前でもCtrl+Alt+数字を利用できるようにする。
   EnsureLauncherFrame;
