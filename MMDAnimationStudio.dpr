@@ -140,6 +140,7 @@ uses
   MMDAnimationStudioForm in 'Source\Plugin\Extension\MMDAnimationStudioForm.pas' {FormMMDAnimationStudio};
 
 {$R *.res}
+{$I Version.inc}
 
 function InitializePlugin(Version: DWORD): BOOL; cdecl;
 begin
@@ -163,6 +164,8 @@ begin
 end;
 
 procedure RegisterPlugin(Host: PMMDHostAppTable); cdecl;
+var
+  PluginInformation: string;
 begin
   try
     SetAppFolderRoot('MMDAnimationStudio');
@@ -173,7 +176,9 @@ begin
     if Assigned(Host^.CreateEditHandle) then
       EditHandle := Host^.CreateEditHandle;
     SetExplorerAviUtlBridge(AviUtl2Convert, AviUtl2GetSelectedAlias);
-    Host^.SetPluginInformation(MMDPluginDisplayName);
+    PluginInformation := string(MMDPluginDisplayName) + ' ' +
+      MMD_ANIMATION_STUDIO_VERSION;
+    Host^.SetPluginInformation(PWideChar(PluginInformation));
     if Assigned(Host^.RegisterProjectLoadHandler) then
       Host^.RegisterProjectLoadHandler(@OnProjectLoad);
     if Assigned(Host^.RegisterProjectSaveHandler) then

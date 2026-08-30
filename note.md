@@ -86,7 +86,9 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 2026-08-30にモデル側のセリフ受信を参照オブジェクト評価式へ変更した。画面上の参照レイヤーから1を引いて`GetImageObject`し、取得した送信元IDとモデルの現在タイムラインフレームが`ShareTalk`と一致する場合だけ口パク値を受理する。送信元の強制評価、レイヤー変換、同フレーム受信、残留値拒否のテストとMMD 6プロジェクトReleaseに合格した。
 - 2026-08-30にMMDセリフの根本構成を修正した。図形＋`MMD_Serif_Filter`を廃止し、独立した`MMDセリフ@MMDAnimationStudio_Script`オブジェクトと`MMD_Serif_Module.mod2`へ置換した。ScriptはSyncroh2互換の12引数で`set_text`を呼び、Moduleが`ShareTalk`／Index／Historyを発行する。AliasはScriptを基底エフェクト、標準描画を第2エフェクトとして生成する。旧配置済み`.auf2`は再登録を防ぐため`__recovery\obsolete_serif_filter_20260830`へ退避した。専用Alias／Moduleテスト、配置済みModuleからSyncroh2 `SerifDraw`とモデル参照口パクまでの終端間テスト、MMD 6プロジェクトのDebug／Release、Syncroh2 Desktop／Extension2／SerifDrawのReleaseに合格した。MMD Debugには共通Serif由来の既存Hint 11件、Syncroh2には既存警告が残るが、今回追加コードのエラーは0件である。
 - 2026-08-30にMMDセリフの公開名をSyncroh2と同じ製品接頭辞方式へ短縮した。Scriptは`@MMD_Script.obj2`、Moduleは`MMD_Module.mod2`、AviUtl2上の効果名は`MMDセリフ@MMD_Script`とし、旧長名の配置物は`Script\MMD\__recovery\renamed_serif_20260830`へ退避した。
-- 2026-08-30にSyncroh2の新セリフ表示D&D／プリセット登録を修正した。シェルD&D用`.object`は`[Object]`形式で生成し、SDKから取得したプリセットも同形式へ正規化する。旧プロジェクトのセリフ表示は保存時の`[7]`等の番号を保持し得るため、`[0]`固定ではなく任意の非負数ルートと対応する効果セクションを変換する。AIMIRAIで選択中の旧オブジェクトが`フィルタオブジェクト／新旧朗2 セリフ表示`と旧SD2データを持つことを確認し、`[7]`回帰テストとExtension2 Debugコンパイルに合格した。AviUtl2起動中のため配置済み`.aux2`はロックされ、最新Debug DLLからの差し替えだけ未完了である。
+- 2026-08-30にSyncroh2の新セリフ表示D&D／プリセット登録を修正した。シェルD&D用`.object`は`[Object]`形式で生成し、SDKから取得したプリセットも同形式へ正規化する。旧プロジェクトのセリフ表示は保存時の`[7]`等の番号を保持し得るため、`[0]`固定ではなく任意の非負数ルートと対応する効果セクションを変換する。AIMIRAIで選択中の旧オブジェクトが`フィルタオブジェクト／新旧朗2 セリフ表示`と旧SD2データを持つことを確認し、`[7]`回帰テスト、Extension2 Debugコンパイル、旧形式からのプリセット登録・D&D実機確認に合格した。
+- 2026-08-30にMMDAnimationStudioメイン拡張だけへ外部更新可能なバージョン番号を追加した。ルート`Version.inc`の`MMD_ANIMATION_STUDIO_VERSION`を`MMDAnimationStudio.dpr`だけが取り込み、AviUtl2のプラグイン情報を`MMDアニメーションスタジオ 1.0.0`形式で登録する。他のMMD Filter／Module／Scriptプロジェクトには埋め込まない。Win64 Debugビルドと`.aux2`配置に合格した。
+- 2026-08-30にZIP配布用`Setup\InstallSetup.bat`を追加した。配置済みRelease成果物から拡張、Model／Pose／Face／SerifDraw、`sk4d.dll`、MMD Script／Module、READMEだけを収集し、`Setup\MMDAnimationStudio.zip`へ`Plugin\MMD`／`Script\MMD`構成で格納する。開発用MMDAIPreview、DLL、RSM、ログは含めない。一時収集先`Setup\Package`とZIPはGit除外、バッチは追跡対象とし、実生成と格納内容を確認済み。
 
 ## 次の作業
 

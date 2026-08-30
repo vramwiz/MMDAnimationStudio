@@ -6,6 +6,7 @@ __recovery/
 *.identcache
 *.exe
 *.bat
+!Setup/*.bat
 *.zip
 *.aui2
 *.auf2
@@ -18,5 +19,6 @@ Win32/
 Win64/
 .DS_Store
 TestArtifacts/
+/Setup/Package/
 /buildcheck/reference-*.bmp
 /Model/
