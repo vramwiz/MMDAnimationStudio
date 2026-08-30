@@ -36,8 +36,7 @@ begin
   Profile.AudioFileItem := 'ファイル';
   Profile.AudioPlaybackItem := '再生位置';
   Profile.FilterObjectName := 'フィルタオブジェクト';
-  // MMD側のセリフ表示は現段階の対象外。
-  Profile.SerifDrawEffectName := '';
+  Profile.SerifDrawEffectName := MMD_SERIF_DRAW_EFFECT_NAME;
   RegisterSerifAviUtlProfile(Profile);
 end;
 

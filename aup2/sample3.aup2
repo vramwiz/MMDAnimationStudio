@@ -34,7 +34,7 @@ layer=1
 frame=16,36
 group=1
 [0.0]
-effect.name=MMDセリフ@MMDAnimationStudio_Script
+effect.name=MMDセリフ@MMD_Script
 キャラクター=四国めたん
 感情=ノーマル
 演出=なし

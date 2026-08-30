@@ -15,13 +15,8 @@ function GetMmdSerifScriptModuleTable: PMMD_SCRIPT_MODULE_TABLE;
 implementation
 
 uses
-  Winapi.Windows,
-  System.Math,
-  System.SysUtils,
   MmdSerifModuleAdapter,
-  SerifTalkSharedCodec,
-  SerifTalkSharedIndexPublisher,
-  SerifTalkSharedMemory;
+  SerifModulePublisher;
 
 const
   PARAM_COUNT = 12;
@@ -44,24 +39,13 @@ var
     (Name: nil; Func: nil)
   );
   ModuleTable: TMMD_SCRIPT_MODULE_TABLE = (
-    Information: 'MMD Serif Module';
+    Information: 'MMD Module';
     Functions: @ModuleFunctions[0]
   );
 
-function NewRuntimeUID: string;
-var
-  Value: TGUID;
-begin
-  Result := '';
-  if CreateGUID(Value) = S_OK then
-    Result := GUIDToString(Value);
-end;
-
 procedure MmdSerifSetText(Param: PMMD_SCRIPT_MODULE_PARAM); cdecl;
 var
-  Frame: TSerifTalkFrame;
-  Layer: Integer;
-  Text: string;
+  Frame: TSerifModuleFrame;
 begin
   try
     if (Param = nil) or not Assigned(Param^.GetParamNum) or
@@ -69,29 +53,20 @@ begin
       not Assigned(Param^.GetParamDouble) or
       (Param^.GetParamNum < PARAM_COUNT) then
       Exit;
-    Layer := Param^.GetParamInt(PARAM_LAYER);
-    if (Layer < 1) or (Layer >= SERIF_TALK_MAX_LINES) then
-      Exit;
-    Frame := Default(TSerifTalkFrame);
-    Frame.UID := NewRuntimeUID;
+    Frame := Default(TSerifModuleFrame);
     Frame.FrameRate := Param^.GetParamInt(PARAM_FRAMERATE);
     Frame.Frame := Param^.GetParamInt(PARAM_FRAME);
+    Frame.Layer := Param^.GetParamInt(PARAM_LAYER);
     Frame.CurrentFrame := Param^.GetParamInt(PARAM_CURRENT_FRAME);
     Frame.TotalTime := Param^.GetParamDouble(PARAM_TOTALTIME);
-    Frame.TotalFrames := Max(1, Ceil(Frame.TotalTime * Frame.FrameRate));
     Frame.Serif := MmdModuleParamString(Param, PARAM_SERIF);
     Frame.Character := MmdModuleParamString(Param, PARAM_CHARACTER);
     Frame.Emotion := MmdModuleParamString(Param, PARAM_EMOTION);
     Frame.Direction := MmdModuleParamString(Param, PARAM_DIRECTION);
     Frame.Aiueo := MmdModuleParamString(Param, PARAM_AIUEO);
     Frame.Lab := MmdModuleParamString(Param, PARAM_LAB);
-    if not TryStrToInt64(MmdModuleParamString(Param, PARAM_SOURCE_OBJECT),
-      Frame.SourceObjectID) or (Frame.SourceObjectID = 0) then
-      Exit;
-    Text := EncodeSerifTalkFrame(Frame);
-    if PublishSerifTalkText(Layer, Text) then
-      PublishSerifTalkIndex(Frame.CurrentFrame, Layer, Frame.Character,
-        Frame.Emotion, Frame.Direction, Frame.Serif);
+    Frame.SourceObjectID := MmdModuleParamString(Param, PARAM_SOURCE_OBJECT);
+    PublishSerifModuleFrame(Frame);
   except
     // Delphi例外をAviUtl2 Script Module境界から漏らさない。
   end;

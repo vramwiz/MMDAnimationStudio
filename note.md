@@ -85,6 +85,8 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 2026-08-30にMMDセリフがSyncroh2の新`SerifDraw`へ渡らない原因を、`Local\ShareTalkIndex`／`Local\ShareTalkHistory`の未発行と特定した。共通`SerifSharedIndex`互換の`SerifTalkSharedIndexPublisher`を追加し、MMDセリフの各評価で本文スロット、現在フレーム索引、履歴を発行するようにした。配置済みMMDセリフDLLからSyncroh2の実`TSerifDrawReceiver`までの終端間テスト、MMD 6プロジェクトRelease、`Syncroh2_Filter_SerifDraw` Releaseに合格した。
 - 2026-08-30にモデル側のセリフ受信を参照オブジェクト評価式へ変更した。画面上の参照レイヤーから1を引いて`GetImageObject`し、取得した送信元IDとモデルの現在タイムラインフレームが`ShareTalk`と一致する場合だけ口パク値を受理する。送信元の強制評価、レイヤー変換、同フレーム受信、残留値拒否のテストとMMD 6プロジェクトReleaseに合格した。
 - 2026-08-30にMMDセリフの根本構成を修正した。図形＋`MMD_Serif_Filter`を廃止し、独立した`MMDセリフ@MMDAnimationStudio_Script`オブジェクトと`MMD_Serif_Module.mod2`へ置換した。ScriptはSyncroh2互換の12引数で`set_text`を呼び、Moduleが`ShareTalk`／Index／Historyを発行する。AliasはScriptを基底エフェクト、標準描画を第2エフェクトとして生成する。旧配置済み`.auf2`は再登録を防ぐため`__recovery\obsolete_serif_filter_20260830`へ退避した。専用Alias／Moduleテスト、配置済みModuleからSyncroh2 `SerifDraw`とモデル参照口パクまでの終端間テスト、MMD 6プロジェクトのDebug／Release、Syncroh2 Desktop／Extension2／SerifDrawのReleaseに合格した。MMD Debugには共通Serif由来の既存Hint 11件、Syncroh2には既存警告が残るが、今回追加コードのエラーは0件である。
+- 2026-08-30にMMDセリフの公開名をSyncroh2と同じ製品接頭辞方式へ短縮した。Scriptは`@MMD_Script.obj2`、Moduleは`MMD_Module.mod2`、AviUtl2上の効果名は`MMDセリフ@MMD_Script`とし、旧長名の配置物は`Script\MMD\__recovery\renamed_serif_20260830`へ退避した。
+- 2026-08-30にSyncroh2の新セリフ表示D&D／プリセット登録を修正した。シェルD&D用`.object`は`[Object]`形式で生成し、SDKから取得したプリセットも同形式へ正規化する。旧プロジェクトのセリフ表示は保存時の`[7]`等の番号を保持し得るため、`[0]`固定ではなく任意の非負数ルートと対応する効果セクションを変換する。AIMIRAIで選択中の旧オブジェクトが`フィルタオブジェクト／新旧朗2 セリフ表示`と旧SD2データを持つことを確認し、`[7]`回帰テストとExtension2 Debugコンパイルに合格した。AviUtl2起動中のため配置済み`.aux2`はロックされ、最新Debug DLLからの差し替えだけ未完了である。
 
 ## 次の作業
 
@@ -132,7 +134,7 @@ MMD専用セリフの生成、共有、既存SerifDraw表示、旧／新セリ�
 - MMDAnimationStudioではSyncroh2のモジュールとスクリプトを使用せず、同じAviUtl2 Script Module ABIに従うMMD専用Module／Scriptを持つ。セリフは図形へ付けるFilterではなく独立Scriptオブジェクトとする。
 - セリフの共有メモリはSyncroh2互換を維持する。`Local\ShareTalk`、`Local\ShareTalkIndex`、`Local\ShareTalkHistory`の名前、スロット数、文字数、ペイロードキー、`SIH2`／`SIR1`形式を変更しない。MMDのモデル表示と既存互換受信側がどちらの送信元も読める状態を保つ。
 - 共有メモリのペイロード生成と発行処理は共通ライブラリへ分離し、旧Syncroh2モジュールとMMD専用セリフModuleの両方が同じcodec／publisherを使用する。Index／Historyを複数DLLから更新できるよう、共有名のWindows Mutexでプロセス内横断の排他を設ける。
-- AviUtl2上のセリフオブジェクト形式は製品別とする。Syncroh2は既存の`セリフ入力@Syncroh2_Script`、MMDAnimationStudioは`MMDセリフ@MMDAnimationStudio_Script`とする。
+- AviUtl2上のセリフオブジェクト形式は製品別とする。Syncroh2は既存の`セリフ入力@Syncroh2_Script`、MMDAnimationStudioは`MMDセリフ@MMD_Script`とする。
 - エイリアス生成、D&D、セリフオブジェクト判定、選択値取得、F2再編集、値更新、UID照合、移動、削除、完全エイリアス検証は入出力境界として製品別に分岐する。分岐を各所へ散らさず、エフェクト名と各項目名を持つ製品別プロファイルまたはアダプターへ集約する。
 - 新規生成は呼出元製品の形式だけを出力する。読込みと判定は必要に応じてSyncroh2形式とMMD形式の両方を受理し、旧プロジェクトと相互運用を維持する。
 

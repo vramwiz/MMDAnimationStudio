@@ -39,16 +39,16 @@
 
 ### セリフ入力
 
-- セリフは図形オブジェクトへ付けるFilterではなく、MMD専用Scriptオブジェクトとして生成する。基底エフェクト名は`MMDセリフ@MMDAnimationStudio_Script`、プロジェクトは`MMD_Serif_Module`である。
-- `@MMDAnimationStudio_Script.obj2`が`キャラクター／感情／演出／セリフ／母音／LAB／UID`を保持し、`MMD_Serif_Module.mod2`の`set_text`をSyncroh2互換の12引数で呼ぶ。UIDは編集・照合用に保持し、共有メモリへ出す実行時UIDは評価ごとに生成する。
+- セリフは図形オブジェクトへ付けるFilterではなく、MMD専用Scriptオブジェクトとして生成する。基底エフェクト名は`MMDセリフ@MMD_Script`、プロジェクトは`MMD_Serif_Module`である。
+- `@MMD_Script.obj2`が`キャラクター／感情／演出／セリフ／母音／LAB／UID`を保持し、`MMD_Module.mod2`の`set_text`をSyncroh2互換の12引数で呼ぶ。UIDは編集・照合用に保持し、共有メモリへ出す実行時UIDは評価ごとに生成する。
 - Alias ProviderはScriptを`[0.0]`、標準描画を`[0.1]`として直列化する。図形および旧`MMD_Serif_Filter`は生成・配置しない。
 - Script評価時に相対／タイムラインフレーム、FPS、総時間、7項目からSyncroh2互換キー文字列を生成し、Scriptの1始まりレイヤーをそのまま`Local\ShareTalk`へ発行する。
 - `ShareTalk`のMMD送受信は共通の名前付きWindows Mutexを使う。配置済みModuleから別EXEへの発行・読取テストでDLL境界を確認済み。
 - Syncroh2の`SerifDraw`に対応するため、本文と同時に`Local\ShareTalkIndex`と`Local\ShareTalkHistory`も共通`SerifSharedIndex`形式で発行する。配置済みMMDセリフDLLの出力をSyncroh2の実`TSerifDrawReceiver`が受理する終端間テストで確認済み。
 - 配置済みModuleからモデル入力までの終端間テストと実画面確認で、送信元オブジェクトの実在、タイムラインフレーム、LAB／母音の受信を確認済み。Script側IDとSDK側IDは別体系なので一致条件に使わない。
-- MMD側のセリフ表示フィルターと描画処理は現段階の対象外。メインツールバーのセリフアイコンとページ領域だけを維持する。
+- `MMD_Serif_Draw_Filter.dproj`が共通SerifDraw本体を参照し、`MMDセリフ表示`として`Plugin\MMD`へ配置する。Syncroh2版とは公開名、グループ名、ファイル名、配置先を分離する。
 - セリフページ選択時に共有`TFrameSerif`をHost Bootstrap経由で遅延生成する。MMD専用HostがAviUtl2のプロジェクト読込／保存とシーン変更をVCLタイマー境界で同期し、共通Serif自身のカーソル移動を利用する。
-- MMD Profileは表示エフェクト名を持たないため、共有フレーム内の表示Alias／ボードページも非表示とする。入力、台本、配役、設定等のセリフ編集機能は利用できる。
+- MMD Profileは表示エフェクト名`MMDセリフ表示`を登録し、共有フレームの表示Alias／ボード機能からMMD版表示フィルターを生成する。
 
 ### モデル表示
 

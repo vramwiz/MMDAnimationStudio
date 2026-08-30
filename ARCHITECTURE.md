@@ -53,13 +53,14 @@
 
 ### セリフ入力
 
-- `Source\Plugin\Serif\Script\@MMDAnimationStudio_Script.obj2`がMMD固有の7項目を保持する独立Scriptオブジェクトとなる。図形オブジェクトと入力Filterは使わない。
-- `Source\Plugin\Serif\Module`と`MMD_Serif_Module.dproj`がScript Module ABI、UTF-8境界、12引数の`set_text`、共有メモリ発行を担当する。Syncroh2のModule／Scriptは参照しない。
+- `MMD_Serif_Module.dproj`は共通Scriptテンプレートを`MmdSerifScript.json`で展開し、MMD固有名の独立Scriptオブジェクトを配置する。図形オブジェクトと入力Filterは使わない。
+- `Source\Plugin\Serif\Module`はScript Module ABIとUTF-8境界を担当し、12引数の`set_text`以降は`AviUtl2PluginLib\Serif\Plugin\Module`の共通発行処理へ渡す。
 - `Source\Plugin\Serif\AviUtl`が製品別名称、共通Serif用Profile、Script基底エフェクトと標準描画のエイリアス直列化を担当する。
 - `Source\Plugin\Serif\Host\MmdSerifHost`が共有フレームの遅延生成、プロジェクト読込／保存、シーン変更通知を担当する。AviUtl2コールバック内ではGUI同期せず、VCLタイマーへ遅延する。
 - 共有Serifから製品固有表示への補助通知は`SerifHostNotifications`の登録式コールバックを通す。MMDは追加処理なし、Syncroh2だけがPSD更新を登録する。
 - `SerifTalkSharedCodec`が現在フレームのLAB行と発話状態を含むSyncroh2互換キー文字列を生成し、`SerifTalkSharedMemory`が`Local\ShareTalk`を名前付きMutex付きで発行・読取する。
-- Scriptの`obj.layer`を1始まりの共有スロットへそのまま発行し、モデル表示の1始まり参照レイヤーと対応させる。モデル側は参照レイヤーから1を引いて送信元Scriptを強制評価し、実在と現在フレームを検証する。Scriptの`obj.id`とSDKの`POBJECT_INFO.ID`は別体系なので比較しない。セリフ表示は入力・発行経路と分け、現在の実装対象に含めない。
+- Scriptの`obj.layer`を1始まりの共有スロットへそのまま発行し、モデル表示の1始まり参照レイヤーと対応させる。モデル側は参照レイヤーから1を引いて送信元Scriptを強制評価し、実在と現在フレームを検証する。Scriptの`obj.id`とSDKの`POBJECT_INFO.ID`は別体系なので比較しない。
+- セリフ表示の実装本体は`AviUtl2PluginLib\Serif\Plugin\Draw`に置き、MMDとSyncroh2の各プロジェクトは公開名、グループ名、配置先だけを製品Profileで切り替える。
 
 ### 編集GUI
 

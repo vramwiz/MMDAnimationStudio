@@ -4,7 +4,7 @@
 
 ### セリフ統合（完成）
 
-- 旧`MMD_Serif_Filter`は廃止し、MMD専用`@MMDAnimationStudio_Script.obj2`と`MMD_Serif_Module.mod2`へ置換済み。AliasはScript基底＋標準描画を生成する。
+- 旧`MMD_Serif_Filter`は廃止し、MMD専用`@MMD_Script.obj2`と`MMD_Module.mod2`へ置換済み。AliasはScript基底＋標準描画を生成する。
 - 拡張画面のセリフアイコンを維持し、`PanelSerif`への共有フレーム遅延接続、プロジェクト／シーン通知、カーソル移動境界は実装済み。
 - Syncroh2互換`Local\ShareTalk`のcodec／PublisherとDLL横断排他を共通化し、MMD Script Moduleから現在フレームを発行済み。
 - 配置済み`.mod2`のPublisherから`Local\ShareTalk`、Syncroh2 `SerifDraw`、モデル参照口パクまで終端間テスト済み。MMD側の専用セリフ描画は対象外とし、既存SerifDrawとの互換表示を完成範囲とする。

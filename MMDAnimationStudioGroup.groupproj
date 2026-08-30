@@ -8,6 +8,7 @@
         <Projects Include="MMD_Pose_Filter.dproj"><Dependencies/></Projects>
         <Projects Include="MMD_Face_Filter.dproj"><Dependencies/></Projects>
         <Projects Include="MMD_Serif_Module.dproj"><Dependencies/></Projects>
+        <Projects Include="MMD_Serif_Draw_Filter.dproj"><Dependencies/></Projects>
         <Projects Include="MMDAIPreview.dproj"><Dependencies/></Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -30,11 +31,14 @@
     <Target Name="MMD_Serif_Module"><MSBuild Projects="MMD_Serif_Module.dproj"/></Target>
     <Target Name="MMD_Serif_Module:Clean"><MSBuild Projects="MMD_Serif_Module.dproj" Targets="Clean"/></Target>
     <Target Name="MMD_Serif_Module:Make"><MSBuild Projects="MMD_Serif_Module.dproj" Targets="Make"/></Target>
+    <Target Name="MMD_Serif_Draw_Filter"><MSBuild Projects="MMD_Serif_Draw_Filter.dproj"/></Target>
+    <Target Name="MMD_Serif_Draw_Filter:Clean"><MSBuild Projects="MMD_Serif_Draw_Filter.dproj" Targets="Clean"/></Target>
+    <Target Name="MMD_Serif_Draw_Filter:Make"><MSBuild Projects="MMD_Serif_Draw_Filter.dproj" Targets="Make"/></Target>
     <Target Name="MMDAIPreview"><MSBuild Projects="MMDAIPreview.dproj"/></Target>
     <Target Name="MMDAIPreview:Clean"><MSBuild Projects="MMDAIPreview.dproj" Targets="Clean"/></Target>
     <Target Name="MMDAIPreview:Make"><MSBuild Projects="MMDAIPreview.dproj" Targets="Make"/></Target>
-    <Target Name="Build"><CallTarget Targets="MMDAnimationStudio;MMD_Model_Filter;MMD_Pose_Filter;MMD_Face_Filter;MMD_Serif_Module;MMDAIPreview"/></Target>
-    <Target Name="Clean"><CallTarget Targets="MMDAnimationStudio:Clean;MMD_Model_Filter:Clean;MMD_Pose_Filter:Clean;MMD_Face_Filter:Clean;MMD_Serif_Module:Clean;MMDAIPreview:Clean"/></Target>
-    <Target Name="Make"><CallTarget Targets="MMDAnimationStudio:Make;MMD_Model_Filter:Make;MMD_Pose_Filter:Make;MMD_Face_Filter:Make;MMD_Serif_Module:Make;MMDAIPreview:Make"/></Target>
+    <Target Name="Build"><CallTarget Targets="MMDAnimationStudio;MMD_Model_Filter;MMD_Pose_Filter;MMD_Face_Filter;MMD_Serif_Module;MMD_Serif_Draw_Filter;MMDAIPreview"/></Target>
+    <Target Name="Clean"><CallTarget Targets="MMDAnimationStudio:Clean;MMD_Model_Filter:Clean;MMD_Pose_Filter:Clean;MMD_Face_Filter:Clean;MMD_Serif_Module:Clean;MMD_Serif_Draw_Filter:Clean;MMDAIPreview:Clean"/></Target>
+    <Target Name="Make"><CallTarget Targets="MMDAnimationStudio:Make;MMD_Model_Filter:Make;MMD_Pose_Filter:Make;MMD_Face_Filter:Make;MMD_Serif_Module:Make;MMD_Serif_Draw_Filter:Make;MMDAIPreview:Make"/></Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

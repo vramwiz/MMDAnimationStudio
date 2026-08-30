@@ -19,7 +19,9 @@ uses
   System.SysUtils,
   AppFolderUtils,
   MmdSerifAviUtlNames,
-  SerifAviUtlAliasProvider;
+  SerifAviUtlAliasProvider,
+  SerifAviUtlDrawAliasBuilder,
+  SerifAviUtlProfile;
 
 var
   GAliasBatch: TStringList;
@@ -209,8 +211,9 @@ end;
 
 function BuildDrawAlias: string;
 begin
-  // 共通画面の呼出し契約だけ満たし、存在しない表示フィルターを生成しない。
-  Result := '';
+  Result := BuildDefaultSerifDrawAlias(
+    CurrentSerifAviUtlProfile.FilterObjectName,
+    CurrentSerifAviUtlProfile.SerifDrawEffectName);
 end;
 
 procedure RegisterMmdSerifAviUtlAliasProvider;

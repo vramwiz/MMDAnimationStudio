@@ -161,6 +161,7 @@
         </DCCReference>
         <DCCReference Include="..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlProfile.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlAliasProvider.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlDrawAliasBuilder.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Serif\SerifFrame.pas">
             <Form>FrameSerif</Form>
             <DesignClass>TFrame</DesignClass>

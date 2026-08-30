@@ -50,6 +50,7 @@ uses
   LauncherWizardFrame in '..\AviUtl2PluginLib\Launcher\LauncherWizardFrame.pas' {FrameLauncherWizard: TFrame},
   SerifAviUtlProfile in '..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlProfile.pas',
   SerifAviUtlAliasProvider in '..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlAliasProvider.pas',
+  SerifAviUtlDrawAliasBuilder in '..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlDrawAliasBuilder.pas',
   SerifFrame in '..\AviUtl2PluginLib\Serif\SerifFrame.pas' {FrameSerif: TFrame},
   SerifHostBootstrap in '..\AviUtl2PluginLib\Serif\Host\Bootstrap\SerifHostBootstrap.pas',
   SerifHostNotifications in '..\AviUtl2PluginLib\Serif\Host\SerifHostNotifications.pas',

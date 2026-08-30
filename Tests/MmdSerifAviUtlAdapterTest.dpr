@@ -7,6 +7,7 @@ uses
   AppFolderUtils in '..\..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas',
   SerifAviUtlProfile in '..\..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlProfile.pas',
   SerifAviUtlAliasProvider in '..\..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlAliasProvider.pas',
+  SerifAviUtlDrawAliasBuilder in '..\..\AviUtl2PluginLib\Serif\AviUtl\Adapter\Core\SerifAviUtlDrawAliasBuilder.pas',
   MmdSerifAviUtlNames in '..\Source\Plugin\Serif\AviUtl\MmdSerifAviUtlNames.pas',
   MmdSerifAviUtlProfile in '..\Source\Plugin\Serif\AviUtl\MmdSerifAviUtlProfile.pas',
   MmdSerifAviUtlAliasProvider in '..\Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAliasProvider.pas',
@@ -50,7 +51,7 @@ begin
     Check(Pos('effect.name=' + MMD_SERIF_EFFECT_NAME, AliasText) > 0,
       'MMD serif effect is missing');
     Check(Pos('effect.name=MMD' + #$30BB#$30EA#$30D5 +
-      '@MMDAnimationStudio_Script', AliasText) > 0,
+      '@MMD_Script', AliasText) > 0,
       'MMD serif effect Unicode mismatch');
     Check(Pos('effect.name=' + #$56F3#$5F62, AliasText) = 0,
       'obsolete shape base leaked into Serif alias');
@@ -70,8 +71,9 @@ begin
       'object frame is missing');
     Check(Pos('Syncroh2_', AliasText) = 0,
       'Syncroh2 dependency leaked into MMD alias');
-    Check(BuildSerifAviUtlDrawAlias = '',
-      'MMD serif display alias must remain disabled');
+    Check(Pos('effect.name=' + MMD_SERIF_DRAW_EFFECT_NAME,
+      BuildSerifAviUtlDrawAlias) > 0,
+      'MMD serif display alias is missing');
     Writeln('MmdSerifAviUtlAdapterTest: PASS');
   except
     on E: Exception do

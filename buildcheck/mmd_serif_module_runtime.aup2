@@ -20,7 +20,7 @@ layer=0
 focus=1
 frame=0,30
 [0.0]
-effect.name=MMDセリフ@MMDAnimationStudio_Script
+effect.name=MMDセリフ@MMD_Script
 キャラクター=RuntimeProbe
 感情=Normal
 演出=なし

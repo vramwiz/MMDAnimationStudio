@@ -7,17 +7,19 @@ program MmdSerifModuleTest;
 uses
   Winapi.Windows,
   System.SysUtils,
-  AviUtl2FilterTypes in '..\Source\Lib\AviUtl2FilterTypes.pas',
+  AviUtl2FilterTypes in '..\..\AviUtl2PluginLib\Lib\AviUtl2Filter\AviUtl2FilterTypes.pas',
   SharedMemoryBase in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas',
   KeyValueText in '..\..\AviUtl2PluginLib\Lib\KeyValue\KeyValueText.pas',
   SerifTalkSharedCodec in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedCodec.pas',
+  SerifSpeechSync in '..\..\AviUtl2PluginLib\Serif\Plugin\Module\SerifSpeechSync.pas',
   SerifSharedIndex in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SerifSharedIndex.pas',
   SerifTalkSharedIndexPublisher in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedIndexPublisher.pas',
   SerifTalkSharedMemory in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedMemory.pas',
+  SerifModulePublisher in '..\..\AviUtl2PluginLib\Serif\Plugin\Module\SerifModulePublisher.pas',
   MmdLipSyncSettingCodec in '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
   MMD_Model_LipSyncProtocol in '..\Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncProtocol.pas',
   MMD_Model_LipSyncInput in '..\Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncInput.pas',
-  PluginFilterSerifDrawReceiver in '..\..\Syncroh2\Plugin_Filter\SerifDraw\PluginFilterSerifDrawReceiver.pas',
+  PluginFilterSerifDrawReceiver in '..\..\AviUtl2PluginLib\Serif\Plugin\Draw\PluginFilterSerifDrawReceiver.pas',
   MmdSerifModuleTypes in '..\Source\Plugin\Serif\Module\MmdSerifModuleTypes.pas',
   MmdSerifModuleAdapter in '..\Source\Plugin\Serif\Module\MmdSerifModuleAdapter.pas',
   MMD_Serif_ModulePlugin in '..\Source\Plugin\Serif\Module\MMD_Serif_ModulePlugin.pas';
@@ -26,7 +28,7 @@ type
   TGetScriptModuleTable = function: PMMD_SCRIPT_MODULE_TABLE; cdecl;
 
 const
-  ModulePath = 'C:\ProgramData\aviutl2\Script\MMD\MMD_Serif_Module.mod2';
+  ModulePath = 'C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2';
 
 var
   IntParams: array[0..11] of Integer;

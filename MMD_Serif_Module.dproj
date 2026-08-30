@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{4FC695A2-A37B-4DA5-8C79-445D4ED32042}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
@@ -13,48 +13,29 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
-        <GenDll>true</GenDll>
-        <DCC_DcuOutput>.\$(Platform)\$(Config)\SerifModuleDCU</DCC_DcuOutput>
-        <DCC_ExeOutput>C:\ProgramData\aviutl2\Script\MMD\</DCC_ExeOutput>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
-        <SanitizedProjectName>MMD_Serif_Module</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
-        <BT_BuildType>Debug</BT_BuildType>
-        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <DCC_Optimize>false</DCC_Optimize>
-        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-        <DCC_RemoteDebug>true</DCC_RemoteDebug>
-        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
-        <DCC_RangeChecking>true</DCC_RangeChecking>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
         <Cfg_1_Win64>true</Cfg_1_Win64>
         <CfgParent>Cfg_1</CfgParent>
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
-        <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
-        <BT_BuildType>Release</BT_BuildType>
-        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <GenDll>true</GenDll>
+        <SanitizedProjectName>MMD_Serif_Module</SanitizedProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -63,31 +44,45 @@
         <DCCReference Include="Source\Plugin\Serif\Module\MmdSerifModuleTypes.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MmdSerifModuleAdapter.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MMD_Serif_ModulePlugin.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\Plugin\Module\SerifModulePublisher.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\KeyValue\KeyValueText.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Serif\Plugin\Module\SerifSpeechSync.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SerifSharedIndex.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedIndexPublisher.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedMemory.pas"/>
-        <BuildConfiguration Include="Base"><Key>Base</Key></BuildConfiguration>
-        <BuildConfiguration Include="Debug"><Key>Cfg_1</Key><CfgParent>Base</CfgParent></BuildConfiguration>
-        <BuildConfiguration Include="Release"><Key>Cfg_2</Key><CfgParent>Base</CfgParent></BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>
         <BorlandProject>
             <Delphi.Personality>
-                <Source><Source Name="MainSource">MMD_Serif_Module.dpr</Source></Source>
-                <Platforms><Platform value="Win32">False</Platform><Platform value="Win64">True</Platform></Platforms>
+                <Source>
+                    <Source Name="MainSource">MMD_Serif_Module.dpr</Source>
+                </Source>
+                <Platforms>
+                    <Platform value="Win32">False</Platform>
+                    <Platform value="Win64">True</Platform>
+                </Platforms>
             </Delphi.Personality>
-            <Platforms><Platform value="Win32">False</Platform><Platform value="Win64">True</Platform></Platforms>
+            <Platforms>
+                <Platform value="Win32">False</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
-    <PropertyGroup Condition="'$(Platform)'=='Win64'">
-        <PostBuildEvent>copy /Y &quot;$(PROJECTDIR)\Source\Plugin\Serif\Script\@MMDAnimationStudio_Script.obj2&quot; &quot;$(OUTPUTDIR)@MMDAnimationStudio_Script.obj2&quot;&amp;&amp;copy /Y &quot;$(OUTPUTDIR)$(PROJECTNAME).dll&quot; &quot;$(OUTPUTDIR)$(PROJECTNAME).mod2&quot;&amp;&amp;if exist &quot;$(OUTPUTDIR)$(PROJECTNAME).dll&quot; del /Q &quot;$(OUTPUTDIR)$(PROJECTNAME).dll&quot;&amp;&amp;if exist &quot;$(OUTPUTDIR)$(PROJECTNAME).rsm&quot; del /Q &quot;$(OUTPUTDIR)$(PROJECTNAME).rsm&quot;</PostBuildEvent>
-        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
-    </PropertyGroup>
 </Project>

@@ -8,7 +8,7 @@ uses
   SharedMemoryBase in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas',
   SerifSharedIndex in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SerifSharedIndex.pas',
   SerifTalkSharedMemory in '..\..\AviUtl2PluginLib\Lib\SharedMemory\SerifTalkSharedMemory.pas',
-  PluginFilterSerifDrawReceiver in '..\..\Syncroh2\Plugin_Filter\SerifDraw\PluginFilterSerifDrawReceiver.pas';
+  PluginFilterSerifDrawReceiver in '..\..\AviUtl2PluginLib\Serif\Plugin\Draw\PluginFilterSerifDrawReceiver.pas';
 
 var
   I: Integer;
