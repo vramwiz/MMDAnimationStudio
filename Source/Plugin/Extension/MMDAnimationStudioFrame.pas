@@ -18,6 +18,7 @@ uses
   LauncherFrame,
   PmxCatalogFrame,
   MmdPoseCatalogFrame,
+  MmdMotionCatalogFrame,
   MmdFaceCatalogFrame,
   SerifFrame,
   MmdSerifHost,
@@ -29,6 +30,7 @@ type
     ToolbarPages: TToolBar;
     ButtonPmx: TToolButton;
     ButtonPoseMotion: TToolButton;
+    ButtonMotion: TToolButton;
     ButtonExpression: TToolButton;
     ButtonSerif: TToolButton;
     ButtonExplorer: TToolButton;
@@ -36,6 +38,7 @@ type
     ButtonLaunch: TToolButton;
     PanelPmx: TDarkPanel;
     PanelPoseMotion: TDarkPanel;
+    PanelMotion: TDarkPanel;
     PanelExpression: TDarkPanel;
     PanelSerif: TDarkPanel;
     PanelExplorer: TDarkPanel;
@@ -46,6 +49,7 @@ type
     FToolbarController: TMmdStudioToolbarController;
     FPmxCatalogFrame: TFramePmxCatalog;
     FPoseCatalogFrame: TFrameMmdPoseCatalog;
+    FMotionCatalogFrame: TFrameMmdMotionCatalog;
     FFaceCatalogFrame: TFrameMmdFaceCatalog;
     FSerifHost: TMmdSerifHost;
     FExplorerFrame: TFrameExplorer;
@@ -55,6 +59,7 @@ type
     procedure DropFilesCore(const Files: TArray<string>);
     procedure EnsurePmxCatalogFrame;
     procedure EnsurePoseCatalogFrame;
+    procedure EnsureMotionCatalogFrame;
     procedure EnsureFaceCatalogFrame;
     procedure EnsureSerifFrame;
     procedure EnsureExplorerFrame;
@@ -74,12 +79,13 @@ type
     constructor Create(AOwner: TComponent); override;
     // AviUtl2通知を解除し、ページ管理とセリフホストを破棄する。
     destructor Destroy; override;
-    // ドロップ内容と表示ページに応じてPMX、VPD、Explorer、Launcherへ入力を振り分ける。
+    // ドロップ内容と表示ページに応じてPMX、VPD、VMD、Explorer、Launcherへ入力を振り分ける。
     procedure DropFiles(Control: TWinControl; const Files: TArray<string>);
     // 初回表示に必要なツールバー、PMX一覧、Launcherのホットキー受付を準備する。
     procedure Show; reintroduce;
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
     property PoseCatalogFrame: TFrameMmdPoseCatalog read FPoseCatalogFrame;
+    property MotionCatalogFrame: TFrameMmdMotionCatalog read FMotionCatalogFrame;
     property FaceCatalogFrame: TFrameMmdFaceCatalog read FFaceCatalogFrame;
     property SerifFrame: TFrameSerif read GetSerifFrame;
     property ExplorerFrame: TFrameExplorer read FExplorerFrame;
@@ -103,7 +109,7 @@ begin
 
   Color := clBlack;
   FToolbarController := TMmdStudioToolbarController.Create(PanelToolbar,
-    ToolbarPages, ToolbarImages, [PanelPmx, PanelPoseMotion,
+    ToolbarPages, ToolbarImages, [PanelPmx, PanelPoseMotion, PanelMotion,
     PanelExpression, PanelSerif, PanelExplorer, PanelMusic, PanelLaunch],
     PageChanging, PageChanged);
 
@@ -136,7 +142,7 @@ end;
 procedure TFrameMMDAnimationStudio.DropFilesCore(const Files: TArray<string>);
 var
   FileName: string;
-  HasPmx, HasVpd, PoseWasActive: Boolean;
+  HasPmx, HasVmd, HasVpd, PoseWasActive: Boolean;
 begin
   { ホストがマウス進入時などに空のドロップ通知を送る場合がある。
     空通知では表示ページを変更せず、そのまま無視する。 }
@@ -156,17 +162,22 @@ begin
     Exit;
   end;
   HasPmx := False;
+  HasVmd := False;
   HasVpd := False;
   PoseWasActive := PanelPoseMotion.Visible;
   for FileName in Files do
     if SameText(ExtractFileExt(FileName), '.pmx') then
       HasPmx := True
+    else if SameText(ExtractFileExt(FileName), '.vmd') then
+      HasVmd := True
     else if SameText(ExtractFileExt(FileName), '.vpd') then
       HasVpd := True
     else if TDirectory.Exists(FileName) then
       try
         if Length(TDirectory.GetFiles(FileName, '*.vpd',
           TSearchOption.soAllDirectories)) > 0 then HasVpd := True;
+        if Length(TDirectory.GetFiles(FileName, '*.vmd',
+          TSearchOption.soAllDirectories)) > 0 then HasVmd := True;
       except
         { 読み取れないフォルダは登録処理側で失敗件数として扱う。 }
       end;
@@ -187,12 +198,33 @@ begin
     else
       FPmxCatalogFrame.ImportVpdFiles(Files);
   end;
-  if not HasPmx and not HasVpd then
+  if HasVmd then
+  begin
+    EnsureMotionCatalogFrame;
+    FToolbarController.Activate(2);
+    FMotionCatalogFrame.ImportVmdFiles(Files);
+  end;
+  if not HasPmx and not HasVpd and not HasVmd then
   begin
     EnsureExplorerFrame;
-    FToolbarController.Activate(4);
+    FToolbarController.Activate(5);
     FExplorerFrame.DropFile(Files);
   end;
+end;
+
+procedure TFrameMMDAnimationStudio.EnsureMotionCatalogFrame;
+begin
+  EnsurePmxCatalogFrame;
+  if Assigned(FMotionCatalogFrame) then
+  begin
+    FMotionCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+    Exit;
+  end;
+  FMotionCatalogFrame := TFrameMmdMotionCatalog.Create(Self);
+  FMotionCatalogFrame.Parent := PanelMotion;
+  FMotionCatalogFrame.Align := alClient;
+  FMotionCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
+  FMotionCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureExplorerFrame;
@@ -294,23 +326,31 @@ begin
       end;
     2:
       begin
+        EnsureMotionCatalogFrame;
+        FSelectedPmxId := TargetPmxId;
+        FMotionCatalogFrame.SelectPmxId(TargetPmxId);
+        FMotionCatalogFrame.Visible := True;
+        FMotionCatalogFrame.Show;
+      end;
+    3:
+      begin
         EnsureFaceCatalogFrame;
         FSelectedPmxId := TargetPmxId;
         FFaceCatalogFrame.SelectPmxId(TargetPmxId);
         FFaceCatalogFrame.Visible := True;
         FFaceCatalogFrame.Show;
       end;
-    3:
+    4:
       begin
         EnsureSerifFrame;
         FSerifHost.Show;
       end;
-    4:
+    5:
       begin
         EnsureExplorerFrame;
         FExplorerFrame.Show;
       end;
-    6:
+    7:
       begin
         EnsureLauncherFrame;
         FLauncherFrame.Show;
@@ -355,15 +395,21 @@ begin
         FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
       if Assigned(FFaceCatalogFrame) then
         FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+      if Assigned(FMotionCatalogFrame) then
+        FMotionCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
     end
     else if Sender = FPoseCatalogFrame then
       FSelectedPmxId := FPoseCatalogFrame.PmxSelector.SelectedPmxId
+    else if Sender = FMotionCatalogFrame then
+      FSelectedPmxId := FMotionCatalogFrame.PmxSelector.SelectedPmxId
     else if Sender = FFaceCatalogFrame then
       FSelectedPmxId := FFaceCatalogFrame.PmxSelector.SelectedPmxId;
     if Assigned(FPmxCatalogFrame) and (Sender <> FPmxCatalogFrame) then
       FPmxCatalogFrame.SelectPmxId(FSelectedPmxId);
     if Assigned(FPoseCatalogFrame) and (Sender <> FPoseCatalogFrame) then
       FPoseCatalogFrame.SelectPmxId(FSelectedPmxId);
+    if Assigned(FMotionCatalogFrame) and (Sender <> FMotionCatalogFrame) then
+      FMotionCatalogFrame.SelectPmxId(FSelectedPmxId);
     if Assigned(FFaceCatalogFrame) and (Sender <> FFaceCatalogFrame) then
       FFaceCatalogFrame.SelectPmxId(FSelectedPmxId);
   finally

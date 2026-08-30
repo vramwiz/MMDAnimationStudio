@@ -107,6 +107,28 @@ begin
   Canvas.LineTo(Scale(20), Scale(20));
 end;
 
+procedure DrawMotionIcon(Canvas: TCanvas; Size: Integer; GlyphColor: TColor);
+
+  function Scale(Value: Integer): Integer;
+  begin
+    Result := MulDiv(Value, Size, BaseSize);
+  end;
+
+begin
+  Canvas.Pen.Color := GlyphColor;
+  Canvas.Pen.Width := Max(1, Scale(2));
+  Canvas.Brush.Style := bsClear;
+  Canvas.Rectangle(Scale(3), Scale(5), Scale(21), Scale(19));
+  Canvas.MoveTo(Scale(7), Scale(5));
+  Canvas.LineTo(Scale(7), Scale(19));
+  Canvas.MoveTo(Scale(17), Scale(5));
+  Canvas.LineTo(Scale(17), Scale(19));
+  Canvas.Brush.Color := GlyphColor;
+  Canvas.Brush.Style := bsSolid;
+  Canvas.Polygon([Point(Scale(10), Scale(8)), Point(Scale(16), Scale(12)),
+    Point(Scale(10), Scale(16))]);
+end;
+
 procedure DrawLaunchIcon(Canvas: TCanvas; Size: Integer; GlyphColor: TColor);
 
   function Scale(Value: Integer): Integer;
@@ -137,7 +159,7 @@ begin
     3: DrawSerifToolbarIcon(Canvas, stiSerif, Size, NormalColor);
     4: DrawSerifToolbarIcon(Canvas, stiProject, Size, ExplorerColor);
     5: DrawMusicIcon(Canvas, Size, MusicColor);
-    6: DrawFaceIcon(Canvas, Size, SyncColor);
+    6: DrawMotionIcon(Canvas, Size, NormalColor);
     7: DrawSerifToolbarIcon(Canvas, stiChara, Size, SyncColor);
     9: DrawSerifToolbarIcon(Canvas, stiSerif, Size, SyncColor);
     10: DrawLaunchIcon(Canvas, Size, LaunchColor);

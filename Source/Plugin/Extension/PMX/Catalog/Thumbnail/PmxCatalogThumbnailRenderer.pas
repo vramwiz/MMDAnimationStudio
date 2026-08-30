@@ -8,7 +8,9 @@ uses
   System.Classes,
   Vcl.Controls,
   Vcl.Graphics,
-  MmdD3DRenderer;
+  MmdD3DRenderer,
+  PmxPose,
+  MmdMorphSettingCodec;
 
 type
   TPmxCatalogThumbnailRenderer = class(TCustomControl)
@@ -16,6 +18,10 @@ type
     FRenderer: TMmdD3DRenderer;
     function RenderPmxInternal(const FileName, PoseData, FaceData: string;
       Width, Height: Integer; Bitmap: TBitmap; FocusHead: Boolean): Boolean;
+    function RenderPmxNamedInternal(const FileName: string;
+      const NamedPoses: TPmxNamedBonePoses;
+      const NamedMorphs: TMmdNamedMorphWeights; Width, Height: Integer;
+      Bitmap: TBitmap; FocusHead: Boolean): Boolean;
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -29,6 +35,14 @@ type
     // 指定姿勢を適用したPMX全身画像をBitmapへ返す。
     function RenderPmxPose(const FileName, PoseData: string; Width,
       Height: Integer; Bitmap: TBitmap): Boolean;
+    // 指定姿勢とモーフを同時適用したPMX全身画像をBitmapへ返す。
+    function RenderPmxState(const FileName, PoseData, MorphData: string;
+      Width, Height: Integer; Bitmap: TBitmap): Boolean;
+    // 名前付き姿勢とモーフを直接適用し、ホバー再生用のPMX全身画像を返す。
+    function RenderPmxNamedState(const FileName: string;
+      const NamedPoses: TPmxNamedBonePoses;
+      const NamedMorphs: TMmdNamedMorphWeights; Width, Height: Integer;
+      Bitmap: TBitmap): Boolean;
     // 指定表情を適用したPMXの頭部中心画像をBitmapへ返す。
     function RenderPmxFace(const FileName, FaceData: string; Width,
       Height: Integer; Bitmap: TBitmap): Boolean;
@@ -41,10 +55,8 @@ uses
   System.SysUtils,
   PmxModel,
   PmxMorph,
-  PmxPose,
   PmxPoseCodec,
   PmxReader,
-  MmdMorphSettingCodec,
   MmdD3DScene;
 
 constructor TPmxCatalogThumbnailRenderer.Create(AOwner: TComponent);
@@ -86,6 +98,23 @@ function TPmxCatalogThumbnailRenderer.RenderPmxPose(const FileName,
 begin
   Result := RenderPmxInternal(FileName, PoseData, '', Width, Height, Bitmap,
     False);
+end;
+
+function TPmxCatalogThumbnailRenderer.RenderPmxState(const FileName,
+  PoseData, MorphData: string; Width, Height: Integer;
+  Bitmap: Vcl.Graphics.TBitmap): Boolean;
+begin
+  Result := RenderPmxInternal(FileName, PoseData, MorphData, Width, Height,
+    Bitmap, False);
+end;
+
+function TPmxCatalogThumbnailRenderer.RenderPmxNamedState(
+  const FileName: string; const NamedPoses: TPmxNamedBonePoses;
+  const NamedMorphs: TMmdNamedMorphWeights; Width, Height: Integer;
+  Bitmap: Vcl.Graphics.TBitmap): Boolean;
+begin
+  Result := RenderPmxNamedInternal(FileName, NamedPoses, NamedMorphs,
+    Width, Height, Bitmap, False);
 end;
 
 function TPmxCatalogThumbnailRenderer.RenderPmxFace(const FileName,
@@ -139,11 +168,26 @@ function TPmxCatalogThumbnailRenderer.RenderPmxInternal(const FileName,
   PoseData, FaceData: string; Width, Height: Integer;
   Bitmap: Vcl.Graphics.TBitmap; FocusHead: Boolean): Boolean;
 var
+  NamedMorphs: TMmdNamedMorphWeights;
+  NamedPoses: TPmxNamedBonePoses;
+begin
+  NamedPoses := nil;
+  NamedMorphs := nil;
+  if PoseData <> '' then TryDecodePoseData(PoseData, NamedPoses);
+  if FaceData <> '' then
+    TryDecodeMmdMorphSettingData(FaceData, NamedMorphs);
+  Result := RenderPmxNamedInternal(FileName, NamedPoses, NamedMorphs,
+    Width, Height, Bitmap, FocusHead);
+end;
+
+function TPmxCatalogThumbnailRenderer.RenderPmxNamedInternal(
+  const FileName: string; const NamedPoses: TPmxNamedBonePoses;
+  const NamedMorphs: TMmdNamedMorphWeights; Width, Height: Integer;
+  Bitmap: Vcl.Graphics.TBitmap; FocusHead: Boolean): Boolean;
+var
   Camera: TMmdPreviewCamera;
   Model: TPmxModel;
-  NamedMorphs: TMmdNamedMorphWeights;
   MorphWeights: TPmxMorphWeights;
-  NamedPoses: TPmxNamedBonePoses;
   Poses: TPmxBonePoses;
   Target: TMmdPreviewTarget;
   WindowHandle: HWND;
@@ -162,11 +206,10 @@ begin
 
     Model := GetCachedPmxModel(FileName);
     InitializeBonePoses(Model, Poses);
-    if (PoseData <> '') and TryDecodePoseData(PoseData, NamedPoses) then
+    if Length(NamedPoses) > 0 then
       ApplyNamedBonePoses(Model, NamedPoses, Poses);
     InitializeMorphWeights(Model, MorphWeights);
-    if (FaceData <> '') and
-      TryDecodeMmdMorphSettingData(FaceData, NamedMorphs) then
+    if Length(NamedMorphs) > 0 then
       ApplyMmdNamedMorphWeights(Model, NamedMorphs, MorphWeights);
     Target := EmptyPreviewTarget;
     Camera := DefaultPreviewCamera;

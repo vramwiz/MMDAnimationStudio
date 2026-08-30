@@ -14,6 +14,12 @@ uses
   Vcl.Graphics,
   Vcl.Menus,
   System.IOUtils,
+  DarkThemeColors in
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas',
+  DarkThemeMetrics in
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas',
+  DarkThemeDpiContext in
+    '..\..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas',
   DarkPanel in
     '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
   DarkLabel in
@@ -78,6 +84,32 @@ uses
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragController.pas',
   MmdPoseCatalogFrame in
     '..\Source\Plugin\Extension\Pose\Catalog\MmdPoseCatalogFrame.pas',
+  VmdFirstFrameReader in
+    '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdFirstFrameReader.pas',
+  VmdMotionReader in
+    '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionReader.pas',
+  MmdVmdCatalogItem in
+    '..\Source\Plugin\Extension\VMD\Catalog\MmdVmdCatalogItem.pas',
+  MmdVmdCatalogCodec in
+    '..\Source\Plugin\Extension\VMD\Catalog\MmdVmdCatalogCodec.pas',
+  MmdVmdCatalog in
+    '..\Source\Plugin\Extension\VMD\Catalog\MmdVmdCatalog.pas',
+  MmdVmdMotionImporter in
+    '..\Source\Plugin\Extension\VMD\Import\MmdVmdMotionImporter.pas',
+  PmxMotionCatalogItem in
+    '..\Source\Plugin\Extension\PMX\Catalog\Motion\Storage\PmxMotionCatalogItem.pas',
+  PmxMotionCatalogCodec in
+    '..\Source\Plugin\Extension\PMX\Catalog\Motion\Storage\PmxMotionCatalogCodec.pas',
+  PmxMotionCatalogStorage in
+    '..\Source\Plugin\Extension\PMX\Catalog\Motion\PmxMotionCatalogStorage.pas',
+  PmxMotionCatalogListView in
+    '..\Source\Plugin\Extension\PMX\Catalog\Motion\View\PmxMotionCatalogListView.pas',
+  PmxMotionCatalogToolbar in
+    '..\Source\Plugin\Extension\PMX\Catalog\Motion\Toolbar\PmxMotionCatalogToolbar.pas',
+  PmxMotionCatalogContextMenu in
+    '..\Source\Plugin\Extension\PMX\Catalog\Motion\Menu\PmxMotionCatalogContextMenu.pas',
+  MmdMotionCatalogFrame in
+    '..\Source\Plugin\Extension\Motion\Catalog\MmdMotionCatalogFrame.pas',
   MmdPoseObjectDragAlias in
     '..\Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragAlias.pas',
   MmdPoseObjectDragController in
@@ -209,6 +241,7 @@ begin
       if not (Frame.PanelToolbar is TDarkPanel) or
          not (Frame.PanelPmx is TDarkPanel) or
          not (Frame.PanelPoseMotion is TDarkPanel) or
+         not (Frame.PanelMotion is TDarkPanel) or
          not (Frame.PanelExpression is TDarkPanel) or
          not (Frame.PanelSerif is TDarkPanel) or
          not (Frame.PanelExplorer is TDarkPanel) or
@@ -407,6 +440,17 @@ begin
         Frame.PoseCatalogFrame.OnEditPose := nil;
         TestPoseEditor.Free;
       end;
+      Frame.ButtonMotion.Click;
+      Application.ProcessMessages;
+      if not Assigned(Frame.MotionCatalogFrame) or
+         not Frame.PanelMotion.Visible or
+         not SameText(Frame.MotionCatalogFrame.PmxSelector.SelectedPmxId,
+           SecondPmxId) or not Assigned(Frame.MotionCatalogFrame.MotionCatalog) or
+         (Frame.MotionCatalogFrame.MotionCatalog.Count <> 0) or
+         (Frame.MotionCatalogFrame.MotionListView.DisplayCount <> 0) or
+         not Assigned(Frame.MotionCatalogFrame.MotionToolbar) or
+         (Frame.MotionCatalogFrame.MotionToolbar.Items.Count <> 5) then
+        raise Exception.Create('empty motion page was not initialized');
       Frame.ButtonPmx.Click;
       Application.ProcessMessages;
       if not Frame.PanelPmx.Visible or
