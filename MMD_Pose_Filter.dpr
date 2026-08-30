@@ -6,6 +6,15 @@
 
 uses
   System.SysUtils,
+  DarkThemeColors in '..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas',
+  DarkThemeMetrics in '..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas',
+  DarkThemeDpiContext in '..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas',
+  DarkCheckListBox in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas',
+  DarkComboBox in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas',
+  DarkEdit in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas',
+  DarkLabel in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas',
+  DarkListBox in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas',
+  DarkPanel in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
   AviUtl2FilterTypes in 'Source\Lib\AviUtl2FilterTypes.pas',
   MmdPoseSharedMemory in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas',
   MmdPoseSharedTrace in '..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas',

@@ -7,6 +7,8 @@ uses
   Vcl.ExtCtrls,
   Vcl.Forms,
   Vcl.StdCtrls,
+  DarkLabel,
+  DarkPanel,
   PmxCatalogStorage,
   PmxCatalogCharacterFilter,
   PmxCatalogContextMenu,
@@ -25,10 +27,10 @@ uses
 type
   TPmxCatalogFilesDroppedEvent = procedure(Sender: TObject; const Files: TArray<string>) of object;
   TFramePmxCatalog = class(TFrame)
-    PanelHeader: TPanel;
-    LabelTitle: TLabel;
-    LabelDropHint: TLabel;
-    LabelDropStatus: TLabel;
+    PanelHeader: TDarkPanel;
+    LabelTitle: TDarkLabel;
+    LabelDropHint: TDarkLabel;
+    LabelDropStatus: TDarkLabel;
   private
     FCatalog: TPmxCatalogStorage;
     FCatalogContextMenu: TPmxCatalogContextMenu;
@@ -41,7 +43,7 @@ type
     FPoseCatalogListView: TPmxPoseCatalogListView;
     FPoseCatalogToolbar: TPmxPoseCatalogToolbar;
     FPoseThumbnailCache: TPmxCatalogThumbnailCache;
-    FRightPanel: TPanel;
+    FRightPanel: TDarkPanel;
     FPoseDrag: TPmxPoseCatalogDragController;
     FDropEventCount: Integer;
     FLastDroppedFile: string;
@@ -169,7 +171,7 @@ begin
   FDivider.Width := PmxDividerWidth;
   FDivider.Beveled := True;
   FDivider.Left := FPmxSelector.Width;
-  FRightPanel := TPanel.Create(Self);
+  FRightPanel := TDarkPanel.Create(Self);
   FRightPanel.Parent := Self;
   FRightPanel.Align := alClient;
   FRightPanel.BevelOuter := bvNone;

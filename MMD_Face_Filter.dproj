@@ -15,7 +15,7 @@
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\FaceDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
-        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\Setting;..\AviUtl2PluginLib\MMD\Editor\Morph;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\Setting;..\AviUtl2PluginLib\MMD\Editor\Morph;..\AviUtl2PluginLib\Lib\DarkTheme\Core;..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic;..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input;..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMD_Face_Filter</SanitizedProjectName>
     </PropertyGroup>
@@ -89,6 +89,18 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkMemo.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkTreeView.pas"/>
         <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdFaceSharedMemory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>

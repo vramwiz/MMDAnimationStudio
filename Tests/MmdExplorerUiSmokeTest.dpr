@@ -9,10 +9,14 @@ uses
   Vcl.Controls,
   Vcl.ExtCtrls,
   Vcl.Forms,
+  Vcl.Graphics,
+  DarkPanel in '..\..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
   AppFolderUtils in '..\..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas',
   AviUtl2StyleColors in '..\..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas',
   ExplorerAviUtlBridge in '..\..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAviUtlBridge.pas',
   ExplorerAliasBuilder in '..\..\AviUtl2PluginLib\Explorer\AviUtl\ExplorerAliasBuilder.pas',
+  ExplorerHistFrame in '..\..\AviUtl2PluginLib\Explorer\Hist\ExplorerHistFrame.pas' {FrameExplorerHist: TFrame},
+  ExplorerHistListBox in '..\..\AviUtl2PluginLib\Explorer\Hist\ExplorerHistListBox.pas',
   ExplorerListPicture in '..\..\AviUtl2PluginLib\Explorer\ListView\Picture\ExplorerListPicture.pas',
   AviUtl2Picture in '..\..\AviUtl2PluginLib\Explorer\AviUtl\AviUtl2Picture.pas',
   ExplorerFrame in '..\..\AviUtl2PluginLib\Explorer\ExplorerFrame.pas' {FrameExplorer: TFrame};
@@ -33,6 +37,7 @@ var
   Frame: TFrameExplorer;
   HostForm: TForm;
   HostPanel: TPanel;
+  HistoryFrame: TFrameExplorerHist;
   OriginalDirectory: string;
   Picture: TExplorerFilePicturelItem;
   SelectedAlias: TStringList;
@@ -74,6 +79,15 @@ begin
     Application.Initialize;
     HostForm := TForm.Create(nil);
     try
+      HistoryFrame := TFrameExplorerHist.Create(HostForm);
+      try
+        if HistoryFrame.ListBox.ParentFont or
+          (HistoryFrame.ListBox.Font.Height <> -11) or
+          (HistoryFrame.ListBox.ItemHeight <> 24) then
+          raise Exception.Create('explorer history font metrics changed');
+      finally
+        HistoryFrame.Free;
+      end;
       HostPanel := TPanel.Create(HostForm);
       HostPanel.Parent := HostForm;
       HostPanel.Align := alClient;
@@ -81,6 +95,13 @@ begin
       Frame.Parent := HostPanel;
       Frame.Align := alClient;
       Frame.Show;
+      if not (Frame.PanelConfig is TDarkPanel) or
+        not (Frame.PanelExplorer is TDarkPanel) or
+        not (Frame.PanelTool is TDarkPanel) or
+        not (Frame.PanelEdit is TDarkPanel) or
+        not (Frame.PanelFavorite is TDarkPanel) or
+        not (Frame.PanelTree is TDarkPanel) then
+        raise Exception.Create('explorer containers are not dark panels');
       Frame.DropFile(TArray<string>.Create(TestRoot));
       Application.ProcessMessages;
       if not Frame.Visible or (Frame.Parent <> HostPanel) then

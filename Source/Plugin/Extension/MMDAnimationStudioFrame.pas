@@ -11,6 +11,7 @@ uses
   Vcl.Forms,
   Vcl.ImgList,
   Vcl.ToolWin,
+  DarkPanel,
   ToolBarPanelManager,
   ExplorerFrame,
   LauncherFrame,
@@ -20,7 +21,7 @@ uses
 
 type
   TFrameMMDAnimationStudio = class(TFrame)
-    PanelToolbar: TPanel;
+    PanelToolbar: TDarkPanel;
     ToolbarPages: TToolBar;
     ButtonPmx: TToolButton;
     ButtonPoseMotion: TToolButton;
@@ -29,13 +30,13 @@ type
     ButtonExplorer: TToolButton;
     ButtonMusic: TToolButton;
     ButtonLaunch: TToolButton;
-    PanelPmx: TPanel;
-    PanelPoseMotion: TPanel;
-    PanelExpression: TPanel;
-    PanelSerif: TPanel;
-    PanelExplorer: TPanel;
-    PanelMusic: TPanel;
-    PanelLaunch: TPanel;
+    PanelPmx: TDarkPanel;
+    PanelPoseMotion: TDarkPanel;
+    PanelExpression: TDarkPanel;
+    PanelSerif: TDarkPanel;
+    PanelExplorer: TDarkPanel;
+    PanelMusic: TDarkPanel;
+    PanelLaunch: TDarkPanel;
     ToolbarImages: TImageList;
   private
     FToolbarInitialized: Boolean;

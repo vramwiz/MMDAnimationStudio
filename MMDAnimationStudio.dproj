@@ -89,6 +89,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkMemo.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkTreeView.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas"/>
         <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginTypes.pas"/>
         <DCCReference Include="..\Syncroh2\AviUtl\Plugin\AviUtl2PluginCore.pas"/>

@@ -7,7 +7,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
   ParentBackground = False
   ParentColor = False
   TabOrder = 0
-  object PanelPmx: TPanel
+  object PanelPmx: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -19,7 +19,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 0
   end
-  object PanelPoseMotion: TPanel
+  object PanelPoseMotion: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -31,7 +31,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 1
   end
-  object PanelExpression: TPanel
+  object PanelExpression: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -43,7 +43,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 2
   end
-  object PanelSerif: TPanel
+  object PanelSerif: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -55,7 +55,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 3
   end
-  object PanelExplorer: TPanel
+  object PanelExplorer: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -67,7 +67,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 4
   end
-  object PanelMusic: TPanel
+  object PanelMusic: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -79,7 +79,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 5
   end
-  object PanelLaunch: TPanel
+  object PanelLaunch: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -91,7 +91,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 6
   end
-  object PanelToolbar: TPanel
+  object PanelToolbar: TDarkPanel
     Left = 0
     Top = 0
     Width = 640

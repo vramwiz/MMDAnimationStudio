@@ -5,16 +5,17 @@
 interface
 
 uses
-  System.Classes, System.Types,
+  System.Classes,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms, Vcl.Menus, Vcl.StdCtrls,
+  DarkComboBox, DarkEdit, DarkPanel,
   PmxFaceCatalogGroups, PmxFaceCatalogListView;
 
 type
   TPmxFaceCatalogGroupBar = class(TComponent)
   private
-    FBar: TPanel;
-    FCombo: TComboBox;
-    FEdit: TEdit;
+    FBar: TDarkPanel;
+    FCombo: TDarkComboBox;
+    FEdit: TDarkEdit;
     FEditingIndex: Integer;
     FEndingEdit: Boolean;
     FGroups: TPmxFaceCatalogGroups;
@@ -29,8 +30,6 @@ type
       out Item: TMenuItem);
     procedure BeginEdit(AIndex: Integer);
     procedure ComboChange(Sender: TObject);
-    procedure ComboDrawItem(Control: TWinControl; Index: Integer;
-      Rect: TRect; State: TOwnerDrawState);
     procedure ComboKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure EditExit(Sender: TObject);
@@ -55,16 +54,16 @@ type
     // 表示・編集対象のグループ保存領域を差し替える。
     procedure SetGroups(AGroups: TPmxFaceCatalogGroups);
     // 呼出側が配置と状態確認に使うControl、および現在の保存領域を公開する。
-    property Bar: TPanel read FBar;
-    property Combo: TComboBox read FCombo;
+    property Bar: TDarkPanel read FBar;
+    property Combo: TDarkComboBox read FCombo;
+    property Edit: TDarkEdit read FEdit;
     property Groups: TPmxFaceCatalogGroups read FGroups;
   end;
 
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils, Vcl.Graphics,
-  AviUtl2StyleColors;
+  Winapi.Windows, System.SysUtils;
 
 const
   GroupEditNew = -1;
@@ -77,21 +76,15 @@ var
 begin
   inherited Create(AOwner);
   FList := AList;
-  FBar := TPanel.Create(Self);
+  FBar := TDarkPanel.Create(Self);
   FBar.Parent := AParent;
   FBar.Align := alTop;
   FBar.Height := 21;
   FBar.BevelOuter := bvNone;
   FBar.ParentBackground := False;
-  FBar.Color := A2SCToolBarBackground;
-  FCombo := TComboBox.Create(Self);
-  FCombo.Style := csOwnerDrawFixed;
+  FCombo := TDarkComboBox.Create(Self);
   FCombo.Parent := FBar;
   FCombo.Align := alClient;
-  FCombo.Color := A2SCComboBackground;
-  FCombo.Font.Color := A2SCComboText;
-  FCombo.Font.Height := -12;
-  FCombo.OnDrawItem := ComboDrawItem;
   FCombo.OnChange := ComboChange;
   FCombo.OnKeyDown := ComboKeyDown;
   FPopup := TPopupMenu.Create(Self);
@@ -109,14 +102,11 @@ begin
   AddMenu(#$4E0B#$3078#$79FB#$52D5 + #9 + 'Ctrl+Down', GroupDown, FMenuDown);
   FCombo.PopupMenu := FPopup;
   FEditingIndex := GroupEditNone;
-  FEdit := TEdit.Create(Self);
+  FEdit := TDarkEdit.Create(Self);
   FEdit.AutoSize := False;
   FEdit.BorderStyle := bsSingle;
   FEdit.Parent := FBar;
   FEdit.Visible := False;
-  FEdit.Color := A2SCEditBackground;
-  FEdit.Font.Color := A2SCEditText;
-  FEdit.Font.Height := -12;
   FEdit.OnKeyDown := EditKeyDown;
   FEdit.OnKeyUp := EditKeyUp;
   FEdit.OnExit := EditExit;
@@ -291,22 +281,6 @@ end;
 procedure TPmxFaceCatalogGroupBar.ComboChange(Sender: TObject);
 begin
   FList.SetGroupIndex(FCombo.ItemIndex - 1);
-end;
-
-procedure TPmxFaceCatalogGroupBar.ComboDrawItem(Control: TWinControl;
-  Index: Integer; Rect: TRect; State: TOwnerDrawState);
-var
-  Combo: TComboBox;
-begin
-  Combo := TComboBox(Control);
-  if odSelected in State then Combo.Canvas.Brush.Color := A2SCListViewSelection
-  else Combo.Canvas.Brush.Color := A2SCComboBackground;
-  Combo.Canvas.Font.Color := A2SCComboText;
-  Combo.Canvas.FillRect(Rect);
-  if (Index >= 0) and (Index < Combo.Items.Count) then
-    Combo.Canvas.TextRect(Rect, Rect.Left + 4,
-      Rect.Top + (Rect.Height - Combo.Canvas.TextHeight(Combo.Items[Index])) div 2,
-      Combo.Items[Index]);
 end;
 
 procedure TPmxFaceCatalogGroupBar.ComboKeyDown(Sender: TObject;

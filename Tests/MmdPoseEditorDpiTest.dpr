@@ -11,6 +11,7 @@ uses
   Vcl.Controls,
   Vcl.Forms,
   Vcl.Graphics,
+  DarkPanel,
   HorizontalTrackBarControl,
   MmdLipSyncSettingCodec,
   MmdModelSettingEditor,
@@ -98,6 +99,13 @@ procedure TLayoutProbe.CheckLayout(ExpectedPPI: Integer);
 var
   ExpectedIconSize, ExpectedMorphHeight: Integer;
 begin
+  if not (FDialogButtonPanel is TDarkPanel) or
+    not (FLeftPanel is TDarkPanel) then
+    raise Exception.Create('pose editor panels did not use shared dark panels');
+  if (FMorphPreview.CaptionLabel.Font.Height <> Font.Height) or
+    (FMorphPreview.ListControl.Font.Height <> Font.Height) or
+    (FMorphPreview.ClearButton.Font.Height <> Font.Height) then
+    raise Exception.Create('morph controls did not inherit the editor font');
   ExpectedIconSize := MulDiv(20, ExpectedPPI, 96);
   ExpectedMorphHeight := MulDiv(245, ExpectedPPI, 96);
   if FMorphPreview.Height <> ExpectedMorphHeight then
@@ -135,12 +143,19 @@ end;
 
 procedure CheckModelSettingModes;
 var
+  ButtonPPI: Integer;
   Form: TMmdModelSettingEditorForm;
 begin
   // モデル表示の「設定」はポーズ・表情だけを見せる。
   Form := TMmdModelSettingEditorForm.Create(nil);
   try
     Form.ConfigureSettingControls;
+    ButtonPPI := Form.CurrentPPI;
+    if ButtonPPI > 126 then ButtonPPI := 126;
+    if (Form.SaveButton.Font.Height <> Form.Font.Height) or
+      (Form.SaveButton.Height <> MulDiv(32, ButtonPPI, 96)) or
+      (Form.CommitPanel.Height <> MulDiv(55, ButtonPPI, 96)) then
+      raise Exception.Create('model setting close button is not compact');
     if (Form.ModeToolbar.ButtonCount <> 2) or
       (Form.ModeToolbar.Images = nil) or
       (Form.ModeToolbar.Images.Count <> 2) then

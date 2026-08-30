@@ -90,6 +90,15 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas"/>
         <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedTrace.pas"/>

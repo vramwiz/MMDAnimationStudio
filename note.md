@@ -73,7 +73,38 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 
 - Explorerとランチャーは、`D:\DelphiProg\AviUtl2Plugin\AviUtl2PluginLib`の既存共有フレームをコピーせず直接参照し、MMDAnimationStudioの各パネルへ遅延生成する。
 - Syncroh2とMMDAnimationStudioの同時起動は想定しない。ランチャーの`Ctrl+Alt+0`～`9`は共有実装のまま使用し、製品間競合を避けるための独自変更は加えない。
-- 画面配色は旧Syncroh2側の定義を基準とした`AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas`を正本とし、Syncroh2とMMDAnimationStudioに製品別コピーを置かない。ランチャー固有の状態色もこの正本へ追加する。
+- 画面配色は旧Syncroh2側の定義を基準とした`AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas`を正本とし、Syncroh2とMMDAnimationStudioに製品別コピーを置かない。旧`AviUtl2StyleColors`は段階移行中の互換名だけを提供する。
+- 標準VCLをダークテーマ対応として再利用する部品は`Lib\DarkTheme\VclControls`配下を`Basic`、`Input`、`Selection`へ責務分離し、色・96 DPI基準寸法・モニター単位の共有DPI情報は`Lib\DarkTheme\Core`へ置く。独自スクロールバー、トラックバー、仮想一覧等はこのフォルダへ混在させず、別の`CustomUI`系統として段階的に整理する。
+- ダークテーマ部品は種類ごとに移行する。最初の対象は共通`TDarkButton`とし、ランチャー登録画面と確認ダイアログから利用する。同じ画面の部品は1個の`TDarkThemeDpiContext`を共有し、DPI変更時の文字高と基準寸法を一括反映する。
+- 次の対象として`TPanel`を一段継承した共通`TDarkPanel`を追加した。ランチャー登録画面と確認ダイアログの3パネルを置き換え、96 DPI基準の`DesignHeight`を共有DPIコンテキストから反映する。
+- 次の対象として`TLabel`を一段継承した共通`TDarkLabel`を追加した。通常／無効文字色、基準文字高、任意の固定高さを共有し、MMDモーフ設定一覧の見出しから移行した。ボタン、パネル、ラベルはVCLの`ChangeScale`から同じDPIコンテキストを更新する。
+- 次の対象として`TEdit`を一段継承した共通`TDarkEdit`を追加した。通常／フォーカス／無効状態の背景、文字、枠、内側余白、基準文字高と高さを共有し、目パチ設定3項目と口パク設定2項目から移行した。既存のTEdit向け数値検証処理は変更せず利用する。
+- ランチャー登録画面のボタンと文字が過大になる問題は、ランチャー一覧が独自描画の座標系を維持する一方、登録画面だけが親HWNDの200% DPIを受けていたことが原因だった。共有DPIの一般処理はVCLの`CurrentPPI`を優先するが、登録操作部は200%へ追従させず、一覧との見た目に合わせて約131%基準の下端パネル42px、文字高16pxへ調整する。
+- 次の対象として`TMemo`を一段継承した共通`TDarkMemo`を追加した。通常／フォーカス／無効状態の背景・文字・枠と基準文字高を共有し、VOICEVOXの通常セリフ入力欄2種から移行した。独自ズームとWindowProcを持つシーン一覧内編集は特殊用途として保留する。
+- 次の対象として`TComboBox`を一段継承した共通`TDarkComboBox`を追加した。選択欄、候補一覧、矢印、フォーカス、無効表示、文字高と項目高を共有する。MMD専用の旧`TMmdDarkComboBox`は互換名として共通実装へ接続し、標準VCLではセリフのシーン選択欄から移行した。
+- 共通`TDarkComboBox`の通常用途移行を進め、ボード画面の解像度選択を置き換えた。従来の個別配色と`SetWindowTheme`呼出しを削除し、テーマ生成を共通部品へ集約した。リスト内セル編集用コンボは編集プラグイン固有処理として保留する。
+- 次の対象として`TListBox`を一段継承した共通`TDarkListBox`を追加した。背景、通常／選択／無効文字、フォーカス、文字高と項目高を共有する。MMD専用の旧`TMmdDarkListBox`は互換名として共通実装へ接続し、ボードのスタイル一覧とセリフ・エイリアスのレイヤー一覧を移行した。チェック付き一覧と編集・画像系派生一覧は保留する。
+- MMD編集画面のボーン一覧で文字が小さくなったため、共通一覧へ`UseThemeFont`を追加した。通常画面は共通DPI文字を使用し、MMD互換一覧は`ParentFont=True`でフォームの調整済みフォントを継承する。これによりフォーム側のDPI計算と共通部品側の文字計算が重ならない。
+- 次の対象として`TCheckListBox`を一段継承した共通`TDarkCheckListBox`を追加した。チェック操作はVCLへ委譲し、背景、通常／選択／無効文字、フォーカス、文字高と項目高を共有する。MMDのVPD再利用チェック一覧は旧クラス名を維持したまま共通実装へ接続し、同様に親フォームの調整済みフォントを継承する。
+- 目パチ／口パク設定の左項目名は背景用`TPanel.Caption`への直描画をやめ、背景パネル内の本文`TLabel`へ分離した。96 DPI基準で左8px・右4pxの内側余白を持たせ、DPI変更時も同じ比率で更新して文字が左端へ密着しないようにした。
+- 次の対象として`TTreeView`を一段継承した共通`TDarkTreeView`を追加した。背景、文字、接続線、文字高、項目高、インデントを共有DPIで管理し、共有`TFolderSelect`の内部ツリーを置き換えた。Explorer固有の`ApplyTreeStyle`は削除し、Syncroh2とMMDAnimationStudioが同じツリー実装を利用する。
+- `TListView`とその派生一覧は、今後完全な独自GUIへ移行するため`VclControls`の共通化対象外とする。標準`TTrackBar`も既存の独自トラックバー系へ統合する対象とし、VCL派生部品は追加しない。
+- 目パチ／口パク設定内の見出し、行背景、項目名背景を`TDarkPanel`、余白付き項目名を`TDarkLabel`へ置き換えた。既存の配置と親フォーム由来の調整済みフォントを維持し、生成時の配色・枠・無効文字処理だけを共通部品へ集約する。
+- ポーズ編集共通フォームの左ペインと下端操作領域、初期設定フォームの下端確定領域を`TDarkPanel`へ移行した。これによりModel、Pose、AIプレビュー、初期状態編集が同じ背景コンテナを利用する。VPD再利用画面も下端、一覧側、プレビュー側を`TDarkPanel`、状態表示を親フォント継承の`TDarkLabel`へ移行した。
+- PMX管理、ポーズ管理、表情管理の右側一覧コンテナと、ポーズ／表情グループ選択バーを`TDarkPanel`へ移行した。一覧本体は将来の独自GUI化対象として変更せず、周囲の背景・枠生成だけを共通化した。
+- 表情設定の見出し、モーフ一覧、「すべて解除」は、フォームのDPI調整完了後に同じ確定フォントへ再同期する。下端の「閉じる」は文字をフォーム基準へ固定し、パネルとボタン寸法を最大126 DPI相当に制限して高DPI時の過大表示を抑えた。
+- AIプレビュー画面の上端操作領域と保存ポーズ領域を`TDarkPanel`、候補・状態表示を親フォント継承の`TDarkLabel`へ移行した。状態エラーの赤文字も`TDarkLabel.TextColor`経由で切り替える。
+- 拡張プラグインのルート、ページ格納領域、ツールバー外枠を`TDarkPanel`へ移行した。PMX未登録時の案内ヘッダーも`TDarkPanel`／`TDarkLabel`へ移行し、既存DFMの文字サイズと案内色は`UseThemeFont=False`と`TextColor`で維持する。
+- ポーズ／表情グループバーの選択欄と名称編集欄を`TDarkComboBox`／`TDarkEdit`へ移行した。個別の配色、文字高、コンボ項目描画を削除し、フォーカス・無効表示・DPI文字寸法を共通Controlへ集約する。
+- Explorerのお気に入り履歴一覧だけが埋込み先の拡大済み親フォントを継承していたため、Explorer本体一覧と同じ文字高`-11`へ固定した。履歴行高24pxと種別アイコン寸法は維持する。AIプレビューのコンボ／ポーズ一覧フィールド型も、実際に生成している共通ダークControl型へ揃えた。
+- 共有Explorerの設定、ファイル表示、上端ツール、履歴／ツリー切替、お気に入り、ツリーの6コンテナを`TDarkPanel`へ移行した。将来独自GUIへ置換する`Explorer\ListView`配下の一覧実装と内部コンテナは対象外のまま維持する。
+- 共有セリフGUIの最上位にあるクライアント、各ページ、監視欄の10コンテナを`TDarkPanel`へ移行した。セリフ入力、監視、一覧等の内部機能には触れず、ページ切替先となる外枠だけを共通テーマへ接続する。
+- セリフ監視欄右側のVOICEVOX状態表示を`TDarkLabel`へ移行した。従来の13px基準と淡色表示は`DesignFontHeight`／`TextColor`で維持し、`ApplyDpi`内の個別フォント計算を削除した。
+- 共有セリフ監視フレームの状態表示領域を`TDarkPanel`／`TDarkLabel`へ移行した。状態に応じて変わる文字色は`TextColor`へ統一し、13px基準、中央配置、開始／停止ボタンの従来寸法は維持する。
+- モデル表示フィルターのプロジェクト参照へ、分離後の`DarkTheme\Core`と`DarkTheme\VclControls`各ユニットを追加した。設定画面が共通ダーク部品を参照しても、他プロジェクトの生成済みDCUに依存せず単独ビルドできる構成とする。
+- 共有セリフ描画フレームの見出し、タイトル、コマンド領域を`TDarkPanel`／`TDarkLabel`へ移行した。一覧本体には触れず、ツールバー専用色、20px／24pxの既存配置、13px基準のタイトル文字を維持する。
+- 共有セリフのシーン選択領域を`TDarkPanel`へ移行した。上端の基準高さ29pxは`DesignHeight`へ移し、個別の高さDPI計算と背景色設定を削除した。コンボ配置固有の内側余白と一覧本体は変更しない。
+- 2026-08-30に標準VCLのダークテーマ共通化を完成扱いとした。基盤は`Core`の3ユニット、VCL部品は`VclControls\Basic`、`Input`、`Selection`へ3ユニットずつ分離し、最大340行、1フォルダ最大3ユニットとした。全12ユニットの先頭へ目的と担当範囲、公開APIへ呼出側から見た責務・副作用をコメントし、MMD全5プロジェクトとSyncroh2のExtension／Desktop／PSDDrawをWin64 Debug／Releaseで検証した。`TListView`と独自描画UIは完成範囲外として別系統で扱う。
 - Explorer本体は共有`TFrameExplorer`をそのまま参照する。画像・音声エイリアス生成は共有`ExplorerAliasBuilder`、AviUtl2編集状態へのアクセスは`ExplorerAviUtlBridge`を境界とし、ExplorerからSyncroh2のPSD／セリフ実装を参照しない。
 - Explorer、ランチャー、セリフが使用するデータは、既存の`SetAppFolderRoot('MMDAnimationStudio')`を正本とし、通常はマイドキュメントの`MMDAnimationStudio`配下にある機能別フォルダへ保存する。
 - セリフは、セリフ／シーン／配役／プロジェクト管理、音声・LAB・AIUEO解析、VOICEVOX、監視、GUI等のコアを既存共有実装から利用する。Syncroh2側ソースのコピーは作らない。

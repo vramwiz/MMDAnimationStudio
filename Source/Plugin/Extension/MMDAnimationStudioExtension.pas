@@ -36,7 +36,7 @@ uses
   Winapi.Messages,
   System.SysUtils,
   Vcl.Controls,
-  Vcl.ExtCtrls,
+  DarkPanel,
   DropFile,
   MMDAnimationStudioForm,
   MMDAnimationStudioFrame;
@@ -47,7 +47,7 @@ const
 var
   ClientWindow: HWND;
   WindowForm: TFormMMDAnimationStudio;
-  RootPanel: TPanel;
+  RootPanel: TDarkPanel;
   WindowFrame: TFrameMMDAnimationStudio;
   WindowDropFile: TDropFile;
   WindowBrush: HBRUSH;
@@ -108,7 +108,7 @@ begin
   WindowForm := TFormMMDAnimationStudio.Create(nil);
   WindowForm.ParentWindow := ClientWindow;
 
-  RootPanel := TPanel.Create(WindowForm);
+  RootPanel := TDarkPanel.Create(WindowForm);
   RootPanel.Parent := WindowForm;
   RootPanel.Align := alClient;
   RootPanel.BevelOuter := bvNone;

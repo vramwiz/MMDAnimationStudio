@@ -7,7 +7,7 @@ object FramePmxCatalog: TFramePmxCatalog
   ParentBackground = False
   ParentColor = False
   TabOrder = 0
-  object PanelHeader: TPanel
+  object PanelHeader: TDarkPanel
     Left = 0
     Top = 0
     Width = 640
@@ -18,7 +18,7 @@ object FramePmxCatalog: TFramePmxCatalog
     Color = 2368548
     ParentBackground = False
     TabOrder = 0
-    object LabelTitle: TLabel
+    object LabelTitle: TDarkLabel
       Left = 12
       Top = 10
       Width = 55
@@ -29,9 +29,11 @@ object FramePmxCatalog: TFramePmxCatalog
       Font.Height = -13
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
+      UseThemeFont = False
       ParentFont = False
+      TextColor = 16777215
     end
-    object LabelDropHint: TLabel
+    object LabelDropHint: TDarkLabel
       Left = 12
       Top = 33
       Width = 275
@@ -42,9 +44,11 @@ object FramePmxCatalog: TFramePmxCatalog
       Font.Height = -13
       Font.Name = 'Segoe UI'
       Font.Style = []
+      UseThemeFont = False
       ParentFont = False
+      TextColor = 12632256
     end
-    object LabelDropStatus: TLabel
+    object LabelDropStatus: TDarkLabel
       Left = 12
       Top = 57
       Width = 616
@@ -56,7 +60,9 @@ object FramePmxCatalog: TFramePmxCatalog
       Font.Height = -13
       Font.Name = 'Segoe UI'
       Font.Style = []
+      UseThemeFont = False
       ParentFont = False
+      TextColor = 8454143
       WordWrap = True
     end
   end

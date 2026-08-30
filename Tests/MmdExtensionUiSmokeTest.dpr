@@ -14,6 +14,16 @@ uses
   Vcl.Graphics,
   Vcl.Menus,
   System.IOUtils,
+  DarkPanel in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
+  DarkLabel in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas',
+  DarkButton in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas',
+  DarkComboBox in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas',
+  DarkEdit in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas',
   ItemListView in
     '..\AviUtl2PluginLib\Lib\ItemListView\ItemListView.pas',
   ShortcutAction in
@@ -111,7 +121,7 @@ var
   ConfirmDialog: TFormConfirmDialog;
   PoseOnlyForm: TMmdModelSettingEditorForm;
   CanClose: Boolean;
-  DarkOkButton: TDarkConfirmButton;
+  DarkOkButton: TDarkButton;
   ShortcutKey: Word;
   SecondPmxId: string;
   VisibleDarkButtonCount: Integer;
@@ -145,12 +155,12 @@ begin
         for ComponentIndex := 0 to ConfirmDialog.Panel1.ControlCount - 1 do
           if ConfirmDialog.Panel1.Controls[ComponentIndex].Visible and
             (ConfirmDialog.Panel1.Controls[ComponentIndex] is
-              TDarkConfirmButton) then
+              TDarkButton) then
           begin
             Inc(VisibleDarkButtonCount);
-            if TDarkConfirmButton(
+            if TDarkButton(
               ConfirmDialog.Panel1.Controls[ComponentIndex]).Caption = 'OK' then
-              DarkOkButton := TDarkConfirmButton(
+              DarkOkButton := TDarkButton(
                 ConfirmDialog.Panel1.Controls[ComponentIndex]);
           end;
         if ConfirmDialog.btnOk.Visible or ConfirmDialog.btnCancel.Visible or
@@ -184,6 +194,20 @@ begin
       Frame.Parent := HostPanel;
       Frame.Align := alClient;
       Frame.Show;
+      if not (Frame.PanelToolbar is TDarkPanel) or
+         not (Frame.PanelPmx is TDarkPanel) or
+         not (Frame.PanelPoseMotion is TDarkPanel) or
+         not (Frame.PanelExpression is TDarkPanel) or
+         not (Frame.PanelSerif is TDarkPanel) or
+         not (Frame.PanelExplorer is TDarkPanel) or
+         not (Frame.PanelMusic is TDarkPanel) or
+         not (Frame.PanelLaunch is TDarkPanel) then
+        raise Exception.Create('extension page panels are not dark panels');
+      if not (Frame.PmxCatalogFrame.PanelHeader is TDarkPanel) or
+         not (Frame.PmxCatalogFrame.LabelTitle is TDarkLabel) or
+         not (Frame.PmxCatalogFrame.LabelDropHint is TDarkLabel) or
+         not (Frame.PmxCatalogFrame.LabelDropStatus is TDarkLabel) then
+        raise Exception.Create('PMX empty header did not use dark controls');
       HostForm.ClientWidth := 100;
       Application.ProcessMessages;
       if Frame.ToolbarPages.Height <= Frame.ToolbarPages.ButtonHeight then
@@ -270,6 +294,9 @@ begin
         raise Exception.Create('pose page toolbar was not attached');
       if not Assigned(Frame.PoseCatalogFrame.PoseGroups) or
          not Assigned(Frame.PoseCatalogFrame.PoseGroupBar) or
+         not (Frame.PoseCatalogFrame.PoseGroupBar.Bar is TDarkPanel) or
+         not (Frame.PoseCatalogFrame.PoseGroupBar.Combo is TDarkComboBox) or
+         not (Frame.PoseCatalogFrame.PoseGroupBar.Edit is TDarkEdit) or
          (Frame.PoseCatalogFrame.PoseGroupBar.Combo.Items.Count <> 1) or
          (Frame.PoseCatalogFrame.PoseGroupBar.Combo.Items[0] <>
            #$3059#$3079#$3066) then

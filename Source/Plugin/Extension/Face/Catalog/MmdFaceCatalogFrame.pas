@@ -7,6 +7,7 @@ interface
 uses
   System.Classes,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.Forms,
+  DarkPanel,
   PmxCatalogStorage, PmxCatalogSelector,
   PmxFaceCatalogStorage, PmxFaceCatalogGroups,
   PmxFaceCatalogGroupBar, PmxFaceCatalogListView,
@@ -35,7 +36,7 @@ type
     FOnEditFace: TMmdFaceCatalogEditEvent;
     FOnPmxSelectionChanged: TNotifyEvent;
     FPmxSelector: TPmxCatalogSelector;
-    FRightPanel: TPanel;
+    FRightPanel: TDarkPanel;
     FThumbnailRenderer: TPmxCatalogThumbnailRenderer;
     procedure ApplyDpiLayout;
     procedure FaceListDblClick(Sender: TObject);
@@ -112,7 +113,7 @@ begin
   FDivider.Beveled := True;
   FDivider.Left := FPmxSelector.Width;
 
-  FRightPanel := TPanel.Create(Self);
+  FRightPanel := TDarkPanel.Create(Self);
   FRightPanel.Parent := Self;
   FRightPanel.Align := alClient;
   FRightPanel.BevelOuter := bvNone;

@@ -9,6 +9,7 @@ uses
   Vcl.Controls,
   Vcl.ExtCtrls,
   Vcl.Forms,
+  DarkPanel,
   PmxCatalogStorage,
   PmxCatalogSelector,
   PmxPoseCatalogStorage,
@@ -41,7 +42,7 @@ type
     FPoseListView: TPmxPoseCatalogListView;
     FPoseToolbar: TPmxPoseCatalogToolbar;
     FPoseThumbnailCache: TPmxCatalogThumbnailCache;
-    FRightPanel: TPanel;
+    FRightPanel: TDarkPanel;
     FThumbnailRenderer: TPmxCatalogThumbnailRenderer;
     FLayoutPPI: Integer;
     procedure ApplyDpiLayout;
@@ -123,7 +124,7 @@ begin
   FDivider.Beveled := True;
   FDivider.Left := FPmxSelector.Width;
 
-  FRightPanel := TPanel.Create(Self);
+  FRightPanel := TDarkPanel.Create(Self);
   FRightPanel.Parent := Self;
   FRightPanel.Align := alClient;
   FRightPanel.BevelOuter := bvNone;

@@ -8,6 +8,10 @@ uses
   Vcl.Controls,
   Vcl.ExtCtrls,
   Vcl.Forms,
+  DarkComboBox in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas',
+  DarkEdit in
+    '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas',
   MmdModelSettingEditor,
   PmxFaceCatalogStorage,
   PmxCatalogGroupShortcut in
@@ -113,6 +117,8 @@ begin
       Check(Assigned(Frame.FaceToolbar) and
         (Frame.FaceToolbar.Items.Count = 5) and
         Assigned(Frame.FaceGroupBar) and
+        (Frame.FaceGroupBar.Combo is TDarkComboBox) and
+        (Frame.FaceGroupBar.Edit is TDarkEdit) and
         (Frame.FaceGroupBar.Combo.Items.Count = 1) and
         (Frame.FaceGroupBar.Combo.Items[0] = #$3059#$3079#$3066),
         'face management controls were not attached');

@@ -18,6 +18,7 @@ implementation
 uses
   Winapi.Windows, System.Generics.Collections, System.SysUtils,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.Graphics, Vcl.StdCtrls,
+  DarkLabel, DarkPanel,
   MmdD3DViewport, MmdVpdCatalog, MmdVpdCatalogItem,
   MmdPoseEditorTheme,
   MmdPoseEditorButtonTheme, MmdPoseEditorComboTheme,
@@ -33,7 +34,7 @@ type
     FModel: TPmxModel;
     FPoseCatalog: TPmxPoseCatalogStorage;
     FSelectedIds: TDictionary<string, Boolean>;
-    FStatus: TLabel;
+    FStatus: TDarkLabel;
     FUpdating: Boolean;
     FViewport: TMmdD3DViewport;
     procedure CategoryChanged(Sender: TObject);
@@ -60,7 +61,7 @@ constructor TMmdVpdReuseForm.CreateReuse(AOwner: TComponent;
   const VpdRoot: string);
 var
   Button: TMmdDarkButton;
-  Footer, LeftPanel, PreviewPanel: TPanel;
+  Footer, LeftPanel, PreviewPanel: TDarkPanel;
 begin
   inherited CreateNew(AOwner);
   Caption := #$767B#$9332#$6E08#$307F'VPD'#$304B#$3089#$30DD#$30FC#$30BA#$3092#$8FFD#$52A0;
@@ -83,7 +84,7 @@ begin
   if Assigned(Model) then
     try FModel := GetCachedPmxModel(Model.SourcePath); except FModel := nil; end;
 
-  Footer := TPanel.Create(Self);
+  Footer := TDarkPanel.Create(Self);
   Footer.Parent := Self;
   Footer.Align := alBottom;
   Footer.Height := 64;
@@ -98,16 +99,17 @@ begin
   Button.Caption := #$9589#$3058#$308B;
   Button.ModalResult := mrOk;
   Button.Default := True;
-  FStatus := TLabel.Create(Self);
+  FStatus := TDarkLabel.Create(Self);
   FStatus.Parent := Footer;
   FStatus.ParentFont := True;
+  FStatus.UseThemeFont := False;
   FStatus.SetBounds(16, 0, Footer.ClientWidth - 164, Footer.Height);
   FStatus.Anchors := [akLeft, akTop, akRight, akBottom];
   FStatus.AutoSize := False;
-  FStatus.Font.Color := MmdEditorText;
+  FStatus.TextColor := MmdEditorText;
   FStatus.Layout := tlCenter;
 
-  LeftPanel := TPanel.Create(Self);
+  LeftPanel := TDarkPanel.Create(Self);
   LeftPanel.Parent := Self;
   LeftPanel.Align := alLeft;
   LeftPanel.Width := 340;
@@ -133,7 +135,7 @@ begin
   FCheckList.OnClick := ListChanged;
   FCheckList.OnClickCheck := CheckChanged;
 
-  PreviewPanel := TPanel.Create(Self);
+  PreviewPanel := TDarkPanel.Create(Self);
   PreviewPanel.Parent := Self;
   PreviewPanel.Align := alClient;
   PreviewPanel.BevelOuter := bvNone;

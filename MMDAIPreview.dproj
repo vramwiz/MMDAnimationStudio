@@ -111,6 +111,14 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingRows.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTheme.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas"/>

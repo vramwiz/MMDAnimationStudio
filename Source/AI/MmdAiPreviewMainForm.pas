@@ -8,6 +8,8 @@ uses
   Winapi.Messages,
   System.Classes,
   Vcl.StdCtrls,
+  DarkLabel,
+  DarkPanel,
   MmdAiPreviewPipeServer,
   MmdAiPreviewPresentation,
   MmdPoseEditor,
@@ -20,21 +22,21 @@ uses
 type
   TMmdAiPreviewMainForm = class(TStandardPoseEditorForm)
   private
-    FCandidateLabel: TLabel;
+    FCandidateLabel: TDarkLabel;
     FCurrentCandidateId: string;
     FCurrentModelFile: string;
     FCurrentPoseName: string;
-    FDisplayCombo: TComboBox;
+    FDisplayCombo: TMmdDarkComboBox;
     FLoadingPose: Boolean;
     FLoadingPoseList: Boolean;
     FOpenModelButton: TMmdDarkButton;
     FPipeServer: TMmdAiPreviewPipeServer;
     FPlaceholderModel: TPmxModel;
     FPoseFiles: TArray<string>;
-    FPoseList: TListBox;
+    FPoseList: TMmdDarkListBox;
     FRuntimeStarted: Boolean;
     FSelectedPoseFile: string;
-    FStatusLabel: TLabel;
+    FStatusLabel: TDarkLabel;
     procedure ApplyDisplayMode;
     procedure DisplayModeChanged(Sender: TObject);
     function ExtractPoseFile(const FilePath: string; out PoseData,
@@ -89,7 +91,7 @@ end;
 
 constructor TMmdAiPreviewMainForm.Create(AOwner: TComponent);
 var
-  PosePanel, ToolPanel: TPanel;
+  PosePanel, ToolPanel: TDarkPanel;
 begin
   inherited Create(AOwner);
   Caption := 'MMDアニメーションスタジオ';
@@ -100,7 +102,7 @@ begin
   Constraints.MinHeight := 630;
   FDialogButtonPanel.Visible := False;
 
-  ToolPanel := TPanel.Create(Self);
+  ToolPanel := TDarkPanel.Create(Self);
   ToolPanel.Parent := Self;
   ToolPanel.Align := alTop;
   ToolPanel.Height := 52;
@@ -124,12 +126,14 @@ begin
   FDisplayCombo.ItemIndex := 2;
   FDisplayCombo.SetBounds(120, 12, 140, 28);
   FDisplayCombo.OnChange := DisplayModeChanged;
-  FCandidateLabel := TLabel.Create(Self);
+  FCandidateLabel := TDarkLabel.Create(Self);
   FCandidateLabel.Parent := ToolPanel;
+  FCandidateLabel.UseThemeFont := False;
+  FCandidateLabel.ParentFont := True;
   FCandidateLabel.Caption := '候補: 未受信';
   FCandidateLabel.SetBounds(278, 17, 850, 24);
 
-  PosePanel := TPanel.Create(Self);
+  PosePanel := TDarkPanel.Create(Self);
   PosePanel.Parent := FLeftPanel;
   PosePanel.Align := alTop;
   PosePanel.Height := 220;
@@ -141,13 +145,15 @@ begin
   FPoseList.Parent := PosePanel;
   FPoseList.Align := alClient;
   FPoseList.OnClick := PoseListClick;
-  FStatusLabel := TLabel.Create(Self);
+  FStatusLabel := TDarkLabel.Create(Self);
   FStatusLabel.Parent := PosePanel;
+  FStatusLabel.UseThemeFont := False;
+  FStatusLabel.ParentFont := True;
   FStatusLabel.Align := alBottom;
   FStatusLabel.AutoSize := False;
   FStatusLabel.Height := 60;
   FStatusLabel.WordWrap := True;
-  FStatusLabel.Font.Color := MmdEditorText;
+  FStatusLabel.TextColor := MmdEditorText;
   FStatusLabel.Caption := '保存ポーズを読み込んでいます。';
 
   FViewport.ShowHint := True;
@@ -191,8 +197,8 @@ end;
 procedure TMmdAiPreviewMainForm.SetStatus(const Text: string; Error: Boolean);
 begin
   FStatusLabel.Caption := Text;
-  if Error then FStatusLabel.Font.Color := clRed
-  else FStatusLabel.Font.Color := MmdEditorText;
+  if Error then FStatusLabel.TextColor := clRed
+  else FStatusLabel.TextColor := MmdEditorText;
 end;
 
 function TMmdAiPreviewMainForm.GetSettingsFile: string;

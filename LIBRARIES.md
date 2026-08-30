@@ -2,13 +2,84 @@
 
 複数画面から再利用するGUI部品の所在と選定基準を記録する。
 
-## AviUtl2共通配色
+## 共通ダークテーマ基盤
+
+この基盤は2026-08-30時点で完成扱いとする。新しい標準VCL画面は以下の共通Controlを利用し、
+画面ごとの配色・文字高・DPI計算を追加しない。`TListView`と独自描画UIは対象外とし、
+今後の独自GUI系統で扱う。
+
+- 配色: `..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas`
+- 96 DPI基準寸法: `..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas`
+- 画面内共有DPI: `..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas`
+
+VCL部品は1フォルダへ集積せず、基本表示を`VclControls\Basic`、文字入力を
+`VclControls\Input`、選択操作を`VclControls\Selection`へ分ける。各フォルダは3ユニットとし、
+新しい部品も責務に対応する下位フォルダへ追加する。
+- 共通ボタン: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas`
+- 共通チェック一覧: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas`
+- 共通コンボ: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas`
+- 共通単行入力: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas`
+- 共通複数行入力: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkMemo.pas`
+- 共通ラベル: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas`
+- 共通一覧: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas`
+- 共通ツリー: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkTreeView.pas`
+- 共通パネル: `..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas`
+
+`TDarkThemeDpiContext`をフォームまたはルートフレームごとに1個作成し、同じ画面の
+`TDarkButton`へ渡す。DPIを変更すると登録済みボタンへ一括通知され、文字高、ボタン高、
+境界幅、余白を同じ丸め規則で更新する。`TDarkButton`はマウス、Enter／Space、フォーカス、
+Default／Cancel、ModalResultに対応する。
+
+`TDarkPanel`は`TPanel`を一段継承し、背景、文字色、枠を共通テーマへ揃える。
+`DesignHeight`へ96 DPI基準の高さを指定すると、共有DPI変更時に同じ丸め規則で高さを更新する。
+
+`TDarkLabel`は`TLabel`を一段継承し、通常／無効文字色、基準文字高、任意の固定高さを
+共通化する。`DesignFontHeight`と`DesignHeight`は96 DPI基準で指定し、同じ画面の
+`TDarkThemeDpiContext`から一括反映する。最初の移行先はMMDモーフ設定一覧の見出しとした。
+
+`TDarkEdit`は`TEdit`を一段継承し、通常／フォーカス／無効状態の背景、文字、枠、
+テキスト内側余白、基準文字高、基準高さを共通化する。TEdit互換のため既存の入力検証や
+`OnExit`処理をそのまま利用できる。最初の移行先は目パチ設定3項目と口パク設定2項目とした。
+
+`TDarkMemo`は`TMemo`を一段継承し、入力色、フォーカス、無効状態、基準文字高を共通化する。
+複数行の高さは既存レイアウトへ任せるため既定では固定せず、必要な画面だけ`DesignHeight`を指定する。
+最初の移行先はVOICEVOXの通常セリフ入力欄2種とし、独自ズームとWindowProcを持つシーン一覧内編集は保留する。
+
+`TDarkComboBox`は`TComboBox`を一段継承し、選択欄、候補一覧、矢印、フォーカス、
+無効表示、基準文字高と項目高を共通化する。MMD専用の旧`TMmdDarkComboBox`は互換派生名として残し、
+実装を共通コンボへ接続した。標準VCLからはセリフのシーン選択欄とボード解像度選択を移行した。
+リスト内セル編集用コンボは編集プラグイン固有のサイズ・確定処理を持つため、この段階では置換しない。
+
+`TDarkListBox`は`TListBox`を一段継承し、背景、通常／選択／無効文字、フォーカス、
+基準文字高と項目高を共通化する。MMD専用の旧`TMmdDarkListBox`は互換派生名として共通実装へ接続し、
+ボードのスタイル一覧とセリフ・エイリアスのレイヤー一覧を標準VCLから移行した。
+チェック付き一覧、セル編集一覧、画像一覧等の派生クラスは機能境界が異なるため個別段階で扱う。
+
+`TDarkCheckListBox`は`TCheckListBox`を一段継承し、チェック状態と操作をVCLへ委譲したまま、
+一覧配色、文字高、項目高とDPIを共通化する。MMDの旧`TMmdDarkCheckListBox`は互換名として接続する。
+MMDの一覧2種はフォーム側で調整済みのフォントを継承し、共通部品による文字DPIの再適用を行わない。
+
+`TDarkTreeView`は`TTreeView`を一段継承し、背景、文字、接続線、文字高、項目高、インデントとDPIを
+共通化する。ノード、画像リスト、展開、編集等は標準VCLのまま利用する。共有`TFolderSelect`の内部
+ツリーを置き換えたため、Explorerを含むフォルダツリーは画面ごとのテーマ処理を持たない。
+
+`TDarkButton`、`TDarkPanel`、`TDarkLabel`、`TDarkEdit`、`TDarkMemo`はVCLの`ChangeScale`を受けた際にも共有DPIを
+更新するため、異なるDPIのモニターへ移動した場合も同じ画面内で寸法を揃える。
+埋込みフレームからDPIを取得する場合はVCLが管理する`CurrentPPI`を優先し、Windows側の
+`GetDpiForWindow`による再拡大を避ける。
+
+ランチャー登録画面と確認ダイアログを最初の移行対象とし、ボタンとパネルを共通化した。独自スクロールバー、
+トラックバー、仮想一覧は標準VCLのテーマ派生部品ではないため、このフォルダへ移さない。
+`TListView`とその派生一覧も将来の完全独自GUI化を前提とし、`TDarkListView`は作成しない。
+
+## AviUtl2共通配色（互換API）
 
 - ユニット: `AviUtl2StyleColors`
 - ソース: `..\AviUtl2PluginLib\Lib\Style\AviUtl2StyleColors.pas`
 - 利用先: Syncroh2、MMDAnimationStudio、共有ランチャー
 
-旧Syncroh2側の配色を基準とし、背景、文字、選択、ツールバー、一覧、ランチャー稼働状態の色はこのユニットを正本とする。
+旧Syncroh2側の配色を基準とし、背景、文字、選択、ツールバー、一覧の正本は`DarkThemeColors`とする。
+`AviUtl2StyleColors`は未移行コード向けの互換定数を提供する。
 各製品へ同名ユニットをコピーせず、DPR／DPROJから共有ソースを直接参照する。
 音声ソフトの水色は当該ランチャーが起動・管理中、緑は外部起動を検出した状態を表す。
 
