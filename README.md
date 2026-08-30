@@ -26,7 +26,10 @@ Debug / Releaseとも、拡張プラグインは`C:\ProgramData\aviutl2\Plugin\M
 
 `Setup\InstallSetup.bat`を実行すると、配置済みのプラグインとScriptを収集し、
 `Setup\MMDAnimationStudio.zip`を作成します。このバッチはビルドを行わないため、配布前に各プロジェクトを
-Releaseでビルドしてください。ZIP内はAviUtl2のデータフォルダーへ展開できる
-`Plugin\MMD`／`Script\MMD`構成です。
+Releaseでビルドしてください。ZIP内はSyncroh2の配布ZIPと同じく、ファイルを直接格納した
+`Plugin`／`Script`構成です。カタログからのインストール時は、それぞれAviUtl2の
+`Plugin\MMD`／`Script\MMD`へコピーします。
+AviUtl2カタログ用定義は`Setup\MMDAnimationStudio.catalog.json`にあり、GitHub Releaseへは
+資産名`MMDAnimationStudio.zip`で添付します。
 
 拡張プラグイン画面には表示切替用アイコンツールバーを配置しています。PMX管理ページでは、左に登録モデル、右に選択モデルのポーズを表示し、未登録時は「初期状態」を自動生成します。

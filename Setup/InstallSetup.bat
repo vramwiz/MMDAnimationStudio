@@ -7,8 +7,8 @@ set "ROOT_DIR=%SCRIPT_DIR%.."
 set "SRC_PLUGIN=C:\ProgramData\aviutl2\Plugin\MMD"
 set "SRC_SCRIPT=C:\ProgramData\aviutl2\Script\MMD"
 set "PACKAGE_DIR=%SCRIPT_DIR%Package"
-set "DST_PLUGIN=%PACKAGE_DIR%\Plugin\MMD"
-set "DST_SCRIPT=%PACKAGE_DIR%\Script\MMD"
+set "DST_PLUGIN=%PACKAGE_DIR%\Plugin"
+set "DST_SCRIPT=%PACKAGE_DIR%\Script"
 set "OUTPUT_ZIP=%SCRIPT_DIR%MMDAnimationStudio.zip"
 
 for /f "tokens=3 delims=' " %%A in ('findstr MMD_ANIMATION_STUDIO_VERSION "%ROOT_DIR%\Version.inc"') do set "VERSION=%%A"
@@ -45,8 +45,13 @@ call :COPY_REQUIRED "%ROOT_DIR%\README.md" "%PACKAGE_DIR%\README.md"
 if not "%ERRORFLAG%"=="0" goto :END
 
 if exist "%OUTPUT_ZIP%" del /f /q "%OUTPUT_ZIP%"
+if exist "%OUTPUT_ZIP%" (
+    echo Cannot replace the existing ZIP: %OUTPUT_ZIP%
+    set "ERRORFLAG=1"
+    goto :END
+)
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$ErrorActionPreference='Stop'; Compress-Archive -Path '%PACKAGE_DIR%\*' -DestinationPath '%OUTPUT_ZIP%' -Force"
+  "$ErrorActionPreference='Stop'; Compress-Archive -Path '%PACKAGE_DIR%\*' -DestinationPath '%OUTPUT_ZIP%'"
 if errorlevel 1 set "ERRORFLAG=1"
 if not exist "%OUTPUT_ZIP%" set "ERRORFLAG=1"
 goto :END

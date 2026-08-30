@@ -88,7 +88,8 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 - 2026-08-30にMMDセリフの公開名をSyncroh2と同じ製品接頭辞方式へ短縮した。Scriptは`@MMD_Script.obj2`、Moduleは`MMD_Module.mod2`、AviUtl2上の効果名は`MMDセリフ@MMD_Script`とし、旧長名の配置物は`Script\MMD\__recovery\renamed_serif_20260830`へ退避した。
 - 2026-08-30にSyncroh2の新セリフ表示D&D／プリセット登録を修正した。シェルD&D用`.object`は`[Object]`形式で生成し、SDKから取得したプリセットも同形式へ正規化する。旧プロジェクトのセリフ表示は保存時の`[7]`等の番号を保持し得るため、`[0]`固定ではなく任意の非負数ルートと対応する効果セクションを変換する。AIMIRAIで選択中の旧オブジェクトが`フィルタオブジェクト／新旧朗2 セリフ表示`と旧SD2データを持つことを確認し、`[7]`回帰テスト、Extension2 Debugコンパイル、旧形式からのプリセット登録・D&D実機確認に合格した。
 - 2026-08-30にMMDAnimationStudioメイン拡張だけへ外部更新可能なバージョン番号を追加した。ルート`Version.inc`の`MMD_ANIMATION_STUDIO_VERSION`を`MMDAnimationStudio.dpr`だけが取り込み、AviUtl2のプラグイン情報を`MMDアニメーションスタジオ 1.0.0`形式で登録する。他のMMD Filter／Module／Scriptプロジェクトには埋め込まない。Win64 Debugビルドと`.aux2`配置に合格した。
-- 2026-08-30にZIP配布用`Setup\InstallSetup.bat`を追加した。配置済みRelease成果物から拡張、Model／Pose／Face／SerifDraw、`sk4d.dll`、MMD Script／Module、READMEだけを収集し、`Setup\MMDAnimationStudio.zip`へ`Plugin\MMD`／`Script\MMD`構成で格納する。開発用MMDAIPreview、DLL、RSM、ログは含めない。一時収集先`Setup\Package`とZIPはGit除外、バッチは追跡対象とし、実生成と格納内容を確認済み。
+- 2026-08-30にZIP配布用`Setup\InstallSetup.bat`を追加した。配置済みRelease成果物から拡張、Model／Pose／Face／SerifDraw、`sk4d.dll`、MMD Script／Module、READMEだけを収集し、`Setup\MMDAnimationStudio.zip`へSyncroh2と同じ`Plugin`／`Script`直下構成で格納する。カタログは各ファイルをAviUtl2の`Plugin\MMD`／`Script\MMD`へコピーする。開発用MMDAIPreview、DLL、RSM、ログは含めない。一時収集先`Setup\Package`とZIPはGit除外、バッチは追跡対象とし、実生成と格納内容を確認済み。
+- 2026-08-30にAviUtl2カタログ用`Setup\MMDAnimationStudio.catalog.json`を追加した。IDは`VRAMWIZ.MMDAnimationStudio`、GitHub Release取得先は`vramwiz/MMDAnimationStudio`、資産名は`MMDAnimationStudio.zip`固定とする。初回版は`v1.0.0`、検出対象は`{pluginsDir}/MMD/MMDAnimationStudio.aux2`、最終ReleaseビルドのXXH3-128は`4a76613283b7c183d9cb30d3b07b0dc2`。Release全体ビルド、ZIP再生成、全9コピー元の存在、資産名正規表現、JSON構文を確認済み。
 
 ## 次の作業
 
