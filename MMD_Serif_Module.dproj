@@ -30,12 +30,35 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <GenDll>true</GenDll>
         <SanitizedProjectName>MMD_Serif_Module</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <DCC_ExeOutput>C:\ProgramData\aviutl2\Script\MMD\</DCC_ExeOutput>
         <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
+        <PostBuildEvent><![CDATA[powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1" -TemplatePath "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2" -ConfigPath "$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json" -OutputPath "C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2"
+copy /Y "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"
+]]></PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <DCC_ExeOutput>C:\ProgramData\aviutl2\Script\MMD\</DCC_ExeOutput>
+        <PostBuildEvent><![CDATA[powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1" -TemplatePath "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2" -ConfigPath "$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json" -OutputPath "C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2"
+copy /Y "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"
+]]></PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -43,7 +66,23 @@
         </DelphiCompile>
         <DCCReference Include="Source\Plugin\Serif\Module\MmdSerifModuleTypes.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MmdSerifModuleAdapter.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\Module\MMD_Animation_ModulePlugin.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MMD_Serif_ModulePlugin.pas"/>
+        <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPose.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocument.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentEvaluator.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\Motion\MmdMotionSharedCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\Motion\MmdMotionSharedMemory.pas"/>
+        <DCCReference Include="Source\Plugin\Motion\MMD_Motion_Runtime.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Serif\Plugin\Module\SerifModulePublisher.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\SharedMemory\SharedMemoryBase.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\KeyValue\KeyValueText.pas"/>

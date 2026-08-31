@@ -1,4 +1,4 @@
-program MmdExtensionUiSmokeTest;
+﻿program MmdExtensionUiSmokeTest;
 
 {$APPTYPE CONSOLE}
 
@@ -88,6 +88,12 @@ uses
     '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdFirstFrameReader.pas',
   VmdMotionReader in
     '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionReader.pas',
+  MmdMotionDocument in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocument.pas',
+  MmdMotionDocumentCodec in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentCodec.pas',
+  VmdMotionDocumentReader in
+    '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionDocumentReader.pas',
   MmdVmdCatalogItem in
     '..\Source\Plugin\Extension\VMD\Catalog\MmdVmdCatalogItem.pas',
   MmdVmdCatalogCodec in
@@ -110,6 +116,10 @@ uses
     '..\Source\Plugin\Extension\PMX\Catalog\Motion\Menu\PmxMotionCatalogContextMenu.pas',
   MmdMotionCatalogFrame in
     '..\Source\Plugin\Extension\Motion\Catalog\MmdMotionCatalogFrame.pas',
+  MmdMotionObjectDragAlias in
+    '..\Source\Plugin\Extension\Motion\Catalog\Drag\MmdMotionObjectDragAlias.pas',
+  MmdMotionObjectDragController in
+    '..\Source\Plugin\Extension\Motion\Catalog\Drag\MmdMotionObjectDragController.pas',
   MmdPoseObjectDragAlias in
     '..\Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragAlias.pas',
   MmdPoseObjectDragController in

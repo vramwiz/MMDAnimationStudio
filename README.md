@@ -15,7 +15,7 @@
 
 - `MMDAnimationStudio.dproj`: 本命となるAviUtl2拡張プラグイン。表示名は「MMDアニメーションスタジオ」、プラグイングループは`MMD`
 - `MMD_Model_Filter.dproj`: AviUtl2 Modelプラグイン（Named Pipeなし）
-- `MMD_Pose_Filter.dproj`: AviUtl2 Poseプラグイン（Named Pipeなし）
+- `MMD_Serif_Module.dproj`: セリフ／ポーズ／モーション用の`MMD_Module.mod2`と`@MMD_Script.obj2`
 - `Source\Plugin\Extension`: 拡張プラグインの登録処理とクライアントフォーム
 - `Source\AI`: 既存のAIプレビュー関連コード。現在は本命拡張プラグインへ未接続
 - `Poses`: Git同期するポーズJSON。新規AI候補は重複名を回避し、選択後の微調整は自動保存する

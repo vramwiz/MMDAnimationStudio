@@ -4,5 +4,6 @@
   "label": "MMD",
   "information": "MMDセリフを共有メモリへ発行",
   "characterCaption": "キャラクター",
-  "moduleName": "MMD_Module"
+  "moduleName": "MMD_Module",
+  "additionalScript": "MmdAnimationScripts.obj2"
 }

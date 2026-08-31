@@ -1,0 +1,23 @@
+@MMDポーズ
+--label:MMD
+--information:MMDモデルへ適用するポーズを発行
+--file@model_file:モデルファイル
+--text@pose_data:ポーズデータ
+--script:
+local func = obj.module("MMD_Module")
+if func then
+    local timeline_frame = obj.getvalue("frame_s") + obj.frame
+    func.set_pose(obj.layer - 1,timeline_frame,tostring(obj.id),model_file,pose_data)
+end
+
+@MMDモーション
+--label:MMD
+--information:MMDモデルへ適用する現在フレームのモーションを発行
+--file@model_file:モデルファイル
+--text@motion_data:モーションデータ
+--script:
+local func = obj.module("MMD_Module")
+if func then
+    local timeline_frame = obj.getvalue("frame_s") + obj.frame
+    func.set_motion(obj.layer - 1,obj.frame,timeline_frame,tostring(obj.id),model_file,motion_data)
+end

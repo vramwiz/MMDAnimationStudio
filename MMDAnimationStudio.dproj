@@ -28,6 +28,9 @@
     <PropertyGroup>
         <DCC_UnitSearchPath>Source\Plugin\Extension\Motion\Catalog;Source\Plugin\Extension\VMD\Catalog;Source\Plugin\Extension\VMD\Import;Source\Plugin\Extension\PMX\Catalog\Motion;Source\Plugin\Extension\PMX\Catalog\Motion\Storage;Source\Plugin\Extension\PMX\Catalog\Motion\View;Source\Plugin\Extension\PMX\Catalog\Motion\Toolbar;Source\Plugin\Extension\PMX\Catalog\Motion\Menu;..\AviUtl2PluginLib\MMD\Common\Motion;..\AviUtl2PluginLib\MMD\VMD\IO;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
+    <PropertyGroup>
+        <DCC_UnitSearchPath>Source\Plugin\Extension\Motion\Catalog\Drag;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
     </PropertyGroup>
@@ -230,6 +233,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Source\Plugin\Extension\Motion\Catalog\Drag\MmdMotionObjectDragAlias.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Motion\Catalog\Drag\MmdMotionObjectDragController.pas"/>
         <DCCReference Include="Source\Plugin\Extension\Face\Catalog\MmdFaceCatalogFrame.pas">
             <Form>FrameMmdFaceCatalog</Form>
             <FormType>dfm</FormType>

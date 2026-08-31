@@ -15,12 +15,19 @@ uses
   PmxMorph in '..\..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas',
   PmxPoseTypes in '..\..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
   PmxPoseMath in '..\..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
+  PmxBoneSolver in '..\..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas',
   PmxPose in '..\..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
   PmxPoseCodec in '..\..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
   PmxPoseCatalogStorage in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas',
+  PmxPoseCatalogItem in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogItem.pas',
   PmxPoseCatalogDataValidation in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogDataValidation.pas',
+  PmxPoseCatalogIndexCodec in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogIndexCodec.pas',
+  PmxPoseCatalogItemCodec in
+    '..\Source\Plugin\Extension\PMX\Catalog\Pose\Storage\PmxPoseCatalogItemCodec.pas',
   PmxPoseCatalogDragAlias in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragAlias.pas',
   MmdPoseObjectDragAlias in
@@ -175,9 +182,9 @@ begin
     if not TryBuildMmdPoseObjectAlias(ModelFileName,
       '{"version":1,"bones":[]}', PoseObjectAliasText) then
       raise Exception.Create('pose object alias was rejected');
-    if Pos('effect.name=' + #$30DD#$30FC#$30BA,
+    if Pos('effect.name=MMD' + #$30DD#$30FC#$30BA + '@MMD_Script',
       PoseObjectAliasText) = 0 then
-      raise Exception.Create('pose object effect is missing');
+      raise Exception.Create('pose script object effect is missing');
     if Pos(#$30E2#$30C7#$30EB#$30D5#$30A1#$30A4#$30EB + '=' +
       ModelFileName, PoseObjectAliasText) = 0 then
       raise Exception.Create('pose object model path is missing');
@@ -185,8 +192,8 @@ begin
       '={"version":1,"bones":[]}',
       PoseObjectAliasText) = 0 then
       raise Exception.Create('pose data item is missing');
-    if Pos(#$8A2D#$5B9A + '=', PoseObjectAliasText) = 0 then
-      raise Exception.Create('renamed settings item is missing');
+    if Pos(#$8A2D#$5B9A + '=', PoseObjectAliasText) > 0 then
+      raise Exception.Create('obsolete pose settings button remains');
     if Pos('effect.name=' + #$6A19#$6E96#$63CF#$753B,
       PoseObjectAliasText) = 0 then
       raise Exception.Create('pose object standard drawing is missing');

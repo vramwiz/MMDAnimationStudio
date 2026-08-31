@@ -1,4 +1,4 @@
-program MmdSerifModuleTest;
+﻿program MmdSerifModuleTest;
 
 {$APPTYPE CONSOLE}
 {$WARN IMPLICIT_STRING_CAST OFF}
@@ -22,6 +22,29 @@ uses
   PluginFilterSerifDrawReceiver in '..\..\AviUtl2PluginLib\Serif\Plugin\Draw\PluginFilterSerifDrawReceiver.pas',
   MmdSerifModuleTypes in '..\Source\Plugin\Serif\Module\MmdSerifModuleTypes.pas',
   MmdSerifModuleAdapter in '..\Source\Plugin\Serif\Module\MmdSerifModuleAdapter.pas',
+  PmxModel in '..\..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
+  PmxPoseTypes in '..\..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
+  PmxPoseMath in '..\..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
+  PmxBoneSolver in '..\..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas',
+  PmxMorph in '..\..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas',
+  PmxPose in '..\..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
+  MmdMorphSettingCodec in
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
+  MmdMotionDocument in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocument.pas',
+  MmdMotionDocumentCodec in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentCodec.pas',
+  MmdMotionDocumentEvaluator in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentEvaluator.pas',
+  MmdPoseSharedMemory in
+    '..\..\AviUtl2PluginLib\MMD\IPC\MmdPoseSharedMemory.pas',
+  MmdMotionSharedCodec in
+    '..\..\AviUtl2PluginLib\MMD\IPC\Motion\MmdMotionSharedCodec.pas',
+  MmdMotionSharedMemory in
+    '..\..\AviUtl2PluginLib\MMD\IPC\Motion\MmdMotionSharedMemory.pas',
+  MMD_Motion_Runtime in '..\Source\Plugin\Motion\MMD_Motion_Runtime.pas',
+  MMD_Animation_ModulePlugin in
+    '..\Source\Plugin\Serif\Module\MMD_Animation_ModulePlugin.pas',
   MMD_Serif_ModulePlugin in '..\Source\Plugin\Serif\Module\MMD_Serif_ModulePlugin.pas';
 
 type
@@ -190,6 +213,54 @@ begin
     'LAB phoneme mismatch');
 end;
 
+procedure TestPoseAndMotionModule;
+const
+  ModelFileName = 'C:\MMDAnimationModuleTest\model.pmx';
+var
+  Document: TMmdMotionDocument;
+  Key: TMmdMotionMorphKey;
+  MotionSnapshot: TMmdMotionSharedSnapshot;
+  PoseSnapshot: TMmdPoseSharedSnapshot;
+  Track: TMmdMotionMorphTrack;
+begin
+  IntParams[0] := 40;
+  IntParams[1] := 321;
+  StringParams[2] := UTF8String('pose-object');
+  StringParams[3] := UTF8String(ModelFileName);
+  StringParams[4] := UTF8String('{"version":1,"bones":[]}');
+  MmdSetPose(@Param);
+  Check(TryReadPoseSnapshot(40, HashModelPath(ModelFileName),
+    PoseSnapshot), 'set_pose did not publish a snapshot');
+  Check((PoseSnapshot.TimelineFrame = 321) and
+    (PoseSnapshot.PoseData = '{"version":1,"bones":[]}'),
+    'set_pose snapshot mismatch');
+
+  Document := TMmdMotionDocument.Create;
+  try
+    Track := TMmdMotionMorphTrack.Create('smile');
+    Key.Frame := 0;
+    Key.Weight := 0.75;
+    Track.Keys.Add(Key);
+    Document.MorphTracks.Add(Track);
+    IntParams[0] := 41;
+    IntParams[2] := 654;
+    DoubleParams[1] := 0;
+    StringParams[3] := UTF8String('motion-object');
+    StringParams[4] := UTF8String(ModelFileName);
+    StringParams[5] := UTF8String(EncodeMmdMotionDocument(Document));
+    MmdSetMotion(@Param);
+  finally
+    Document.Free;
+  end;
+  Check(TryReadMotionSnapshot(41, HashMotionModelPath(ModelFileName),
+    MotionSnapshot), 'set_motion did not publish a snapshot');
+  Check((MotionSnapshot.TimelineFrame = 654) and
+    (Length(MotionSnapshot.Morphs) = 1) and
+    (MotionSnapshot.Morphs[0].Name = 'smile') and
+    (Abs(MotionSnapshot.Morphs[0].Weight - 0.75) < 0.0001),
+    'set_motion snapshot mismatch');
+end;
+
 procedure TestBuiltModule;
 var
   Func: PMMD_SCRIPT_MODULE_FUNCTION;
@@ -212,6 +283,12 @@ begin
     PrepareParams(12, 206, '5678', 'dll-serif', 'DllChara', 'i', '');
     Func^.Func(@Param);
     CheckPublished(12, 206, 'dll-serif', 'DllChara');
+    Inc(Func);
+    Check((Func^.Name <> nil) and (string(Func^.Name) = 'set_pose') and
+      Assigned(Func^.Func), 'set_pose function is missing');
+    Inc(Func);
+    Check((Func^.Name <> nil) and (string(Func^.Name) = 'set_motion') and
+      Assigned(Func^.Func), 'set_motion function is missing');
   finally
     FreeLibrary(Module);
   end;
@@ -221,6 +298,7 @@ begin
   try
     InitializeParam;
     TestDirectModuleAndLipSync;
+    TestPoseAndMotionModule;
     TestBuiltModule;
     Writeln('MmdSerifModuleTest: PASS');
   except

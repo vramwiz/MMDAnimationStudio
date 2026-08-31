@@ -1,4 +1,4 @@
-unit MMD_Serif_ModulePlugin;
+﻿unit MMD_Serif_ModulePlugin;
 
 // MMDセリフ入力Scriptの12引数をShareTalkスナップショットへ発行する。
 
@@ -9,13 +9,14 @@ uses
 
 // 12引数を検証して現在フレームのShareTalk、索引、履歴を発行する。異常入力では発行しない。
 procedure MmdSerifSetText(Param: PMMD_SCRIPT_MODULE_PARAM); cdecl;
-// DLL有効期間中に保持されるset_text関数表を返す。呼び出し側は解放しない。
+// DLL有効期間中に保持されるセリフ・ポーズ・モーション関数表を返す。呼び出し側は解放しない。
 function GetMmdSerifScriptModuleTable: PMMD_SCRIPT_MODULE_TABLE;
 
 implementation
 
 uses
   MmdSerifModuleAdapter,
+  MMD_Animation_ModulePlugin,
   SerifModulePublisher;
 
 const
@@ -34,8 +35,10 @@ const
   PARAM_CURRENT_FRAME = 11;
 
 var
-  ModuleFunctions: array[0..1] of TMMD_SCRIPT_MODULE_FUNCTION = (
+  ModuleFunctions: array[0..3] of TMMD_SCRIPT_MODULE_FUNCTION = (
     (Name: 'set_text'; Func: MmdSerifSetText),
+    (Name: 'set_pose'; Func: MmdSetPose),
+    (Name: 'set_motion'; Func: MmdSetMotion),
     (Name: nil; Func: nil)
   );
   ModuleTable: TMMD_SCRIPT_MODULE_TABLE = (

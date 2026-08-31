@@ -55,9 +55,12 @@
           "to": "{pluginsDir}/MMD"
         },
         {
-          "action": "copy",
-          "from": "{tmp}/Plugin/MMD_Pose_Filter.auf2",
-          "to": "{pluginsDir}/MMD"
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/MMD_Pose_Filter.auf2"
+        },
+        {
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/MMD_Motion_Filter.auf2"
         },
         {
           "action": "copy",
@@ -102,6 +105,10 @@
         {
           "action": "delete",
           "path": "{pluginsDir}/MMD/MMD_Pose_Filter.auf2"
+        },
+        {
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/MMD_Motion_Filter.auf2"
         },
         {
           "action": "delete",

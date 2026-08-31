@@ -1,15 +1,15 @@
-﻿unit MmdPoseObjectDragAlias;
+unit MmdMotionObjectDragAlias;
 
-// 選択PMXとポーズから、MMDポーズScriptオブジェクトを生成する
-// UTF-8エイリアスを構築・保存する。
+// 選択PMXとMotionUIDの内部データから、MMDモーションScript
+// オブジェクトを生成するUTF-8エイリアスを構築・保存する。
 
 interface
 
-// モデルファイルと姿勢JSONを持つポーズオブジェクトを組み立てる。
-function TryBuildMmdPoseObjectAlias(const ModelFileName, PoseData: string;
-  out AliasText: string): Boolean;
+// モデルファイルと版付きモーションJSONを持つオブジェクトを組み立てる。
+function TryBuildMmdMotionObjectAlias(const ModelFileName,
+  MotionData: string; out AliasText: string): Boolean;
 // エイリアスをUTF-8 BOMなしの一時ファイルとして保存する。
-function TryWriteMmdPoseObjectAlias(const ModelFileName, PoseData,
+function TryWriteMmdMotionObjectAlias(const ModelFileName, MotionData,
   FileName: string): Boolean;
 
 implementation
@@ -17,57 +17,61 @@ implementation
 uses
   System.Classes,
   System.IOUtils,
-  System.JSON,
   System.SysUtils,
-  PmxPose,
-  PmxPoseCodec;
+  MmdMotionDocument,
+  MmdMotionDocumentCodec;
 
 function HasLineBreak(const Value: string): Boolean;
 begin
   Result := (Pos(#13, Value) > 0) or (Pos(#10, Value) > 0);
 end;
 
-function NormalizePoseData(const Value: string;
-  out Normalized: string): Boolean;
+function NormalizeMotionData(const Value: string; out Normalized: string;
+  out FrameLength: Integer): Boolean;
 var
-  Json: TJSONValue;
-  Poses: TPmxNamedBonePoses;
+  Document: TMmdMotionDocument;
 begin
   Result := False;
   Normalized := '';
-  if not TryDecodePoseData(Value, Poses) then Exit;
-  Json := TJSONObject.ParseJSONValue(Value);
+  FrameLength := 0;
+  Document := nil;
   try
-    if not (Json is TJSONObject) then Exit;
-    Normalized := Json.ToJSON;
-    Result := not HasLineBreak(Normalized);
+    if not TryDecodeMmdMotionDocument(Value, Document) then Exit;
+    if Document.MaxFrame >= Cardinal(MaxInt) then Exit;
+    Normalized := EncodeMmdMotionDocument(Document);
+    if (Normalized = '') or HasLineBreak(Normalized) then Exit;
+    FrameLength := Integer(Document.MaxFrame) + 1;
+    Result := True;
   finally
-    Json.Free;
+    Document.Free;
   end;
 end;
 
-function TryBuildMmdPoseObjectAlias(const ModelFileName, PoseData: string;
-  out AliasText: string): Boolean;
+function TryBuildMmdMotionObjectAlias(const ModelFileName,
+  MotionData: string; out AliasText: string): Boolean;
 var
+  FrameLength: Integer;
   Lines: TStringList;
-  NormalizedPoseData: string;
+  NormalizedMotionData: string;
 begin
   Result := False;
   AliasText := '';
   if (ModelFileName = '') or HasLineBreak(ModelFileName) or
     not TFile.Exists(ModelFileName) or
-    not NormalizePoseData(PoseData, NormalizedPoseData) then Exit;
+    not NormalizeMotionData(MotionData, NormalizedMotionData,
+      FrameLength) then Exit;
   Lines := TStringList.Create;
   try
     Lines.Add('[0]');
     Lines.Add('layer=0');
-    Lines.Add('frame=0,80');
+    Lines.Add('frame=0,' + IntToStr(FrameLength));
     Lines.Add('[0.0]');
-    Lines.Add('effect.name=MMD' + #$30DD#$30FC#$30BA + '@MMD_Script');
+    Lines.Add('effect.name=MMD' + #$30E2#$30FC#$30B7#$30E7#$30F3 +
+      '@MMD_Script');
     Lines.Add(#$30E2#$30C7#$30EB#$30D5#$30A1#$30A4#$30EB + '=' +
       ModelFileName);
-    Lines.Add(#$30DD#$30FC#$30BA#$30C7#$30FC#$30BF + '=' +
-      NormalizedPoseData);
+    Lines.Add(#$30E2#$30FC#$30B7#$30E7#$30F3#$30C7#$30FC#$30BF + '=' +
+      NormalizedMotionData);
     Lines.Add('[0.1]');
     Lines.Add('effect.name=' + #$6A19#$6E96#$63CF#$753B);
     Lines.Add('X=0.00');
@@ -93,15 +97,15 @@ begin
   end;
 end;
 
-function TryWriteMmdPoseObjectAlias(const ModelFileName, PoseData,
+function TryWriteMmdMotionObjectAlias(const ModelFileName, MotionData,
   FileName: string): Boolean;
 var
   AliasText: string;
   Encoding: TEncoding;
 begin
   Result := False;
-  if (FileName = '') or not TryBuildMmdPoseObjectAlias(ModelFileName,
-    PoseData, AliasText) then Exit;
+  if (FileName = '') or not TryBuildMmdMotionObjectAlias(ModelFileName,
+    MotionData, AliasText) then Exit;
   try
     ForceDirectories(ExtractFilePath(FileName));
     Encoding := TUTF8Encoding.Create(False);

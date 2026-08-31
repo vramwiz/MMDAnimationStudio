@@ -17,7 +17,8 @@ uses
   PmxMotionCatalogToolbar,
   PmxMotionCatalogContextMenu,
   PmxCatalogThumbnailCache,
-  PmxCatalogThumbnailRenderer;
+  PmxCatalogThumbnailRenderer,
+  MmdMotionObjectDragController;
 
 type
   TFrameMmdMotionCatalog = class(TFrame)
@@ -28,6 +29,7 @@ type
     FLayoutPPI: Integer;
     FModelThumbnailCache: TPmxCatalogThumbnailCache;
     FMotionCatalog: TPmxMotionCatalogStorage;
+    FMotionDrag: TMmdMotionObjectDragController;
     FMotionListView: TPmxMotionCatalogListView;
     FMotionThumbnailCache: TPmxCatalogThumbnailCache;
     FMotionToolbar: TPmxMotionCatalogToolbar;
@@ -117,11 +119,14 @@ begin
   FMotionToolbar.Align := alTop;
   FMotionToolbar.OnAddMotion := AddMotion;
   FContextMenu := TPmxMotionCatalogContextMenu.Create(FMotionToolbar);
+  FMotionDrag := TMmdMotionObjectDragController.Create(Self,
+    FMotionListView);
   ApplyDpiLayout;
 end;
 
 destructor TFrameMmdMotionCatalog.Destroy;
 begin
+  FMotionDrag.Free;
   FContextMenu.Free;
   FMotionToolbar.Free;
   FMotionListView.Free;
@@ -155,6 +160,7 @@ var
   Model: TPmxCatalogItem;
 begin
   FMotionToolbar.SetCatalog(nil);
+  if Assigned(FMotionDrag) then FMotionDrag.SetData(nil, nil);
   FMotionListView.SetData(nil, nil);
   FreeAndNil(FMotionCatalog);
   Model := FPmxSelector.SelectedModel;
@@ -168,6 +174,7 @@ begin
   end;
   FMotionListView.SetData(Model, FMotionCatalog);
   FMotionToolbar.SetCatalog(FMotionCatalog);
+  if Assigned(FMotionDrag) then FMotionDrag.SetData(Model, FMotionCatalog);
   if Assigned(FOnPmxSelectionChanged) then FOnPmxSelectionChanged(Self);
 end;
 

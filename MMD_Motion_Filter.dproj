@@ -90,6 +90,19 @@
         </DelphiCompile>
         <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="Source\Lib\FilterTable\PluginFilterTable.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPose.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocument.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentEvaluator.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\Motion\MmdMotionSharedCodec.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\Motion\MmdMotionSharedMemory.pas"/>
+        <DCCReference Include="Source\Plugin\Motion\MMD_Motion_Runtime.pas"/>
         <DCCReference Include="Source\Plugin\Motion\MMD_Motion_FilterPlugin.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
