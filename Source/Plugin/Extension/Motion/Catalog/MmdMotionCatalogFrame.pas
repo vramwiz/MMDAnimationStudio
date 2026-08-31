@@ -163,6 +163,8 @@ begin
     FMotionCatalog := TPmxMotionCatalogStorage.Create(
       FCatalog.ModelFolder(Model.Id), Model.Id, Model.DisplayName);
     FMotionCatalog.LoadFromFile;
+    EnsureMmdVmdMotionData(ExcludeTrailingPathDelimiter(GetAppFolder('VMD')),
+      FMotionCatalog);
   end;
   FMotionListView.SetData(Model, FMotionCatalog);
   FMotionToolbar.SetCatalog(FMotionCatalog);

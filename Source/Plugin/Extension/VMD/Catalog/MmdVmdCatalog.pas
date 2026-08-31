@@ -14,11 +14,13 @@ type
   TMmdVmdCatalog = class
   private
     FIndexFileName: string;
+    FDataFolder: string;
     FItems: TObjectList<TMmdVmdCatalogItem>;
     FItemsFolder: string;
     FRootFolder: string;
     FSourcesFolder: string;
     function CreateId: string;
+    function DataFileName(const Id: string): string;
     function FindByHash(const Hash: string): TMmdVmdCatalogItem;
     function GetCount: Integer;
     function GetItem(Index: Integer): TMmdVmdCatalogItem;
@@ -30,7 +32,8 @@ type
     // VMDを共通保管し、静止サムネイルに使う各トラック先頭キーを返す。
     function ImportFile(const FileName: string; out Item: TMmdVmdCatalogItem;
       out Poses: TPmxNamedBonePoses; out Morphs: TMmdNamedMorphWeights;
-      out FirstFrame: Cardinal; out IsNew: Boolean): Boolean;
+      out FirstFrame: Cardinal; out MotionData: string;
+      out IsNew: Boolean): Boolean;
     // 保存済みVmdUID一覧を読み込む。索引未作成は空一覧として成功する。
     function LoadFromFile: Boolean;
     // VmdUIDから内部コピーした原本VMDのパスを返す。
@@ -47,7 +50,9 @@ uses
   System.Hash,
   System.IOUtils,
   System.SysUtils,
-  VmdFirstFrameReader,
+  MmdMotionDocument,
+  MmdMotionDocumentCodec,
+  VmdMotionDocumentReader,
   MmdVmdCatalogCodec;
 
 constructor TMmdVmdCatalog.Create(const RootFolder: string);
@@ -55,9 +60,15 @@ begin
   inherited Create;
   FRootFolder := ExcludeTrailingPathDelimiter(TPath.GetFullPath(RootFolder));
   FIndexFileName := TPath.Combine(FRootFolder, 'Index.json');
+  FDataFolder := TPath.Combine(FRootFolder, 'Data');
   FItemsFolder := TPath.Combine(FRootFolder, 'Items');
   FSourcesFolder := TPath.Combine(FRootFolder, 'Sources');
   FItems := TObjectList<TMmdVmdCatalogItem>.Create(True);
+end;
+
+function TMmdVmdCatalog.DataFileName(const Id: string): string;
+begin
+  Result := TPath.Combine(FDataFolder, Id + '.json');
 end;
 
 destructor TMmdVmdCatalog.Destroy;
@@ -135,26 +146,56 @@ end;
 function TMmdVmdCatalog.ImportFile(const FileName: string;
   out Item: TMmdVmdCatalogItem; out Poses: TPmxNamedBonePoses;
   out Morphs: TMmdNamedMorphWeights; out FirstFrame: Cardinal;
-  out IsNew: Boolean): Boolean;
+  out MotionData: string; out IsNew: Boolean): Boolean;
 var
-  Hash, ManagedFile, ModelName, ParentFolder: string;
-  NewIndex: Integer;
-  CreatedManagedFile, OwnsItem: Boolean;
+  DataFile, Hash, ManagedFile, ModelName, ParentFolder: string;
+  BoneIndex, MorphIndex, NewIndex: Integer;
+  CreatedDataFile, CreatedManagedFile, OwnsItem: Boolean;
+  Document, StoredDocument: TMmdMotionDocument;
 begin
   Result := False;
   Item := nil;
   Poses := nil;
   Morphs := nil;
   FirstFrame := 0;
+  MotionData := '';
   IsNew := False;
   ManagedFile := '';
+  DataFile := '';
+  CreatedDataFile := False;
   CreatedManagedFile := False;
   OwnsItem := False;
+  Document := nil;
+  StoredDocument := nil;
   try
+    try
     if not TFile.Exists(FileName) or
       not SameText(TPath.GetExtension(FileName), '.vmd') or
-      not TryReadVmdFirstFrame(FileName, Poses, Morphs, FirstFrame,
-        ModelName) then Exit;
+      not TryReadVmdMotionDocument(FileName, Document) then Exit;
+    ModelName := Document.ModelName;
+    MotionData := EncodeMmdMotionDocument(Document);
+    if MotionData = '' then Exit;
+    FirstFrame := High(Cardinal);
+    SetLength(Poses, Document.BoneTracks.Count);
+    for BoneIndex := 0 to Document.BoneTracks.Count - 1 do
+    begin
+      Poses[BoneIndex].BoneName := Document.BoneTracks[BoneIndex].Name;
+      Poses[BoneIndex].Pose.Translation :=
+        Document.BoneTracks[BoneIndex].Keys[0].Translation;
+      Poses[BoneIndex].Pose.Rotation :=
+        Document.BoneTracks[BoneIndex].Keys[0].Rotation;
+      if Document.BoneTracks[BoneIndex].Keys[0].Frame < FirstFrame then
+        FirstFrame := Document.BoneTracks[BoneIndex].Keys[0].Frame;
+    end;
+    SetLength(Morphs, Document.MorphTracks.Count);
+    for MorphIndex := 0 to Document.MorphTracks.Count - 1 do
+    begin
+      Morphs[MorphIndex].Name := Document.MorphTracks[MorphIndex].Name;
+      Morphs[MorphIndex].Weight := Document.MorphTracks[MorphIndex].Keys[0].Weight;
+      if Document.MorphTracks[MorphIndex].Keys[0].Frame < FirstFrame then
+        FirstFrame := Document.MorphTracks[MorphIndex].Keys[0].Frame;
+    end;
+    if FirstFrame = High(Cardinal) then FirstFrame := 0;
     Hash := LowerCase(THashSHA2.GetHashStringFromFile(FileName));
     Item := FindByHash(Hash);
     if Assigned(Item) then
@@ -165,6 +206,13 @@ begin
         ForceDirectories(FSourcesFolder);
         CreatedManagedFile := True;
         TFile.Copy(FileName, ManagedFile, True);
+      end;
+      DataFile := DataFileName(Item.Id);
+      if not LoadMmdMotionDocument(DataFile, StoredDocument) then
+      begin
+        CreatedDataFile := not TFile.Exists(DataFile);
+        if not SaveMmdMotionDocument(DataFile, Document) then
+          raise EInOutError.Create('Cannot save VMD motion data');
       end;
       Exit(True);
     end;
@@ -184,12 +232,17 @@ begin
     ManagedFile := SourceFileName(Item.Id);
     CreatedManagedFile := True;
     TFile.Copy(FileName, ManagedFile, False);
+    CreatedDataFile := True;
+    DataFile := DataFileName(Item.Id);
+    if not SaveMmdMotionDocument(DataFile, Document) then
+      raise EInOutError.Create('Cannot save VMD motion data');
     NewIndex := FItems.Add(Item);
     if not SaveMmdVmdCatalogItem(ItemFileName(Item.Id), Item) or
       not SaveIndex then
     begin
       FItems.Extract(Item);
       if TFile.Exists(ManagedFile) then TFile.Delete(ManagedFile);
+      if TFile.Exists(DataFile) then TFile.Delete(DataFile);
       if TFile.Exists(ItemFileName(Item.Id)) then TFile.Delete(ItemFileName(Item.Id));
       Item.Free;
       Item := nil;
@@ -209,12 +262,19 @@ begin
       if CreatedManagedFile and (ManagedFile <> '') and
         TFile.Exists(ManagedFile) then
         TFile.Delete(ManagedFile);
+      if CreatedDataFile and (DataFile <> '') and TFile.Exists(DataFile) then
+        TFile.Delete(DataFile);
     except
       { 取込失敗時の孤立原本は次回の同一ハッシュ取込で上書きする。 }
     end;
     Item := nil;
     Poses := nil;
     Morphs := nil;
+    MotionData := '';
+    end;
+  finally
+    StoredDocument.Free;
+    Document.Free;
   end;
 end;
 

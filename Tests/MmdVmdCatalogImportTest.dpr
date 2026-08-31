@@ -16,10 +16,16 @@ uses
   PmxPoseCodec in '..\..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
   MmdMorphSettingCodec in
     '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
+  MmdMotionDocument in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocument.pas',
+  MmdMotionDocumentCodec in
+    '..\..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentCodec.pas',
   VmdFirstFrameReader in
     '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdFirstFrameReader.pas',
   VmdMotionReader in
     '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionReader.pas',
+  VmdMotionDocumentReader in
+    '..\..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionDocumentReader.pas',
   AppFolderUtils in
     '..\..\AviUtl2PluginLib\Lib\AppFolderUtils\AppFolderUtils.pas',
   MmdVmdCatalogItem in
@@ -61,9 +67,8 @@ end;
 
 procedure CreateVmd(const FileName: string);
 var
-  I: Integer;
+  Interpolation: array[0..63] of Byte;
   Stream: TFileStream;
-  Zero: Byte;
 begin
   Stream := TFileStream.Create(FileName, fmCreate);
   try
@@ -79,8 +84,24 @@ begin
     WriteSingle(Stream, 0.0);
     WriteSingle(Stream, 0.0);
     WriteSingle(Stream, 1.0);
-    Zero := 0;
-    for I := 0 to 63 do Stream.WriteBuffer(Zero, 1);
+    FillChar(Interpolation, SizeOf(Interpolation), 0);
+    Interpolation[0] := 10;
+    Interpolation[4] := 20;
+    Interpolation[8] := 100;
+    Interpolation[12] := 110;
+    Interpolation[1] := 11;
+    Interpolation[5] := 21;
+    Interpolation[9] := 101;
+    Interpolation[13] := 111;
+    Interpolation[2] := 12;
+    Interpolation[6] := 22;
+    Interpolation[10] := 102;
+    Interpolation[14] := 112;
+    Interpolation[3] := 13;
+    Interpolation[7] := 23;
+    Interpolation[11] := 103;
+    Interpolation[15] := 113;
+    Stream.WriteBuffer(Interpolation, SizeOf(Interpolation));
     WriteFixed(Stream, 'center', 15);
     WriteCardinal(Stream, 33);
     WriteSingle(Stream, 3.0);
@@ -90,7 +111,7 @@ begin
     WriteSingle(Stream, 0.0);
     WriteSingle(Stream, 0.0);
     WriteSingle(Stream, 1.0);
-    for I := 0 to 63 do Stream.WriteBuffer(Zero, 1);
+    Stream.WriteBuffer(Interpolation, SizeOf(Interpolation));
     WriteCardinal(Stream, 2);
     WriteFixed(Stream, 'smile', 15);
     WriteCardinal(Stream, 5);
@@ -105,9 +126,13 @@ end;
 
 procedure Run;
 var
+  BoneKey: TMmdMotionBoneKey;
+  DecodedDocument, Document: TMmdMotionDocument;
+  DuplicateIndex: Integer;
+  EncodedMotion, OriginalMotion: string;
   FirstFrame: Cardinal;
   ModelName: string;
-  ModelRoot, Root, VmdFile: string;
+  ModelRoot, MotionDataFile, Root, SourceDataFile, VmdFile: string;
   Morphs: TMmdNamedMorphWeights;
   Motion: TVmdMotionData;
   Motions, Reloaded: TPmxMotionCatalogStorage;
@@ -127,6 +152,28 @@ begin
     (Length(Morphs) <> 1) or (Morphs[0].Name <> 'smile') or
     (Abs(Morphs[0].Weight - 0.75) > 0.0001) or (FirstFrame <> 3) or
     (ModelName <> 'sample') then raise Exception.Create('VMD first state mismatch');
+  Document := nil;
+  DecodedDocument := nil;
+  try
+    if not TryReadVmdMotionDocument(VmdFile, Document) or
+      (Document.BoneTracks.Count <> 1) or
+      (Document.BoneTracks[0].Keys.Count <> 2) or
+      (Document.MorphTracks.Count <> 1) or
+      (Document.BoneTracks[0].Keys[0].TranslationXCurve.X1 <> 10) or
+      (Document.BoneTracks[0].Keys[0].TranslationYCurve.Y1 <> 21) or
+      (Document.BoneTracks[0].Keys[0].TranslationZCurve.X2 <> 102) or
+      (Document.BoneTracks[0].Keys[0].RotationCurve.Y2 <> 113) then
+      raise Exception.Create('editable VMD document mismatch');
+    EncodedMotion := EncodeMmdMotionDocument(Document);
+    if not TryDecodeMmdMotionDocument(EncodedMotion, DecodedDocument) or
+      (DecodedDocument.MaxFrame <> 35) or
+      (DecodedDocument.BoneTracks[0].Keys[1].RotationCurve.X1 <> 13) then
+      raise Exception.Create('motion document round trip failed');
+  finally
+    DecodedDocument.Free;
+    Document.Free;
+  end;
+  Document := nil;
   Motion := TVmdMotionData.Create;
   try
     if not Motion.LoadFromFile(VmdFile) or (Motion.MaxFrame <> 35) then
@@ -148,18 +195,57 @@ begin
     if not ImportMmdVmdMotions([VmdFile], TPath.Combine(Root, 'VMD'),
       Motions, Summary) or (Summary.MotionAdded <> 1) or
       (Motions.Count <> 1) then raise Exception.Create('VMD import failed');
+    SourceDataFile := TPath.Combine(TPath.Combine(Root, 'VMD\Data'),
+      Motions[0].SourceVmdId + '.json');
+    MotionDataFile := TPath.Combine(TPath.Combine(ModelRoot, 'Motions\Data'),
+      Motions[0].Id + '.json');
+    if not TFile.Exists(SourceDataFile) or not TFile.Exists(MotionDataFile) then
+      raise Exception.Create('serialized motion files are missing');
+    TFile.Delete(MotionDataFile);
+    if not EnsureMmdVmdMotionData(TPath.Combine(Root, 'VMD'), Motions) or
+      not TFile.Exists(MotionDataFile) then
+      raise Exception.Create('legacy motion data migration failed');
     if not ImportMmdVmdMotions([VmdFile], TPath.Combine(Root, 'VMD'),
       Motions, Summary) or (Summary.AlreadyRegistered <> 1) or
       (Motions.Count <> 1) then raise Exception.Create('duplicate VMD was added');
+    if not Motions.LoadMotionData(0, OriginalMotion) or
+      not TryDecodeMmdMotionDocument(OriginalMotion, Document) then
+      raise Exception.Create('motion data was not persisted');
+    Document.Free;
+    Document := nil;
+    DuplicateIndex := Motions.Duplicate(0);
+    if (DuplicateIndex <> 1) or (Motions.Count <> 2) or
+      (Motions[0].Id = Motions[1].Id) or
+      (Motions[0].SourceVmdId <> Motions[1].SourceVmdId) or
+      not Motions.LoadMotionData(DuplicateIndex, EncodedMotion) or
+      not TryDecodeMmdMotionDocument(EncodedMotion, Document) then
+      raise Exception.Create('motion data duplication failed');
+    BoneKey := Document.BoneTracks[0].Keys[0];
+    BoneKey.Translation.X := 99;
+    Document.BoneTracks[0].Keys[0] := BoneKey;
+    EncodedMotion := EncodeMmdMotionDocument(Document);
+    if not Motions.SaveMotionData(DuplicateIndex, EncodedMotion) or
+      not Motions.LoadMotionData(0, EncodedMotion) or
+      (EncodedMotion <> OriginalMotion) then
+      raise Exception.Create('duplicated motion changed its source');
+    Document.Free;
+    Document := nil;
   finally
+    Document.Free;
     Motions.Free;
   end;
   Reloaded := TPmxMotionCatalogStorage.Create(ModelRoot, 'pmx1', 'sample');
   try
-    if not Reloaded.LoadFromFile or (Reloaded.Count <> 1) or
+    if not Reloaded.LoadFromFile or (Reloaded.Count <> 2) or
       (Reloaded[0].FirstFrame <> 3) then
       raise Exception.Create('motion catalog persistence failed');
+    if not Reloaded.LoadMotionData(1, EncodedMotion) or
+      not TryDecodeMmdMotionDocument(EncodedMotion, Document) then
+      raise Exception.Create('duplicated motion reload failed');
+    Document.Free;
+    Document := nil;
   finally
+    Document.Free;
     Reloaded.Free;
   end;
   TDirectory.Delete(Root, True);

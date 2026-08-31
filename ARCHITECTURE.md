@@ -30,6 +30,8 @@
 - 左一覧の人物分類、右一覧の編集ツールバー／メニュー／ショートカット、選択色、1px境界線は専用Controlへ閉じ込める。削除確認は共通`ConfirmDialog`を使い、192 DPIでも96 DPIと同じ論理寸法を保つ。
 - 人物分類コンボとPMX画像一覧は`TPmxCatalogSelector`へまとめ、PMX管理、ポーズ・モーション、後続ページから共用する。メインフレームが選択中PmxUIDを保持し、ページ切替と各左一覧の選択変更時に同期する。
 - ポーズ・モーションページは共通PMX選択ペインとPMX別ポーズ一覧を持ち、右側の操作ツールバー、ポップアップメニュー、ショートカットはPMX管理と同じ実装を共用する。VPD原本とメタデータは`Extension\VPD\Catalog`、ファイル列挙とPMX別PoseUID生成は`Extension\VPD\Import`、分類横断の選択状態と単一プレビューは`Extension\VPD\Reuse`が担当する。PMX管理の右一覧D&Dはモデル表示オブジェクト、ポーズページの右一覧D&Dはポーズオブジェクトを出力する。
+- VMD原本は内容ハッシュ由来のVmdUIDで識別し、`VMD\Sources\{VmdUID}.vmd`と、全キー／Bezierを格納した変更しない内部正本`VMD\Data\{VmdUID}.json`を持つ。PMXへ登録したMotionUIDは、一覧用メタデータ`Motions\Items\{MotionUID}.json`と編集可能な実データ`Motions\Data\{MotionUID}.json`に分ける。
+- モーション実データは版付き`TMmdMotionDocument`としてシリアライズし、編集・評価などで必要になった時だけデシリアライズする。MotionUID複製は実データも複製し、将来の原本復元はSourceVmdIdに対応するVmdUID正本から行う。
 - 表情ページのD&Dは`Extension\Face\Catalog\Drag`が担当し、FaceUIDの保存JSONを`MMD_Face_Filter`の`表情`項目へそのまま格納する。出力はポーズと同じく標準描画を伴う単一入力オブジェクトとし、PMX管理のモデル表示エイリアスとは分離する。
 - ポーズページの編集入口はPMX管理と同じ`TMmdModelSettingEditorForm`を使い、`ConfigureSettingControls(False, True)`でポーズ専用構成にする。D3Dプレビューとボーン操作、閉じる際の確定処理を共用しつつ、表情・目パチ・口パクを選ぶページ切替ツールバーは生成しない。
 

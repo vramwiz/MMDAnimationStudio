@@ -29,7 +29,7 @@ var
 const
   POSE_EFFECT_NAME = 'ポーズ';
   POSE_ITEM_MODEL_FILE = 'モデルファイル';
-  POSE_ITEM_POSE_DATA = 'ポーズ';
+  POSE_ITEM_POSE_DATA = 'ポーズデータ';
   TRANSPARENT_PIXEL: TPIXEL_RGBA = (R: 0; G: 0; B: 0; A: 0);
 
 function GetFocusedItem(Edit: PEDIT_SECTION; Obj: OBJECT_HANDLE;
@@ -131,7 +131,8 @@ begin
     AddFile(ModelFileItem, 'モデルファイル', '',
       'PMXモデル (*.pmx)'#0'*.pmx'#0 +
       'すべてのファイル (*.*)'#0'*.*'#0#0);
-    AddString(PoseDataItem, 'ポーズ', '{"version":1,"bones":[]}');
+    AddString(PoseDataItem, POSE_ITEM_POSE_DATA,
+      '{"version":1,"bones":[]}');
     AddButton(PoseButtonItem, '設定', PoseButtonCallback);
     PluginTableInitialized := True;
   end;

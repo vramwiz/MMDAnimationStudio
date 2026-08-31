@@ -20,6 +20,9 @@ type
 function ImportMmdVmdMotions(const Inputs: TArray<string>;
   const VmdRoot: string; MotionCatalog: TPmxMotionCatalogStorage;
   out Summary: TMmdVmdImportSummary): Boolean;
+// 旧カタログで欠落しているMotionUID別内部データをVMD原本から一度だけ生成する。
+function EnsureMmdVmdMotionData(const VmdRoot: string;
+  MotionCatalog: TPmxMotionCatalogStorage): Boolean;
 
 implementation
 
@@ -29,11 +32,52 @@ uses
   System.JSON,
   System.SysUtils,
   AppFolderUtils,
+  MmdMotionDocument,
+  MmdMotionDocumentCodec,
   PmxPose,
   PmxPoseCodec,
   MmdMorphSettingCodec,
   MmdVmdCatalog,
-  MmdVmdCatalogItem;
+  MmdVmdCatalogItem,
+  VmdMotionDocumentReader;
+
+function EnsureMmdVmdMotionData(const VmdRoot: string;
+  MotionCatalog: TPmxMotionCatalogStorage): Boolean;
+var
+  DataFile, MotionData, Root, SourceFile: string;
+  Document: TMmdMotionDocument;
+  I: Integer;
+begin
+  Result := False;
+  Root := ExcludeTrailingPathDelimiter(Trim(VmdRoot));
+  if not Assigned(MotionCatalog) or (Root = '') then Exit;
+  Result := True;
+  for I := 0 to MotionCatalog.Count - 1 do
+  begin
+    if MotionCatalog.HasMotionData(I) then Continue;
+    DataFile := TPath.Combine(TPath.Combine(Root, 'Data'),
+      MotionCatalog[I].SourceVmdId + '.json');
+    SourceFile := TPath.Combine(TPath.Combine(Root, 'Sources'),
+      MotionCatalog[I].SourceVmdId + '.vmd');
+    Document := nil;
+    try
+      if not LoadMmdMotionDocument(DataFile, Document) then
+      begin
+        if not TryReadVmdMotionDocument(SourceFile, Document) or
+          not SaveMmdMotionDocument(DataFile, Document) then
+        begin
+          Result := False;
+          Continue;
+        end;
+      end;
+      MotionData := EncodeMmdMotionDocument(Document);
+      if (MotionData = '') or not MotionCatalog.SaveMotionData(I, MotionData) then
+        Result := False;
+    finally
+      Document.Free;
+    end;
+  end;
+end;
 
 procedure CollectVmdFiles(const Inputs: TArray<string>; Files: TStrings;
   var Failed: Integer);
@@ -90,7 +134,7 @@ function ImportMmdVmdMotions(const Inputs: TArray<string>;
   out Summary: TMmdVmdImportSummary): Boolean;
 var
   Catalog: TMmdVmdCatalog;
-  FileName, MorphData, PoseData, Root: string;
+  ExistingMotionData, FileName, MorphData, MotionData, PoseData, Root: string;
   Files: TStringList;
   FirstFrame: Cardinal;
   IsNew: Boolean;
@@ -117,7 +161,7 @@ begin
     for FileName in Files do
     begin
       if not Catalog.ImportFile(FileName, Item, Poses, Morphs, FirstFrame,
-        IsNew) then
+        MotionData, IsNew) then
       begin
         Inc(Summary.Failed);
         Continue;
@@ -126,6 +170,12 @@ begin
       MotionIndex := MotionCatalog.IndexOfSourceVmdId(Item.Id);
       if MotionIndex >= 0 then
       begin
+        if not MotionCatalog.LoadMotionData(MotionIndex, ExistingMotionData) and
+          not MotionCatalog.SaveMotionData(MotionIndex, MotionData) then
+        begin
+          Inc(Summary.Failed);
+          Continue;
+        end;
         Inc(Summary.AlreadyRegistered);
         Summary.LastMotionId := MotionCatalog[MotionIndex].Id;
         Continue;
@@ -133,8 +183,8 @@ begin
       PoseData := EncodePoseData(Poses);
       MorphData := EncodeMorphs(Morphs);
       MotionIndex := MotionCatalog.AddImported(Item.Name, Item.Id,
-        Item.OriginalFileName, Item.CategoryName, PoseData, MorphData,
-        FirstFrame, False);
+        Item.OriginalFileName, Item.CategoryName, MotionData, PoseData,
+        MorphData, FirstFrame, False);
       if MotionIndex < 0 then
       begin
         Inc(Summary.Failed);

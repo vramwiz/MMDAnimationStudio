@@ -26,7 +26,7 @@
         <DCC_UnitSearchPath>..\AviUtl2PluginLib\Serif\Draw;..\AviUtl2PluginLib\Lib\ProjectManager;..\AviUtl2PluginLib\Lib\AutoLineBreakAdjuster;..\AviUtl2PluginLib\Lib\VectorRenderer;..\AviUtl2PluginLib\Lib\ListBoxEx;..\AviUtl2PluginLib\Lib\BitmapEx;..\AviUtl2PluginLib\Lib\HorizontalScrollBar;..\AviUtl2PluginLib\Lib\VoicevoxToolbar;..\AviUtl2PluginLib\Lib\VerticalSlider;..\Syncroh2\AviUtl\AliasList;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup>
-        <DCC_UnitSearchPath>Source\Plugin\Extension\Motion\Catalog;Source\Plugin\Extension\VMD\Catalog;Source\Plugin\Extension\VMD\Import;Source\Plugin\Extension\PMX\Catalog\Motion;Source\Plugin\Extension\PMX\Catalog\Motion\Storage;Source\Plugin\Extension\PMX\Catalog\Motion\View;Source\Plugin\Extension\PMX\Catalog\Motion\Toolbar;Source\Plugin\Extension\PMX\Catalog\Motion\Menu;..\AviUtl2PluginLib\MMD\VMD\IO;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\Plugin\Extension\Motion\Catalog;Source\Plugin\Extension\VMD\Catalog;Source\Plugin\Extension\VMD\Import;Source\Plugin\Extension\PMX\Catalog\Motion;Source\Plugin\Extension\PMX\Catalog\Motion\Storage;Source\Plugin\Extension\PMX\Catalog\Motion\View;Source\Plugin\Extension\PMX\Catalog\Motion\Toolbar;Source\Plugin\Extension\PMX\Catalog\Motion\Menu;..\AviUtl2PluginLib\MMD\Common\Motion;..\AviUtl2PluginLib\MMD\VMD\IO;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -256,6 +256,9 @@
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Motion\Menu\PmxMotionCatalogContextMenu.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\VMD\IO\VmdFirstFrameReader.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionReader.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\VMD\IO\VmdMotionDocumentReader.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocument.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\Motion\MmdMotionDocumentCodec.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\DragAgent\DragAgent.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailCache.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailRenderer.pas"/>

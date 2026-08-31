@@ -1,0 +1,139 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{27C8B064-3279-40CD-AE1D-6B8844BAB5A1}</ProjectGuid>
+        <ProjectVersion>20.4</ProjectVersion>
+        <FrameworkType>None</FrameworkType>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <ProjectName Condition="'$(ProjectName)'==''">MMD_Motion_Filter</ProjectName>
+        <TargetedPlatforms>2</TargetedPlatforms>
+        <AppType>Library</AppType>
+        <MainSource>MMD_Motion_Filter.dpr</MainSource>
+        <Base>True</Base>
+    </PropertyGroup>
+    <PropertyGroup>
+        <GenDll>true</GenDll>
+        <DCC_DcuOutput>.\$(Platform)\$(Config)\MotionDCU</DCC_DcuOutput>
+        <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
+        <SanitizedProjectName>MMD_Motion_Filter</SanitizedProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <GenDll>true</GenDll>
+        <SanitizedProjectName>MMD_Motion_Filter</SanitizedProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <Manifest_File>(none)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <DCC_ExeOutput>C:\ProgramData\aviutl2\Plugin\MMD</DCC_ExeOutput>
+        <PreBuildEvent><![CDATA[if not exist "C:\ProgramData\aviutl2\Plugin\MMD" mkdir "C:\ProgramData\aviutl2\Plugin\MMD"]]></PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PostBuildEvent><![CDATA[copy /Y "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2"]]></PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+        <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <BT_BuildType>Release</BT_BuildType>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <Manifest_File>(none)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <DCC_ExeOutput>C:\ProgramData\aviutl2\Plugin\MMD</DCC_ExeOutput>
+        <PreBuildEvent><![CDATA[if not exist "C:\ProgramData\aviutl2\Plugin\MMD" mkdir "C:\ProgramData\aviutl2\Plugin\MMD"]]></PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PostBuildEvent><![CDATA[copy /Y "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2"&&if exist "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll"&&if exist "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm"]]></PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
+        <DCCReference Include="Source\Lib\FilterTable\PluginFilterTable.pas"/>
+        <DCCReference Include="Source\Plugin\Motion\MMD_Motion_FilterPlugin.pas"/>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">MMD_Motion_Filter.dpr</Source>
+                </Source>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">False</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PreBuildEvent>if not exist &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot; mkdir &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot;</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>copy /Y &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot; &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
+        <PreBuildEvent>if not exist &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot; mkdir &quot;C:\ProgramData\aviutl2\Plugin\MMD&quot;</PreBuildEvent>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>copy /Y &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot; &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).auf2&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot; del /Q &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).dll&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm&quot; del /Q &quot;C:\ProgramData\aviutl2\Plugin\MMD\$(PROJECTNAME).rsm&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+</Project>

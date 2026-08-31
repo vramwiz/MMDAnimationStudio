@@ -6,17 +6,17 @@ uses
   System.IOUtils,
   System.SysUtils,
   MmdMorphSettingCodec in
-    '..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdMorphSettingCodec.pas',
   MmdEyeBlinkSettingCodec in
-    '..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas',
   MmdLipSyncSettingCodec in
-    '..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
-  PmxModel in '..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
-  PmxMorph in '..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas',
-  PmxPoseTypes in '..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
-  PmxPoseMath in '..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
-  PmxPose in '..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
-  PmxPoseCodec in '..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
+    '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
+  PmxModel in '..\..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
+  PmxMorph in '..\..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas',
+  PmxPoseTypes in '..\..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas',
+  PmxPoseMath in '..\..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas',
+  PmxPose in '..\..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
+  PmxPoseCodec in '..\..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
   PmxPoseCatalogStorage in
     '..\Source\Plugin\Extension\PMX\Catalog\Pose\PmxPoseCatalogStorage.pas',
   PmxPoseCatalogDataValidation in
@@ -181,9 +181,10 @@ begin
     if Pos(#$30E2#$30C7#$30EB#$30D5#$30A1#$30A4#$30EB + '=' +
       ModelFileName, PoseObjectAliasText) = 0 then
       raise Exception.Create('pose object model path is missing');
-    if Pos(#$30DD#$30FC#$30BA + '={"version":1,"bones":[]}',
+    if Pos(#$30DD#$30FC#$30BA#$30C7#$30FC#$30BF +
+      '={"version":1,"bones":[]}',
       PoseObjectAliasText) = 0 then
-      raise Exception.Create('renamed pose item is missing');
+      raise Exception.Create('pose data item is missing');
     if Pos(#$8A2D#$5B9A + '=', PoseObjectAliasText) = 0 then
       raise Exception.Create('renamed settings item is missing');
     if Pos('effect.name=' + #$6A19#$6E96#$63CF#$753B,

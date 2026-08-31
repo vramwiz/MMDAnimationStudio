@@ -66,7 +66,8 @@ begin
     Lines.Add('effect.name=' + #$30DD#$30FC#$30BA);
     Lines.Add(#$30E2#$30C7#$30EB#$30D5#$30A1#$30A4#$30EB + '=' +
       ModelFileName);
-    Lines.Add(#$30DD#$30FC#$30BA + '=' + NormalizedPoseData);
+    Lines.Add(#$30DD#$30FC#$30BA#$30C7#$30FC#$30BF + '=' +
+      NormalizedPoseData);
     Lines.Add(#$8A2D#$5B9A + '=');
     Lines.Add('[0.1]');
     Lines.Add('effect.name=' + #$6A19#$6E96#$63CF#$753B);
