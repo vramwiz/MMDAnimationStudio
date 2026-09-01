@@ -29,6 +29,7 @@ mkdir "%DST_SCRIPT%"
 for %%F in (
     MMDAnimationStudio.aux2
     MMD_Model_Filter.auf2
+    MMD_Accessory_Filter.auf2
     MMD_Face_Filter.auf2
     MMD_Serif_Draw_Filter.auf2
     sk4d.dll

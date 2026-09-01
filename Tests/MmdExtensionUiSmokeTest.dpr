@@ -126,7 +126,21 @@ uses
     '..\Source\Plugin\Extension\Pose\Catalog\Drag\MmdPoseObjectDragController.pas',
   PmxCatalogThumbnailCache in '..\Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailCache.pas',
   PmxCatalogThumbnailRenderer in '..\Source\Plugin\Extension\PMX\Catalog\Thumbnail\PmxCatalogThumbnailRenderer.pas',
-  MMDAnimationStudioToolbarIcons in '..\Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas';
+  MMDAnimationStudioToolbarIcons in '..\Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas',
+  MmdAccessoryCatalogItem in
+    '..\Source\Plugin\Extension\Accessory\Catalog\Storage\MmdAccessoryCatalogItem.pas',
+  MmdAccessoryCatalogCodec in
+    '..\Source\Plugin\Extension\Accessory\Catalog\Storage\MmdAccessoryCatalogCodec.pas',
+  MmdAccessoryCatalogOperations in
+    '..\Source\Plugin\Extension\Accessory\Catalog\Storage\MmdAccessoryCatalogOperations.pas',
+  MmdAccessoryCatalogImport in
+    '..\Source\Plugin\Extension\Accessory\Catalog\Storage\Import\MmdAccessoryCatalogImport.pas',
+  MmdAccessoryCatalog in
+    '..\Source\Plugin\Extension\Accessory\Catalog\Storage\MmdAccessoryCatalog.pas',
+  MmdAccessoryCatalogListView in
+    '..\Source\Plugin\Extension\Accessory\Catalog\View\MmdAccessoryCatalogListView.pas',
+  MmdAccessoryHoverPreview in
+    '..\Source\Plugin\Extension\Accessory\Catalog\View\Hover\MmdAccessoryHoverPreview.pas';
 
 type
   TTestPoseEditor = class
@@ -172,6 +186,11 @@ var
   TestPoseEditor: TTestPoseEditor;
   PoseGroup: TPmxPoseCatalogGroup;
   ReloadedPoseGroups: TPmxPoseCatalogGroups;
+  AccessoryCatalog: TMmdAccessoryCatalog;
+  AccessoryItem: TMmdAccessoryCatalogItem;
+  AccessoryList: TMmdAccessoryCatalogListView;
+  AccessoryRoot, AccessorySource: string;
+  AccessoryIsNewItem, AccessoryIsNewSource: Boolean;
   Stage: string;
 
 function TTestPoseEditor.EditPose(Sender: TObject; Model: TPmxCatalogItem;
@@ -191,6 +210,52 @@ begin
       // フォーカス遷移を含むUI部品を実ホストと同じ表示可能状態で検証する。
       HostForm.Show;
       Application.ProcessMessages;
+      Stage := 'accessory-restart-list';
+      AccessoryRoot := TPath.Combine(TPath.GetTempPath,
+        'MmdAccessoryListSmoke-' + IntToHex(GetCurrentProcessId, 8));
+      if TDirectory.Exists(AccessoryRoot) then
+        TDirectory.Delete(AccessoryRoot, True);
+      ForceDirectories(AccessoryRoot);
+      try
+        AccessorySource := TPath.Combine(AccessoryRoot, 'sample.pmx');
+        TFile.WriteAllText(AccessorySource, 'sample', TEncoding.UTF8);
+        AccessoryCatalog := TMmdAccessoryCatalog.Create(
+          TPath.Combine(AccessoryRoot, 'Accessories'));
+        try
+          if not AccessoryCatalog.LoadFromFile or
+            not AccessoryCatalog.ImportFile(AccessorySource, AccessoryItem,
+              AccessoryIsNewSource, AccessoryIsNewItem) then
+            raise Exception.Create('accessory restart fixture failed');
+        finally
+          AccessoryCatalog.Free;
+        end;
+        AccessoryCatalog := TMmdAccessoryCatalog.Create(
+          TPath.Combine(AccessoryRoot, 'Accessories'));
+        try
+          if not AccessoryCatalog.LoadFromFile or
+            (AccessoryCatalog.Count <> 1) then
+            raise Exception.Create('accessory restart catalog load failed');
+          AccessoryList := TMmdAccessoryCatalogListView.Create(HostForm);
+          try
+            AccessoryList.Visible := False;
+            AccessoryList.SetCatalog(AccessoryCatalog);
+            if AccessoryList.HandleAllocated then
+              raise Exception.Create('accessory list created its handle early');
+            AccessoryList.Parent := HostForm;
+            AccessoryList.HandleNeeded;
+            if (AccessoryList.ItemIndex <> 0) or
+              (AccessoryList.DisplayCount <> 1) then
+              raise Exception.Create('accessory deferred selection failed');
+          finally
+            AccessoryList.Free;
+          end;
+        finally
+          AccessoryCatalog.Free;
+        end;
+      finally
+        if TDirectory.Exists(AccessoryRoot) then
+          TDirectory.Delete(AccessoryRoot, True);
+      end;
       Stage := 'confirm-dialog';
       ConfirmDialog := TFormConfirmDialog.Create(HostForm);
       try
@@ -250,6 +315,7 @@ begin
       Frame.Show;
       if not (Frame.PanelToolbar is TDarkPanel) or
          not (Frame.PanelPmx is TDarkPanel) or
+         not (Frame.PanelAccessory is TDarkPanel) or
          not (Frame.PanelPoseMotion is TDarkPanel) or
          not (Frame.PanelMotion is TDarkPanel) or
          not (Frame.PanelExpression is TDarkPanel) or
@@ -258,6 +324,35 @@ begin
          not (Frame.PanelMusic is TDarkPanel) or
          not (Frame.PanelLaunch is TDarkPanel) then
         raise Exception.Create('extension page panels are not dark panels');
+      Frame.ButtonAccessory.Click;
+      Application.ProcessMessages;
+      if not Frame.PanelAccessory.Visible or Frame.PanelPmx.Visible or
+         Frame.PanelPoseMotion.Visible or
+         not Assigned(Frame.AccessoryCatalogFrame) or
+         not (Frame.AccessoryCatalogFrame.PanelHeader is TDarkPanel) or
+         not (Frame.AccessoryCatalogFrame.LabelDropStatus is TDarkLabel) or
+         not Assigned(Frame.AccessoryCatalogFrame.ListView) or
+         not Assigned(Frame.AccessoryCatalogFrame.Toolbar) or
+         (Frame.AccessoryCatalogFrame.Toolbar.Items.Count <> 5) or
+         not Assigned(Frame.AccessoryCatalogFrame.ListView.PopupMenu) or
+         (Frame.AccessoryCatalogFrame.ListView.PopupMenu.Items.Count <> 9) or
+         (Frame.AccessoryCatalogFrame.ListView.PopupMenu.Items[0].Caption <>
+           #$30D5#$30A1#$30A4#$30EB + #$3092#$8FFD#$52A0 + '(&R)...') or
+         (Frame.AccessoryCatalogFrame.ListView.PopupMenu.Items[3].Caption <>
+           #$540D#$79F0#$5909#$66F4 + '(&V)') or
+         not Assigned(Frame.AccessoryCatalogFrame.ListView.OnKeyDown) or
+         not Frame.AccessoryCatalogFrame.PanelHeader.Visible or
+         (Frame.AccessoryCatalogFrame.ListView.Top <>
+           Frame.AccessoryCatalogFrame.PanelHeader.Height +
+           Frame.AccessoryCatalogFrame.Toolbar.Height) or
+         (Frame.AccessoryCatalogFrame.ListView.DisplayCount <> 0) then
+        raise Exception.Create('accessory page was not activated');
+      Frame.AccessoryCatalogFrame.DropFiles([]);
+      if (Pos(#$78BA#$8A8D, Frame.AccessoryCatalogFrame.LabelDropStatus.Caption) <>
+          1) or
+        (Pos(#$7D20#$6750#$4E0D#$8DB3,
+          Frame.AccessoryCatalogFrame.LabelDropStatus.Caption) = 0) then
+        raise Exception.Create('accessory status text encoding failed');
       if not (Frame.PmxCatalogFrame.PanelHeader is TDarkPanel) or
          not (Frame.PmxCatalogFrame.LabelTitle is TDarkLabel) or
          not (Frame.PmxCatalogFrame.LabelDropHint is TDarkLabel) or
@@ -621,6 +716,9 @@ begin
                 raise Exception.Create('PMX thumbnail rendering failed');
               if (Bitmap.Width <> 128) or (Bitmap.Height <> 128) then
                 raise Exception.Create('PMX thumbnail has an invalid size');
+              if not ThumbnailRenderer.RenderPmxFullAngle(PmxFileName,
+                1.5707963, 128, 128, Bitmap) then
+                raise Exception.Create('PMX rotated thumbnail rendering failed');
               CacheFolder := TPath.Combine(TPath.GetTempPath,
                 'MMDAnimationStudio-' + TPath.GetRandomFileName);
               TDirectory.CreateDirectory(CacheFolder);

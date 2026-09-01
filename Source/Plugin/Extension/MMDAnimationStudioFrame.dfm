@@ -19,7 +19,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 0
   end
-  object PanelPoseMotion: TDarkPanel
+  object PanelAccessory: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -31,19 +31,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 1
   end
-  object PanelExpression: TDarkPanel
-    Left = 0
-    Top = 30
-    Width = 640
-    Height = 450
-    Align = alClient
-    BevelOuter = bvNone
-    Caption = ''
-    Color = clBlack
-    ParentBackground = False
-    TabOrder = 3
-  end
-  object PanelMotion: TDarkPanel
+  object PanelPoseMotion: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -55,7 +43,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 2
   end
-  object PanelSerif: TDarkPanel
+  object PanelExpression: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -67,7 +55,19 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 4
   end
-  object PanelExplorer: TDarkPanel
+  object PanelMotion: TDarkPanel
+    Left = 0
+    Top = 30
+    Width = 640
+    Height = 450
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = ''
+    Color = clBlack
+    ParentBackground = False
+    TabOrder = 3
+  end
+  object PanelSerif: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -79,7 +79,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 5
   end
-  object PanelMusic: TDarkPanel
+  object PanelExplorer: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -91,7 +91,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 6
   end
-  object PanelLaunch: TDarkPanel
+  object PanelMusic: TDarkPanel
     Left = 0
     Top = 30
     Width = 640
@@ -102,6 +102,18 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     Color = clBlack
     ParentBackground = False
     TabOrder = 7
+  end
+  object PanelLaunch: TDarkPanel
+    Left = 0
+    Top = 30
+    Width = 640
+    Height = 450
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = ''
+    Color = clBlack
+    ParentBackground = False
+    TabOrder = 8
   end
   object PanelToolbar: TDarkPanel
     Left = 0
@@ -114,7 +126,7 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     Caption = ''
     Color = 2829099
     ParentBackground = False
-    TabOrder = 8
+    TabOrder = 9
     object ToolbarPages: TToolBar
       Left = 0
       Top = 0
@@ -140,50 +152,57 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
         Caption = 'PMX'#12398#31649#29702
         ImageIndex = 0
       end
-      object ButtonPoseMotion: TToolButton
+      object ButtonAccessory: TToolButton
         Left = 28
+        Top = 0
+        Hint = #20154#29289#20197#22806#12398#12514#12487#12523#12434#30331#37682#12375#31649#29702#12377#12427
+        Caption = #12450#12463#12475#12469#12522
+        ImageIndex = 11
+      end
+      object ButtonPoseMotion: TToolButton
+        Left = 56
         Top = 0
         Hint = #12509#12540#12474#12434#30331#37682#12375#31649#29702#12377#12427
         Caption = #12509#12540#12474
         ImageIndex = 2
       end
       object ButtonMotion: TToolButton
-        Left = 56
+        Left = 84
         Top = 0
         Hint = #12514#12540#12471#12519#12531#12434#30331#37682#12375#31649#29702#12377#12427
         Caption = #12514#12540#12471#12519#12531
         ImageIndex = 6
       end
       object ButtonExpression: TToolButton
-        Left = 84
+        Left = 112
         Top = 0
         Hint = #34920#24773#12398#30331#37682#12392#31649#29702
         Caption = #34920#24773
         ImageIndex = 1
       end
       object ButtonSerif: TToolButton
-        Left = 112
+        Left = 140
         Top = 0
         Hint = #12475#12522#12501#12434#30331#37682#12375#31649#29702#12377#12427
         Caption = #12475#12522#12501
         ImageIndex = 3
       end
       object ButtonExplorer: TToolButton
-        Left = 140
+        Left = 168
         Top = 0
         Hint = #23554#29992#12456#12463#12473#12503#12525#12540#12521#12540#12434#34920#31034
         Caption = #12456#12463#12473#12503#12525#12540#12521#12540
         ImageIndex = 4
       end
       object ButtonMusic: TToolButton
-        Left = 168
+        Left = 196
         Top = 0
         Hint = #38899#27005#12434#34920#31034
         Caption = #38899#27005
         ImageIndex = 5
       end
       object ButtonLaunch: TToolButton
-        Left = 196
+        Left = 224
         Top = 0
         Hint = #30331#37682#12375#12383#12450#12503#12522#12434#36215#21205
         Caption = #36215#21205

@@ -55,6 +55,11 @@
           "to": "{pluginsDir}/MMD"
         },
         {
+          "action": "copy",
+          "from": "{tmp}/Plugin/MMD_Accessory_Filter.auf2",
+          "to": "{pluginsDir}/MMD"
+        },
+        {
           "action": "delete",
           "path": "{pluginsDir}/MMD/MMD_Pose_Filter.auf2"
         },
@@ -101,6 +106,10 @@
         {
           "action": "delete",
           "path": "{pluginsDir}/MMD/MMD_Model_Filter.auf2"
+        },
+        {
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/MMD_Accessory_Filter.auf2"
         },
         {
           "action": "delete",

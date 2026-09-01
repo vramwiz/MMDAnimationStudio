@@ -17,6 +17,7 @@ uses
   ExplorerFrame,
   LauncherFrame,
   PmxCatalogFrame,
+  MmdAccessoryCatalogFrame,
   MmdPoseCatalogFrame,
   MmdMotionCatalogFrame,
   MmdFaceCatalogFrame,
@@ -29,6 +30,7 @@ type
     PanelToolbar: TDarkPanel;
     ToolbarPages: TToolBar;
     ButtonPmx: TToolButton;
+    ButtonAccessory: TToolButton;
     ButtonPoseMotion: TToolButton;
     ButtonMotion: TToolButton;
     ButtonExpression: TToolButton;
@@ -37,6 +39,7 @@ type
     ButtonMusic: TToolButton;
     ButtonLaunch: TToolButton;
     PanelPmx: TDarkPanel;
+    PanelAccessory: TDarkPanel;
     PanelPoseMotion: TDarkPanel;
     PanelMotion: TDarkPanel;
     PanelExpression: TDarkPanel;
@@ -48,6 +51,7 @@ type
   private
     FToolbarController: TMmdStudioToolbarController;
     FPmxCatalogFrame: TFramePmxCatalog;
+    FAccessoryCatalogFrame: TFrameMmdAccessoryCatalog;
     FPoseCatalogFrame: TFrameMmdPoseCatalog;
     FMotionCatalogFrame: TFrameMmdMotionCatalog;
     FFaceCatalogFrame: TFrameMmdFaceCatalog;
@@ -58,6 +62,7 @@ type
     FSyncingPmxSelection: Boolean;
     procedure DropFilesCore(const Files: TArray<string>);
     procedure EnsurePmxCatalogFrame;
+    procedure EnsureAccessoryCatalogFrame;
     procedure EnsurePoseCatalogFrame;
     procedure EnsureMotionCatalogFrame;
     procedure EnsureFaceCatalogFrame;
@@ -84,6 +89,8 @@ type
     // 初回表示に必要なツールバー、PMX一覧、Launcherのホットキー受付を準備する。
     procedure Show; reintroduce;
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
+    property AccessoryCatalogFrame: TFrameMmdAccessoryCatalog
+      read FAccessoryCatalogFrame;
     property PoseCatalogFrame: TFrameMmdPoseCatalog read FPoseCatalogFrame;
     property MotionCatalogFrame: TFrameMmdMotionCatalog read FMotionCatalogFrame;
     property FaceCatalogFrame: TFrameMmdFaceCatalog read FFaceCatalogFrame;
@@ -109,9 +116,9 @@ begin
 
   Color := clBlack;
   FToolbarController := TMmdStudioToolbarController.Create(PanelToolbar,
-    ToolbarPages, ToolbarImages, [PanelPmx, PanelPoseMotion, PanelMotion,
-    PanelExpression, PanelSerif, PanelExplorer, PanelMusic, PanelLaunch],
-    PageChanging, PageChanged);
+    ToolbarPages, ToolbarImages, [PanelPmx, PanelAccessory, PanelPoseMotion,
+    PanelMotion, PanelExpression, PanelSerif, PanelExplorer, PanelMusic,
+    PanelLaunch], PageChanging, PageChanged);
 
   FSerifHost := TMmdSerifHost.Create(Self, PanelSerif);
   AviUtl2ProjectSetOnLoad(ProjectLoaded);
@@ -161,6 +168,12 @@ begin
     FExplorerFrame.DropFile(Files);
     Exit;
   end;
+  if PanelAccessory.Visible then
+  begin
+    EnsureAccessoryCatalogFrame;
+    FAccessoryCatalogFrame.DropFiles(Files);
+    Exit;
+  end;
   HasPmx := False;
   HasVmd := False;
   HasVpd := False;
@@ -201,15 +214,23 @@ begin
   if HasVmd then
   begin
     EnsureMotionCatalogFrame;
-    FToolbarController.Activate(2);
+    FToolbarController.Activate(3);
     FMotionCatalogFrame.ImportVmdFiles(Files);
   end;
   if not HasPmx and not HasVpd and not HasVmd then
   begin
     EnsureExplorerFrame;
-    FToolbarController.Activate(5);
+    FToolbarController.Activate(6);
     FExplorerFrame.DropFile(Files);
   end;
+end;
+
+procedure TFrameMMDAnimationStudio.EnsureAccessoryCatalogFrame;
+begin
+  if Assigned(FAccessoryCatalogFrame) then Exit;
+  FAccessoryCatalogFrame := TFrameMmdAccessoryCatalog.Create(Self);
+  FAccessoryCatalogFrame.Parent := PanelAccessory;
+  FAccessoryCatalogFrame.Align := alClient;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureMotionCatalogFrame;
@@ -317,6 +338,11 @@ begin
       end;
     1:
       begin
+        EnsureAccessoryCatalogFrame;
+        FAccessoryCatalogFrame.Show;
+      end;
+    2:
+      begin
         EnsurePoseCatalogFrame;
         // 初回生成時の既定選択通知で、切替前の選択を上書きさせない。
         FSelectedPmxId := TargetPmxId;
@@ -324,7 +350,7 @@ begin
         FPoseCatalogFrame.Visible := True;
         FPoseCatalogFrame.Show;
       end;
-    2:
+    3:
       begin
         EnsureMotionCatalogFrame;
         FSelectedPmxId := TargetPmxId;
@@ -332,7 +358,7 @@ begin
         FMotionCatalogFrame.Visible := True;
         FMotionCatalogFrame.Show;
       end;
-    3:
+    4:
       begin
         EnsureFaceCatalogFrame;
         FSelectedPmxId := TargetPmxId;
@@ -340,17 +366,17 @@ begin
         FFaceCatalogFrame.Visible := True;
         FFaceCatalogFrame.Show;
       end;
-    4:
+    5:
       begin
         EnsureSerifFrame;
         FSerifHost.Show;
       end;
-    5:
+    6:
       begin
         EnsureExplorerFrame;
         FExplorerFrame.Show;
       end;
-    7:
+    8:
       begin
         EnsureLauncherFrame;
         FLauncherFrame.Show;

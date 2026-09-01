@@ -24,9 +24,33 @@ const
   BaseSize = 24;
   MaskColor = TColor($00FF00FF);
   ExplorerColor = TColor($0000D7FF);
+  AccessoryColor = TColor($00E6B450);
   MusicColor = TColor($00B469FF);
   LaunchColor = TColor($0078DC64);
-  LastImageIndex = 10;
+  LastImageIndex = 11;
+
+procedure DrawAccessoryIcon(Canvas: TCanvas; Size: Integer;
+  GlyphColor: TColor);
+
+  function Scale(Value: Integer): Integer;
+  begin
+    Result := MulDiv(Value, Size, BaseSize);
+  end;
+
+begin
+  Canvas.Pen.Color := GlyphColor;
+  Canvas.Pen.Width := Max(1, Scale(2));
+  Canvas.Pen.Style := psSolid;
+  Canvas.Brush.Style := bsClear;
+
+  Canvas.Polygon([Point(Scale(12), Scale(2)), Point(Scale(21), Scale(7)),
+    Point(Scale(12), Scale(12)), Point(Scale(3), Scale(7))]);
+  Canvas.Polyline([Point(Scale(3), Scale(7)), Point(Scale(3), Scale(17)),
+    Point(Scale(12), Scale(22)), Point(Scale(21), Scale(17)),
+    Point(Scale(21), Scale(7))]);
+  Canvas.MoveTo(Scale(12), Scale(12));
+  Canvas.LineTo(Scale(12), Scale(22));
+end;
 
 procedure DrawFaceIcon(Canvas: TCanvas; Size: Integer; GlyphColor: TColor);
 
@@ -163,6 +187,7 @@ begin
     7: DrawSerifToolbarIcon(Canvas, stiChara, Size, SyncColor);
     9: DrawSerifToolbarIcon(Canvas, stiSerif, Size, SyncColor);
     10: DrawLaunchIcon(Canvas, Size, LaunchColor);
+    11: DrawAccessoryIcon(Canvas, Size, AccessoryColor);
   end;
 end;
 
