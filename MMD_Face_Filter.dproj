@@ -3,7 +3,7 @@
         <ProjectGuid>{A4B67A1E-90A6-41D0-BE8A-105B44BD8D5F}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>None</FrameworkType>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">MMD_Face_Filter</ProjectName>
         <TargetedPlatforms>2097155</TargetedPlatforms>
@@ -89,18 +89,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeMetrics.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeDpiContext.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkButton.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkComboBox.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkEdit.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Input\DarkMemo.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkCheckListBox.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkTreeView.pas"/>
         <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\IPC\MmdFaceSharedMemory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>

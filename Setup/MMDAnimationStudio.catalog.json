@@ -3,7 +3,7 @@
     "id": "VRAMWIZ.MMDAnimationStudio",
     "name": "MMDアニメーションスタジオ",
     "type": "汎用プラグイン",
-    "summary": "MMDモデルの表示・ポーズ・表情・セリフ連携を統合する動画制作プラグイン",
+    "summary": "MMDモデルアクセサリの表示とポーズ表情モーションセリフ連携プラグイン",
     "description": "https://raw.githubusercontent.com/vramwiz/MMDAnimationStudio/refs/heads/main/README.md",
     "author": "VRAMの魔術師",
     "repoURL": "https://github.com/vramwiz/MMDAnimationStudio/",
@@ -21,6 +21,8 @@
       "アニメーション",
       "ポーズ",
       "表情",
+      "モーション",
+      "アクセサリ",
       "セリフ"
     ],
     "dependencies": [],
@@ -155,12 +157,12 @@
     },
     "version": [
       {
-        "version": "v1.0.0",
-        "release_date": "2026-08-30",
+        "version": "v1.0.1",
+        "release_date": "2026-09-03",
         "file": [
           {
             "path": "{pluginsDir}/MMD/MMDAnimationStudio.aux2",
-            "XXH3_128": "4a76613283b7c183d9cb30d3b07b0dc2"
+            "XXH3_128": "2eece476c391ec610768e8cd85c50f10"
           }
         ]
       }

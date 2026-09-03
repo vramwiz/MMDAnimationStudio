@@ -3,7 +3,7 @@
         <ProjectGuid>{4FC695A2-A37B-4DA5-8C79-445D4ED32042}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>None</FrameworkType>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">MMD_Serif_Module</ProjectName>
         <TargetedPlatforms>2</TargetedPlatforms>
@@ -42,33 +42,33 @@
         <SanitizedProjectName>MMD_Serif_Module</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
         <DCC_ExeOutput>C:\ProgramData\aviutl2\Script\MMD\</DCC_ExeOutput>
         <Debugger_HostApplication>D:\aviutl2_v2.1.3a\aviutl2.exe</Debugger_HostApplication>
         <PostBuildEvent><![CDATA[powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1" -TemplatePath "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2" -ConfigPath "$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json" -OutputPath "C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2"
 copy /Y "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2"
 if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll"
-if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"
-]]></PostBuildEvent>
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"]]></PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
         <DCC_ExeOutput>C:\ProgramData\aviutl2\Script\MMD\</DCC_ExeOutput>
         <PostBuildEvent><![CDATA[powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1" -TemplatePath "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2" -ConfigPath "$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json" -OutputPath "C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2"
 copy /Y "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2"
 if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll"
-if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"
-]]></PostBuildEvent>
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"]]></PostBuildEvent>
         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MmdSerifModuleTypes.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MmdSerifModuleAdapter.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MMD_Animation_ModulePlugin.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Module\MMD_Serif_ModulePlugin.pas"/>
-        <DCCReference Include="Source\Lib\AviUtl2FilterTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxModel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseTypes.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Core\PmxPoseMath.pas"/>
@@ -124,4 +124,34 @@ if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\Progr
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PreBuildEvent/>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1&quot; -TemplatePath &quot;$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2&quot; -ConfigPath &quot;$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json&quot; -OutputPath &quot;C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2&quot;&amp;&amp;copy /Y &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll&quot; &quot;C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll&quot; del /Q &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm&quot; del /Q &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm&quot;&amp;&amp;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
+        <PreBuildEvent/>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1&quot; -TemplatePath &quot;$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2&quot; -ConfigPath &quot;$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json&quot; -OutputPath &quot;C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2&quot;&amp;&amp;copy /Y &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll&quot; &quot;C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll&quot; del /Q &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll&quot;&amp;&amp;if exist &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm&quot; del /Q &quot;C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm&quot;&amp;&amp;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PostBuildEvent><![CDATA[powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1" -TemplatePath "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2" -ConfigPath "$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json" -OutputPath "C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2"
+copy /Y "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"]]></PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
+        <PostBuildEvent><![CDATA[powershell -NoProfile -ExecutionPolicy Bypass -File "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\GenerateSerifScript.ps1" -TemplatePath "$(MSBuildProjectDirectory)\..\AviUtl2PluginLib\Serif\Plugin\Script\SerifInputScript.template.obj2" -ConfigPath "$(MSBuildProjectDirectory)\Source\Plugin\Serif\Script\MmdSerifScript.json" -OutputPath "C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2"
+copy /Y "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" "C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).dll"
+if exist "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm" del /Q "C:\ProgramData\aviutl2\Script\MMD\$(PROJECTNAME).rsm"]]></PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
 </Project>

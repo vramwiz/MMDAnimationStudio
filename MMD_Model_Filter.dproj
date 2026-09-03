@@ -3,7 +3,7 @@
         <ProjectGuid>{E27FDC66-0DE2-4A8B-A4A3-B7E44A90A808}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>None</FrameworkType>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">MMD_Model_Filter</ProjectName>
         <TargetedPlatforms>2</TargetedPlatforms>

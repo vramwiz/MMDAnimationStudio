@@ -3,7 +3,7 @@
         <ProjectGuid>{27C8B064-3279-40CD-AE1D-6B8844BAB5A1}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>None</FrameworkType>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">MMD_Motion_Filter</ProjectName>
         <TargetedPlatforms>2</TargetedPlatforms>

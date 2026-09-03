@@ -3,7 +3,7 @@
         <ProjectGuid>{C847EE72-7E8D-4E94-9988-0FBAB68509A9}</ProjectGuid>
         <ProjectVersion>20.4</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">MMDAnimationStudio</ProjectName>
         <TargetedPlatforms>2</TargetedPlatforms>
