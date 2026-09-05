@@ -72,6 +72,34 @@ begin
   end;
 end;
 
+procedure TestSharedParentGrantDoesNotRepeatParentRotation;
+var
+  Model: TPmxModel;
+  Poses: TPmxBonePoses;
+  Transforms: TPmxBoneTransforms;
+begin
+  Model := NewModel(5);
+  try
+    Model.Bones[1].ParentIndex := 0;
+    Model.Bones[2].ParentIndex := 1;
+    Model.Bones[3].ParentIndex := 1;
+    Model.Bones[3].Flags := PMX_BONE_FLAG_INHERIT_ROTATION;
+    Model.Bones[3].InheritParentIndex := 2;
+    Model.Bones[3].InheritWeight := 0.5;
+    Model.Bones[4].ParentIndex := 3;
+    Model.Bones[4].Position.X := 1;
+    InitializeBonePoses(Model, Poses);
+    Poses[1].Rotation := QuaternionFromEulerXYZ(0, 0, Pi / 2);
+    CalculateBoneTransforms(Model, Poses, Transforms);
+    CheckNear(Transforms[4].Position.X, 0, 0.001,
+      'shared-parent grant endpoint x');
+    CheckNear(Transforms[4].Position.Y, 1, 0.001,
+      'shared-parent grant endpoint y');
+  finally
+    Model.Free;
+  end;
+end;
+
 procedure TestRealModelIk(Model: TPmxModel);
 var
   Bone: TPmxBone;
@@ -214,6 +242,7 @@ begin
   try
     TestGrant(True);
     TestGrant(False);
+    TestSharedParentGrantDoesNotRepeatParentRotation;
     TestIk;
     TestIkLimits;
     TestExplicitFkDisablesIk;

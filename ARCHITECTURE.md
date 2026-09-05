@@ -119,10 +119,12 @@ Model／Poseプラグインは2段目だけを使用し、Named Pipeユニット
 - Delphiプロジェクトファイルはルートへ配置し、`MMDAnimationStudioGroup.groupproj`でまとめる。
 - MMD共通ライブラリは`..\AviUtl2PluginLib\MMD`、プラグイン固有コードは`Source\Plugin`へ置く。
 - 拡張プラグイン固有コードは`Source\Plugin\Extension`へ置く。
+- 拡張画面の外部入力分類は`Extension\Input`、ページ間の選択同期は`Extension\UI\Navigation`へ置き、メインフレームにはControl配置とイベント調停だけを残す。
 - 既存のAIプレビュー関連コードは`Source\AI`へ残すが、初期の拡張プラグインには接続しない。
 - MMD共通部の形式固有コードは`MMD\PMX`、`MMD\VMD`、`MMD\VPD`等へ分け、その下を`Model`、`IO`、`Editor`等の責務で分割する。
 - 複数形式にまたがる処理は`MMD\Common`、共有メモリ等は`MMD\IPC`、AI境界は`MMD\AI`へ置く。既存配置は関連コードの変更時に段階的に移行する。
 - Plugin固有部は`Context`、`Input`、`Runtime`、`Render`、`Editor`へ分け、口パク等はさらに機能別の下位フォルダーへ分ける。共通編集GUIはモーフ一覧を`Editor\Morph`、初期設定フォームを`Editor\Setting`、暗色ボタン・一覧・コンボを`Editor\Theme`へ配置する。`MmdPoseEditorTheme`は配色定数、共通項目描画、タイトルバーだけを持つ。
+- D3D編集画面ではGPU資源を`Editor\D3D\Resource`、描画生成を`Editor\D3D\Render`、入力と選択を`Editor\D3D\Interaction`、参照画像の所有と合成を`Editor\D3D\Reference`へ分離し、直下にはViewportだけを置く。設定画面のツールバー構築は`Editor\Setting\Toolbar`が担当する。
 - Filter設定項目は`Source\Lib\FilterTable\PluginFilterTable.pas`で登録する。
 - 1ユニットは原則400行未満とし、統括ユニットへ詳細実装を集積しない。
 

@@ -42,7 +42,8 @@ uses
   Vcl.Imaging.pngimage;
 
 const
-  ThumbnailFormatVersion = 1;
+  // v2: 材質モーフを反映したサムネイル。v1画像を再利用しない。
+  ThumbnailFormatVersion = 2;
 
 function FileIdentity(const FileName: string): string;
 var

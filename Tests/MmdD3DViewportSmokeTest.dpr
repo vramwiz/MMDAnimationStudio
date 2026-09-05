@@ -666,6 +666,7 @@ end;
 
 procedure CheckBoneAxisDragMath;
 var
+  Bone: TPmxBone;
   Delta, Direction, Rotated: TPmxVector3;
   Rotation: TPmxQuaternion;
 begin
@@ -690,6 +691,27 @@ begin
   Rotated := RotateVector(Rotation, Direction);
   if (Rotated.X > -0.6) or (Abs(Rotated.Z) > 0.001) then
     raise Exception.Create('local Z bone drag constraint failed');
+
+  Bone := Default(TPmxBone);
+  Bone.Flags := PMX_BONE_FLAG_FIXED_AXIS;
+  Bone.FixedAxis.Z := 1;
+  Rotation := BoneDragLocalRotationForBone(Bone, Direction,
+    Default(TPmxVector3), IdentityQuaternion, IdentityQuaternion, daFree, 90);
+  Rotated := RotateVector(Rotation, Direction);
+  if (Rotated.X > -0.6) or (Abs(Rotated.Z) > 0.001) then
+    raise Exception.Create('PMX fixed-axis bone drag constraint failed');
+
+  Bone := Default(TPmxBone);
+  Bone.Flags := PMX_BONE_FLAG_LOCAL_COORDINATE;
+  Bone.LocalAxisX.Y := 1;
+  Bone.LocalAxisZ.X := 1;
+  Delta := Default(TPmxVector3);
+  Delta.Z := 1;
+  Rotation := BoneDragLocalRotationForBone(Bone, Direction, Delta,
+    IdentityQuaternion, IdentityQuaternion, daZ, 0);
+  Rotated := RotateVector(Rotation, Direction);
+  if (Rotated.Z < 0.6) or (Abs(Rotated.X) > 0.001) then
+    raise Exception.Create('PMX local-coordinate bone drag constraint failed');
 end;
 
 procedure CheckBoneRotationSnapMath;
@@ -850,9 +872,9 @@ begin
   for Vertex in Scene.BoneShapes do
     if IsSelectedColor(Vertex) then
       Inc(OrangeCount);
-  if OrangeCount <> 210 then
+  if OrangeCount <> 192 then
     raise Exception.CreateFmt(
-      'bone selection must show one pyramid and its start joint sphere: %d vertices',
+      'bone selection must show its start joint sphere without an opaque pyramid: %d vertices',
       [OrangeCount]);
   SelectedTarget.Locked := True;
   BuildPreviewBoneShapes(Scene.Joints, Scene.BoneSegments, SelectedTarget,
@@ -861,9 +883,9 @@ begin
   for Vertex in Scene.BoneShapes do
     if IsLockedColor(Vertex) then
       Inc(LockedCount);
-  if LockedCount <> 210 then
+  if LockedCount <> 192 then
     raise Exception.CreateFmt(
-      'locked bone must show a red pyramid and joint sphere: %d vertices',
+      'locked bone must show its red start joint sphere: %d vertices',
       [LockedCount]);
 end;
 

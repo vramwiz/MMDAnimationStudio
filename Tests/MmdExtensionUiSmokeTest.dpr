@@ -14,6 +14,8 @@ uses
   Vcl.Graphics,
   Vcl.Menus,
   System.IOUtils,
+  AviUtl2FilterTypes in '..\Source\Lib\AviUtl2FilterTypes.pas',
+  DropFile in '..\..\AviUtl2PluginLib\Lib\DropFile\DropFile.pas',
   DarkThemeColors in
     '..\..\AviUtl2PluginLib\Lib\DarkTheme\Core\DarkThemeColors.pas',
   DarkThemeMetrics in
@@ -44,6 +46,15 @@ uses
     '..\..\AviUtl2PluginLib\MMD\Common\IO\MmdLipSyncSettingCodec.pas',
   MmdModelSettingEditor in
     '..\..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas',
+  MmdMorphPreviewPanel in
+    '..\..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas',
+  MmdMorphSettingList in
+    '..\..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas',
+  PmxModel in '..\..\AviUtl2PluginLib\MMD\Core\PmxModel.pas',
+  PmxMorph in '..\..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas',
+  PmxReader in '..\..\AviUtl2PluginLib\MMD\IO\PmxReader.pas',
+  MMD_Model_SettingsButton in
+    '..\Source\Plugin\Model\Editor\MMD_Model_SettingsButton.pas',
   MMDAnimationStudioToolbarController in
     '..\Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas',
   MMDAnimationStudioFrame in '..\Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
@@ -152,6 +163,17 @@ type
       Item: TPmxPoseCatalogItem): Boolean;
   end;
 
+  TModelSettingsModalDriver = class
+  private
+    FCompleted: Boolean;
+    FTimer: TTimer;
+    procedure TimerTick(Sender: TObject);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Completed: Boolean read FCompleted;
+  end;
+
 var
   HostForm: TForm;
   HostPanel: TPanel;
@@ -192,6 +214,174 @@ var
   AccessoryRoot, AccessorySource: string;
   AccessoryIsNewItem, AccessoryIsNewSource: Boolean;
   Stage: string;
+  FakeModelFileValue: UTF8String;
+  FakePoseValue: UTF8String;
+  FakeExpressionValue: UTF8String;
+
+function FakeGetFocusObject: OBJECT_HANDLE; cdecl;
+begin
+  Result := Pointer(1);
+end;
+
+function FakeGetObjectItemValue(Obj: OBJECT_HANDLE; Effect, Item: LPCWSTR):
+  PAnsiChar; cdecl;
+var
+  ItemName: string;
+begin
+  Result := nil;
+  ItemName := string(Item);
+  if ItemName = 'モデルファイル' then
+    Result := PAnsiChar(FakeModelFileValue)
+  else if ItemName = 'ポーズ' then
+    Result := PAnsiChar(FakePoseValue)
+  else if ItemName = '表情' then
+    Result := PAnsiChar(FakeExpressionValue);
+end;
+
+function FakeSetObjectItemValue(Obj: OBJECT_HANDLE; Effect, Item: LPCWSTR;
+  Value: PAnsiChar): LongBool; cdecl;
+var
+  ItemName: string;
+begin
+  ItemName := string(Item);
+  if ItemName = 'ポーズ' then
+    FakePoseValue := UTF8String(Value)
+  else if ItemName = '表情' then
+    FakeExpressionValue := UTF8String(Value);
+  Result := True;
+end;
+
+constructor TModelSettingsModalDriver.Create;
+begin
+  inherited Create;
+  FTimer := TTimer.Create(nil);
+  FTimer.Interval := 50;
+  FTimer.OnTimer := TimerTick;
+end;
+
+destructor TModelSettingsModalDriver.Destroy;
+begin
+  FTimer.Free;
+  inherited;
+end;
+
+procedure TModelSettingsModalDriver.TimerTick(Sender: TObject);
+var
+  Form: TMmdModelSettingEditorForm;
+  I: Integer;
+  List: TMmdMorphSettingList;
+  Panel: TMmdMorphPreviewPanel;
+begin
+  Form := nil;
+  for I := 0 to Screen.FormCount - 1 do
+    if Screen.Forms[I] is TMmdModelSettingEditorForm then
+      Form := TMmdModelSettingEditorForm(Screen.Forms[I]);
+  if (Form = nil) or not Form.Visible then
+    Exit;
+  FTimer.Enabled := False;
+  Panel := nil;
+  for I := 0 to Form.ComponentCount - 1 do
+    if Form.Components[I] is TMmdMorphPreviewPanel then
+      Panel := TMmdMorphPreviewPanel(Form.Components[I]);
+  if Panel = nil then
+    raise Exception.Create('model settings morph panel was not found');
+  List := nil;
+  for I := 0 to Panel.ComponentCount - 1 do
+    if Panel.Components[I] is TMmdMorphSettingList then
+      List := TMmdMorphSettingList(Panel.Components[I]);
+  if List = nil then
+    raise Exception.Create('model settings morph list was not found');
+  for I := 0 to Form.ModeToolbar.ButtonCount - 1 do
+    if Form.ModeToolbar.Buttons[I].Hint = '表情' then
+      Form.ModeToolbar.Buttons[I].Click;
+  for I := 0 to 1000 do
+    SendMessage(List.Handle, WM_KEYDOWN, VK_DOWN, 0);
+  SendMessage(List.Handle, WM_KEYDOWN, VK_RIGHT, 0);
+  // 実操作と同じく表情を編集した後にポーズへ戻って閉じる。
+  // 表示用の空ウェイトが保存対象を上書きしてはならない。
+  for I := 0 to Form.ModeToolbar.ButtonCount - 1 do
+    if Form.ModeToolbar.Buttons[I].Hint = 'ポーズ' then
+      Form.ModeToolbar.Buttons[I].Click;
+  Sleep(50);
+  Application.ProcessMessages;
+  Form.Close;
+  FCompleted := True;
+end;
+
+procedure TestModelSettingsSaveInsideEditCallback(const ModelFileName: string);
+var
+  Driver: TModelSettingsModalDriver;
+  Edit: TEDIT_SECTION;
+  I: Integer;
+  Model: TPmxModel;
+  MorphIndex: Integer;
+  Values: TMmdNamedMorphWeights;
+begin
+  Edit := Default(TEDIT_SECTION);
+  Edit.GetFocusObject := FakeGetFocusObject;
+  Edit.GetObjectItemValue := FakeGetObjectItemValue;
+  Edit.SetObjectItemValue := FakeSetObjectItemValue;
+  FakeModelFileValue := UTF8String(ModelFileName);
+  FakePoseValue := '{"version":1,"bones":[]}';
+  FakeExpressionValue := '{"version":1,"morphs":[]}';
+  Driver := TModelSettingsModalDriver.Create;
+  try
+    ModelSettingsButtonCallback(@Edit);
+    Edit := Default(TEDIT_SECTION);
+    for I := 0 to 200 do
+    begin
+      Application.ProcessMessages;
+      if Driver.Completed then Break;
+      Sleep(10);
+    end;
+    if not Driver.Completed then
+      raise Exception.Create('model settings driver timed out');
+  finally
+    Driver.Free;
+  end;
+  if not TryDecodeMmdMorphSettingData(string(FakeExpressionValue), Values) or
+    (Length(Values) = 0) then
+    raise Exception.Create('toggle morph was not saved in edit callback');
+  Model := GetCachedPmxModel(ModelFileName);
+  MorphIndex := FindMorphIndex(Model, Values[High(Values)].Name);
+  if (MorphIndex < 0) or
+    (Model.Morphs[MorphIndex].MorphType <> pmtMaterial) or
+    (Abs(Values[High(Values)].Weight - 1.0) > 0.0001) then
+    raise Exception.Create('material toggle was not saved as 100 percent');
+end;
+
+function FindRegisteredModelFile: string;
+var
+  FileName: string;
+  I: Integer;
+  Item: TPmxCatalogItem;
+  Model: TPmxModel;
+  ModelFiles: TArray<string>;
+  Root: string;
+begin
+  Result := '';
+  Root := TPath.Combine(TPath.GetDocumentsPath,
+    'MMDAnimationStudio\PMX\Models');
+  if not TDirectory.Exists(Root) then
+    Exit;
+  ModelFiles := TDirectory.GetFiles(Root, 'Model.json',
+    TSearchOption.soAllDirectories);
+  for FileName in ModelFiles do
+  begin
+    Item := LoadPmxCatalogModel(FileName);
+    try
+      if Assigned(Item) and TFile.Exists(Item.SourcePath) then
+      begin
+        Model := GetCachedPmxModel(Item.SourcePath);
+        for I := 0 to High(Model.Morphs) do
+          if Model.Morphs[I].MorphType = pmtMaterial then
+            Exit(Item.SourcePath);
+      end;
+    finally
+      Item.Free;
+    end;
+  end;
+end;
 
 function TTestPoseEditor.EditPose(Sender: TObject; Model: TPmxCatalogItem;
   Item: TPmxPoseCatalogItem): Boolean;
@@ -201,9 +391,47 @@ begin
   if Result then Item.PoseData := NewPoseData;
 end;
 
+procedure TestDropFileDetachAfterHostWindowDestroyed;
+var
+  DropTarget: TPanel;
+  DropFiles: TDropFile;
+  HostWindow: HWND;
+begin
+  HostWindow := CreateWindowEx(0, 'STATIC', nil, WS_OVERLAPPEDWINDOW,
+    0, 0, 100, 100, 0, 0, HInstance, nil);
+  if HostWindow = 0 then
+    RaiseLastOSError;
+  DropTarget := TPanel.Create(nil);
+  DropFiles := TDropFile.Create;
+  try
+    DropTarget.ParentWindow := HostWindow;
+    DropTarget.HandleNeeded;
+    DropFiles.Attach(DropTarget);
+    DestroyWindow(HostWindow);
+    HostWindow := 0;
+
+    // AviUtl2終了時と同じく、ホストHWNDの消滅後に登録を解除する。
+    DropFiles.Free;
+    DropFiles := nil;
+  finally
+    DropFiles.Free;
+    DropTarget.Free;
+    if HostWindow <> 0 then
+      DestroyWindow(HostWindow);
+  end;
+end;
+
 begin
   try
     Application.Initialize;
+    PmxFileName := FindRegisteredModelFile;
+    if PmxFileName <> '' then
+    begin
+      Stage := 'model-settings-modal-save';
+      TestModelSettingsSaveInsideEditCallback(PmxFileName);
+    end;
+    Stage := 'drop-file-shutdown';
+    TestDropFileDetachAfterHostWindowDestroyed;
     Stage := 'host-form';
     HostForm := TForm.Create(nil);
     try
@@ -369,6 +597,12 @@ begin
       Application.ProcessMessages;
       if not Frame.PanelPmx.Visible or Frame.PanelExplorer.Visible then
         raise Exception.Create('empty drop notification changed the active page');
+      DroppedFiles := TArray<string>.Create('C:\Temp\selection-none.object');
+      Frame.DropFiles(HostPanel, DroppedFiles);
+      Application.ProcessMessages;
+      if not Frame.PanelPmx.Visible or Frame.PanelExplorer.Visible or
+         Assigned(Frame.ExplorerFrame) then
+        raise Exception.Create('unknown drop changed the active page');
       SetLength(DroppedFiles, 1);
       TestCatalogRoot := TPath.Combine(TPath.GetTempPath,
         'MMDAnimationStudio-' + TPath.GetRandomFileName);

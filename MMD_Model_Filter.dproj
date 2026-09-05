@@ -12,6 +12,9 @@
         <Base>True</Base>
     </PropertyGroup>
     <PropertyGroup>
+        <DCC_UnitSearchPath>..\AviUtl2PluginLib\MMD\Editor\D3D\Resource;..\AviUtl2PluginLib\MMD\Editor\D3D\Render;..\AviUtl2PluginLib\MMD\Editor\D3D\Reference;..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction;..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
+    <PropertyGroup>
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\DCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
@@ -133,22 +136,24 @@
         <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_MaterialSelection.pas"/>
         <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_DiagnosticRenderer.pas"/>
         <DCCReference Include="Source\Plugin\Model\Editor\MMD_Model_SettingsButton.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DScene.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DSelection.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DInteraction.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DShapes.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DBuffers.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DCapture.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DOverlay.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DShaders.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DTextures.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDevice.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDeform.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DScene.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction\MmdD3DSelection.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction\MmdD3DInteraction.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DShapes.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Resource\MmdD3DBuffers.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DCapture.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DOverlay.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Resource\MmdD3DShaders.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Resource\MmdD3DTextures.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Resource\MmdD3DDevice.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DDeform.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DRenderer.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseSymmetry.pas"/>
-        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewportSurface.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Render\MmdD3DViewportSurface.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary\MmdD3DLiveDragTest.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewport.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Reference\MmdD3DReferenceImage.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction\MmdD3DViewportInputState.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseHistory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditOperations.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingListRenderer.pas"/>
@@ -158,6 +163,7 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingEditorIcons.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarFactory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Common\IO\MmdEyeBlinkSettingCodec.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdEyeBlinkSettingPanel.pas"/>

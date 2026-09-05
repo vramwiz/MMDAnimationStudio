@@ -55,7 +55,7 @@ begin
     Model := LoadAccessoryModel(FileName);
     SetLength(EmptyTransforms, 0);
     SetLength(EmptySkinned, 0);
-    RenderPmxModel(Video, Model, EmptyTransforms, EmptySkinned, False,
+    RenderPmxModel(Video, Model, EmptyTransforms, EmptySkinned, nil, False,
       DISPLAY_MODE_MODEL, Default(TMmdAiDiagnosticMode), False,
       EnsureRange(AccessoryScaleItem.Value, 0.1, 100.0), 0.0);
     if Assigned(Video^.SetDefaultAnchor) then Video^.SetDefaultAnchor(640, 640);

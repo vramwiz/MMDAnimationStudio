@@ -12,6 +12,9 @@
         <Base>True</Base>
     </PropertyGroup>
     <PropertyGroup>
+        <DCC_UnitSearchPath>Source\Plugin\Extension\Input;Source\Plugin\Extension\UI\Navigation;..\AviUtl2PluginLib\MMD\Editor\D3D\Resource;..\AviUtl2PluginLib\MMD\Editor\D3D\Render;..\AviUtl2PluginLib\MMD\Editor\D3D\Reference;..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction;..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
+    <PropertyGroup>
         <GenDll>true</GenDll>
         <DCC_DcuOutput>.\$(Platform)\$(Config)\StudioDCU</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
@@ -186,6 +189,8 @@
         <DCCReference Include="Source\Plugin\Serif\Host\MmdSerifHost.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioExtension.pas"/>
         <DCCReference Include="Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioPmxSelection.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Input\MmdStudioDropClassifier.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioFrame.pas">
             <Form>FrameMMDAnimationStudio</Form>
@@ -217,6 +222,7 @@
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Group\PmxPoseCatalogGroups.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Group\PmxPoseCatalogGroupBar.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Editor\PmxPoseCatalogEditor.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Editor\PmxPoseCatalogEditSession.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragAlias.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Pose\Drag\PmxPoseCatalogDragController.pas"/>
         <DCCReference Include="Source\Plugin\Extension\PMX\Catalog\Face\Storage\PmxFaceCatalogItem.pas"/>
@@ -275,6 +281,9 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingEditorIcons.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarRenderer.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar\MmdModelSettingToolbarFactory.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Reference\MmdD3DReferenceImage.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction\MmdD3DViewportInputState.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdSettingPanelValue.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingEditor.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Setting\MmdModelSettingDialogs.pas"/>

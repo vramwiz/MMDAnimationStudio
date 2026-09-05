@@ -21,7 +21,6 @@ uses
   PmxPoseCatalogContextMenu,
   PmxPoseCatalogDragController,
   PmxPoseCatalogToolbar,
-  PmxPoseCatalogEditor,
   PmxCatalogThumbnailCache,
   PmxCatalogThumbnailRenderer;
 type
@@ -100,7 +99,8 @@ uses
   Vcl.Graphics,
   AppFolderUtils,
   MmdVpdPoseImporter,
-  MmdVpdReuseForm;
+  MmdVpdReuseForm,
+  PmxPoseCatalogEditSession;
 {$R *.dfm}
 const
   PmxDropEventCaption = 'PMX'#$30C9#$30ED#$30C3#$30D7#$30A4#$30D9#$30F3#$30C8#$767A#$706B;
@@ -256,8 +256,6 @@ procedure TFramePmxCatalog.PoseListDblClick(Sender: TObject);
 var
   Index: Integer;
   Model: TPmxCatalogItem;
-  OldInitialExpressionData: string;
-  OldPoseData: string;
   Pose: TPmxPoseCatalogItem;
 begin
   if not Assigned(FCatalog) or not Assigned(FPoseCatalog) then
@@ -269,19 +267,15 @@ begin
     Exit;
   Model := FCatalog.Items[FPmxSelector.ListView.SelectedSourceIndex];
   Pose := FPoseCatalog[Index];
-  OldInitialExpressionData := Pose.InitialExpressionData;
-  OldPoseData := Pose.PoseData;
   try
-    if not EditPmxPoseCatalogItem(Model, Pose) then
+    if not EditAndSavePmxPoseCatalogItem(Model, Pose, FPoseCatalog) then
       Exit;
-    if not FPoseCatalog.SaveToFile then
-    begin
-      Pose.InitialExpressionData := OldInitialExpressionData;
-      Pose.PoseData := OldPoseData;
+    // 編集前のPNGを物理的に破棄し、現在のポーズと初期表情から再生成する。
+    // VariantKeyだけの変更では、一覧の再描画時機によって旧画像が残るため、
+    // 確定操作ではポーズ用キャッシュ領域を明示的に無効化する。
+    if not FPoseCatalogListView.RefreshThumbnails then
       raise EInOutError.Create(
-        #$30DD#$30FC#$30BA#$30C7#$30FC#$30BF#$3092#$4FDD#$5B58#$3067#$304D#$307E#$305B#$3093#$3067#$3057#$305F);
-    end;
-    FPoseCatalogListView.Reload;
+        #$30B5#$30E0#$30CD#$30A4#$30EB#$3092#$66F4#$65B0#$3067#$304D#$307E#$305B#$3093#$3067#$3057#$305F);
   except
     on E: Exception do
       MessageBox(Handle, PChar(E.Message),

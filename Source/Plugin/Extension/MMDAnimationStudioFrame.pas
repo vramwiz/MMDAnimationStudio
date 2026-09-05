@@ -84,7 +84,7 @@ type
     constructor Create(AOwner: TComponent); override;
     // AviUtl2通知を解除し、ページ管理とセリフホストを破棄する。
     destructor Destroy; override;
-    // ドロップ内容と表示ページに応じてPMX、VPD、VMD、Explorer、Launcherへ入力を振り分ける。
+    // ドロップ内容を各Importerへ渡すが、現在の表示ページは変更しない。
     procedure DropFiles(Control: TWinControl; const Files: TArray<string>);
     // 初回表示に必要なツールバー、PMX一覧、Launcherのホットキー受付を準備する。
     procedure Show; reintroduce;
@@ -102,11 +102,11 @@ type
 implementation
 
 uses
-  System.IOUtils,
-  System.SysUtils,
   Vcl.Graphics,
   AviUtl2PluginProject,
-  AviUtl2PluginScene;
+  AviUtl2PluginScene,
+  MmdStudioDropClassifier,
+  MMDAnimationStudioPmxSelection;
 
 {$R *.dfm}
 
@@ -148,8 +148,8 @@ end;
 
 procedure TFrameMMDAnimationStudio.DropFilesCore(const Files: TArray<string>);
 var
-  FileName: string;
-  HasPmx, HasVmd, HasVpd, PoseWasActive: Boolean;
+  DropKinds: TMmdStudioDropKinds;
+  PoseWasActive: Boolean;
 begin
   { ホストがマウス進入時などに空のドロップ通知を送る場合がある。
     空通知では表示ページを変更せず、そのまま無視する。 }
@@ -174,33 +174,14 @@ begin
     FAccessoryCatalogFrame.DropFiles(Files);
     Exit;
   end;
-  HasPmx := False;
-  HasVmd := False;
-  HasVpd := False;
   PoseWasActive := PanelPoseMotion.Visible;
-  for FileName in Files do
-    if SameText(ExtractFileExt(FileName), '.pmx') then
-      HasPmx := True
-    else if SameText(ExtractFileExt(FileName), '.vmd') then
-      HasVmd := True
-    else if SameText(ExtractFileExt(FileName), '.vpd') then
-      HasVpd := True
-    else if TDirectory.Exists(FileName) then
-      try
-        if Length(TDirectory.GetFiles(FileName, '*.vpd',
-          TSearchOption.soAllDirectories)) > 0 then HasVpd := True;
-        if Length(TDirectory.GetFiles(FileName, '*.vmd',
-          TSearchOption.soAllDirectories)) > 0 then HasVmd := True;
-      except
-        { 読み取れないフォルダは登録処理側で失敗件数として扱う。 }
-      end;
-  if HasPmx then
+  DropKinds := ClassifyMmdStudioDropFiles(Files);
+  if mdkPmx in DropKinds then
   begin
     EnsurePmxCatalogFrame;
-    FToolbarController.Activate(0);
     FPmxCatalogFrame.DropFiles(Files);
   end;
-  if HasVpd then
+  if mdkVpd in DropKinds then
   begin
     EnsurePmxCatalogFrame;
     if PoseWasActive then
@@ -211,18 +192,13 @@ begin
     else
       FPmxCatalogFrame.ImportVpdFiles(Files);
   end;
-  if HasVmd then
+  if mdkVmd in DropKinds then
   begin
     EnsureMotionCatalogFrame;
-    FToolbarController.Activate(3);
     FMotionCatalogFrame.ImportVmdFiles(Files);
   end;
-  if not HasPmx and not HasVpd and not HasVmd then
-  begin
-    EnsureExplorerFrame;
-    FToolbarController.Activate(6);
-    FExplorerFrame.DropFile(Files);
-  end;
+  // Explorer以外のページでは未知のドロップを無視する。AviUtl2が選択なしの
+  // 内部ドラッグをファイル通知として送っても、表示ページを切り替えない。
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureAccessoryCatalogFrame;
@@ -411,36 +387,9 @@ end;
 
 procedure TFrameMMDAnimationStudio.PmxSelectionChanged(Sender: TObject);
 begin
-  if FSyncingPmxSelection then Exit;
-  FSyncingPmxSelection := True;
-  try
-    if Sender = FPmxCatalogFrame then
-    begin
-      FSelectedPmxId := FPmxCatalogFrame.SelectedPmxId;
-      if Assigned(FPoseCatalogFrame) then
-        FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
-      if Assigned(FFaceCatalogFrame) then
-        FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
-      if Assigned(FMotionCatalogFrame) then
-        FMotionCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
-    end
-    else if Sender = FPoseCatalogFrame then
-      FSelectedPmxId := FPoseCatalogFrame.PmxSelector.SelectedPmxId
-    else if Sender = FMotionCatalogFrame then
-      FSelectedPmxId := FMotionCatalogFrame.PmxSelector.SelectedPmxId
-    else if Sender = FFaceCatalogFrame then
-      FSelectedPmxId := FFaceCatalogFrame.PmxSelector.SelectedPmxId;
-    if Assigned(FPmxCatalogFrame) and (Sender <> FPmxCatalogFrame) then
-      FPmxCatalogFrame.SelectPmxId(FSelectedPmxId);
-    if Assigned(FPoseCatalogFrame) and (Sender <> FPoseCatalogFrame) then
-      FPoseCatalogFrame.SelectPmxId(FSelectedPmxId);
-    if Assigned(FMotionCatalogFrame) and (Sender <> FMotionCatalogFrame) then
-      FMotionCatalogFrame.SelectPmxId(FSelectedPmxId);
-    if Assigned(FFaceCatalogFrame) and (Sender <> FFaceCatalogFrame) then
-      FFaceCatalogFrame.SelectPmxId(FSelectedPmxId);
-  finally
-    FSyncingPmxSelection := False;
-  end;
+  SynchronizeMmdStudioPmxSelection(Sender, FPmxCatalogFrame,
+    FPoseCatalogFrame, FMotionCatalogFrame, FFaceCatalogFrame,
+    FSelectedPmxId, FSyncingPmxSelection);
 end;
 
 procedure TFrameMMDAnimationStudio.Resize;

@@ -8,6 +8,7 @@ uses
   AviUtl2FilterTypes,
   MmdAiDiagnosticState,
   PmxModel,
+  PmxMorph,
   PmxPose;
 
 const
@@ -22,7 +23,8 @@ function BuildPmxMaterialDrawOrder(const Model: TPmxModel;
 // 指定表示モードに従って骨格と材質を描画する。Videoの描画状態と画像資源を更新する。
 procedure RenderPmxModel(Video: PFILTER_PROC_VIDEO; const Model: TPmxModel;
   const Transforms: TPmxBoneTransforms; const Skinned: TPmxSkinnedVertices;
-  UseSkinning: Boolean; DisplayMode: Integer; DiagnosticMode: TMmdAiDiagnosticMode;
+  const MorphWeights: TPmxMorphWeights; UseSkinning: Boolean;
+  DisplayMode: Integer; DiagnosticMode: TMmdAiDiagnosticMode;
   DiagnosticActive: Boolean; InternalScale, BoneOffsetX: Single);
 
 implementation
@@ -289,11 +291,13 @@ end;
 
 procedure RenderPmxModel(Video: PFILTER_PROC_VIDEO; const Model: TPmxModel;
   const Transforms: TPmxBoneTransforms; const Skinned: TPmxSkinnedVertices;
-  UseSkinning: Boolean; DisplayMode: Integer; DiagnosticMode: TMmdAiDiagnosticMode;
+  const MorphWeights: TPmxMorphWeights; UseSkinning: Boolean;
+  DisplayMode: Integer; DiagnosticMode: TMmdAiDiagnosticMode;
   DiagnosticActive: Boolean; InternalScale, BoneOffsetX: Single);
 var
   DrawOrder: TArray<Integer>;
   DrawOrderIndex, MaterialIndex, ReservedVertexCount: Integer;
+  ResolvedMaterials: TArray<TPmxMaterial>;
 begin
   if DiagnosticActive and (DiagnosticMode <> madNormal) then
   begin
@@ -307,6 +311,7 @@ begin
     DrawBones(Video, Model, Transforms, UseSkinning, InternalScale, 0.0)
   else
   begin
+    ResolveMorphMaterials(Model, MorphWeights, ResolvedMaterials);
     ReservedVertexCount := 0;
     if DisplayMode = DISPLAY_MODE_BOTH then
     begin
@@ -316,13 +321,14 @@ begin
     end;
     // 頂点枠内のモデルは材質番号に関係なく全て描き、大型モデルだけ
     // 主要部位を欠落させない検証済み順序へフォールバックする。
-    DrawOrder := BuildPmxMaterialDrawOrder(Model, ReservedVertexCount);
+    DrawOrder := SelectResolvedPmxMaterialDrawOrder(Model, ResolvedMaterials,
+      ReservedVertexCount);
     if Assigned(Video^.SetImageData) then
       Video^.SetImageData(@WHITE_PIXEL, 1, 1);
     for DrawOrderIndex := 0 to High(DrawOrder) do
     begin
       MaterialIndex := DrawOrder[DrawOrderIndex];
-      DrawMaterial(Video, Model, Model.Materials[MaterialIndex], Skinned,
+      DrawMaterial(Video, Model, ResolvedMaterials[MaterialIndex], Skinned,
         UseSkinning, InternalScale);
     end;
   end;

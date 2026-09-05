@@ -48,7 +48,9 @@ type
     procedure GetSelectedPoseIds(Dest: TStrings);
     // 現在グループ内で選択ポーズを上下へ移動する。
     function MoveSelectedInGroup(Delta: Integer): Boolean;
+    // 現在PMXのポーズ用キャッシュを破棄し、一覧画像を再生成対象にする。
     function RefreshThumbnails: Boolean;
+    // 選択UIDを可能な限り維持して一覧と遅延サムネイル状態を再構築する。
     procedure Reload;
     // 選択表示項目に対応するカタログ上の位置を返す。
     function SelectedSourceIndex: Integer;
@@ -302,7 +304,8 @@ begin
   Source := SourceIndex(DisplayIndex);
   if Assigned(FPoseCatalog) and (Source >= 0) and
     (Source < FPoseCatalog.Count) then
-    Result := FPoseCatalog[Source].Id + '|' + FPoseCatalog[Source].PoseData;
+    Result := FPoseCatalog[Source].Id + '|' + FPoseCatalog[Source].PoseData +
+      '|' + FPoseCatalog[Source].InitialExpressionData;
 end;
 
 procedure TPmxPoseCatalogListView.DrawItemImage(Index: Integer;
@@ -360,9 +363,10 @@ begin
     R := ItemImageRect(DisplayIndex);
     Bitmap := Vcl.Graphics.TBitmap.Create;
     try
-      if FThumbnailRenderer.RenderPmxPose(FModel.SourcePath,
-        FPoseCatalog[Source].PoseData, Max(1, R.Width), Max(1, R.Height),
-        Bitmap) then
+      if FThumbnailRenderer.RenderPmxState(FModel.SourcePath,
+        FPoseCatalog[Source].PoseData,
+        FPoseCatalog[Source].InitialExpressionData,
+        Max(1, R.Width), Max(1, R.Height), Bitmap) then
       begin
         FThumbnailCache.SaveVariant(FModel.SourcePath,
           VariantKey(DisplayIndex), Bitmap.Width, Bitmap.Height, Bitmap);

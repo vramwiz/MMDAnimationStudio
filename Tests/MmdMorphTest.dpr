@@ -40,11 +40,13 @@ uses
   MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas',
   MmdLipSyncSettingPanel in '..\AviUtl2PluginLib\MMD\Editor\Setting\Panel\MmdLipSyncSettingPanel.pas',
   MmdD3DDeform in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DDeform.pas',
+  MmdD3DScene in '..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DScene.pas',
   MmdMorphSettingListRenderer in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingListRenderer.pas',
   MmdMorphSettingRows in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingRows.pas',
   MmdMorphSettingValue in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas',
   MmdMorphSettingList in '..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingList.pas',
-  MmdMorphPreviewPanel in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas';
+  MmdMorphPreviewPanel in '..\AviUtl2PluginLib\MMD\Editor\Morph\MmdMorphPreviewPanel.pas',
+  MMD_Model_MaterialSelection in 'Source\Plugin\Model\Render\MMD_Model_MaterialSelection.pas';
 
 type
   TMmdMorphSettingListAccess = class(TMmdMorphSettingList)
@@ -201,6 +203,56 @@ begin
       'preview morphed skin x');
     CheckNear(Skinned[0].Position.Y, 0.6 + 0.4 * Sin(Pi / 10),
       'preview morphed skin y');
+  finally
+    Model.Free;
+  end;
+end;
+
+procedure TestMaterialMorph;
+var
+  ActiveRow: Integer;
+  Materials: TArray<TPmxMaterial>;
+  Modes: TMmdMorphControlModes;
+  Model: TPmxModel;
+  Rows: TMmdMorphSettingRows;
+  Weights: TPmxMorphWeights;
+begin
+  Model := TPmxModel.Create;
+  try
+    SetLength(Model.Materials, 2);
+    Model.Materials[0].Diffuse.W := 1.0;
+    Model.Materials[1].Diffuse.W := 1.0;
+    SetLength(Model.Morphs, 3);
+    Model.Morphs[0].MorphType := pmtMaterial;
+    SetLength(Model.Morphs[0].MaterialOffsets, 1);
+    Model.Morphs[0].MaterialOffsets[0].MaterialIndex := 0;
+    Model.Morphs[0].MaterialOffsets[0].Operation := pmmoMultiply;
+    Model.Morphs[0].MaterialOffsets[0].Diffuse.W := 0.0;
+    Model.Morphs[1].MorphType := pmtMaterial;
+    SetLength(Model.Morphs[1].MaterialOffsets, 1);
+    Model.Morphs[1].MaterialOffsets[0].MaterialIndex := -1;
+    Model.Morphs[1].MaterialOffsets[0].Operation := pmmoAdd;
+    Model.Morphs[1].MaterialOffsets[0].Diffuse.W := -0.2;
+    Model.Morphs[2].MorphType := pmtGroup;
+    SetLength(Model.Morphs[2].GroupOffsets, 1);
+    Model.Morphs[2].GroupOffsets[0].MorphIndex := 0;
+    Model.Morphs[2].GroupOffsets[0].Weight := 0.5;
+    InitializeMorphWeights(Model, Weights);
+    Weights[1] := 0.5;
+    Weights[2] := 0.5;
+    ResolveMorphMaterials(Model, Weights, Materials);
+    CheckNear(Materials[0].Diffuse.W, 0.65,
+      'grouped multiply and additive material alpha');
+    CheckNear(Materials[1].Diffuse.W, 0.9, 'all-material additive alpha');
+    CheckNear(Model.Materials[0].Diffuse.W, 1.0,
+      'cached base material remains unchanged');
+    InitializeMorphSettingRows(Model, Weights, Modes, Rows, ActiveRow);
+    if (Length(Rows) = 0) or
+      (Rows[0].Panel <> MMD_MORPH_PANEL_DISPLAY_ACCESSORY) then
+      raise Exception.Create('material morph was not classified as display/accessory');
+    if (Modes[0] <> mcmToggle) or (Modes[1] <> mcmToggle) or
+      (Modes[2] <> mcmContinuous) then
+      raise Exception.Create('material morph control mode was not binary');
   finally
     Model.Free;
   end;
@@ -619,13 +671,21 @@ end;
 
 procedure TestRealModel;
 var
+  AccessoryMorphIndex, HiddenMaterialCount: Integer;
+  ActiveMaterialMorphs: TArray<Integer>;
+  DrawOrder: TArray<Integer>;
   FileNames: TArray<string>;
+  FoundMaterial: TArray<Boolean>;
   BaseSkinned, MorphedSkinned: TPmxSkinnedVertices;
   BaseTransforms, MorphedTransforms: TPmxBoneTransforms;
   BonePoses: TPmxBonePoses;
   Delta, MaxDelta: Double;
   I, MovedCount: Integer;
+  Materials: TArray<TPmxMaterial>;
   Model: TPmxModel;
+  MorphName: string;
+  ShownMaterialCount: Integer;
+  BaseScene, MorphedScene: TMmdPreviewScene;
   Weights: TPmxMorphWeights;
 begin
   if ParamCount > 0 then
@@ -650,15 +710,85 @@ begin
   if Length(Model.Morphs) = 0 then
     raise Exception.Create('real PMX has no morphs');
   Writeln(Format('Real model: morphs=%d', [Length(Model.Morphs)]));
+  for I := 0 to High(Model.Materials) do
+    Writeln(Format('source_material=%d %s vertices=%d alpha=%.3f',
+      [I, Model.Materials[I].Name, Model.Materials[I].SurfaceCount,
+       Model.Materials[I].Diffuse.W]));
   InitializeBonePoses(Model, BonePoses);
   InitializeMorphWeights(Model, Weights);
   DeformPreviewModel(Model, BonePoses, Weights, BaseTransforms, BaseSkinned);
+  AccessoryMorphIndex := FindMorphIndex(Model,
+    #$304D#$308A#$305F#$3093#$7832#$6D88);
+  if AccessoryMorphIndex >= 0 then
+  begin
+    BuildPreviewScene(Model, BonePoses, Weights, EmptyPreviewTarget,
+      EmptyPreviewTarget, BaseScene);
+    Weights[AccessoryMorphIndex] := 1.0;
+    ResolveMorphMaterials(Model, Weights, Materials);
+    HiddenMaterialCount := 0;
+    for I := 0 to High(Materials) do
+      if (Model.Materials[I].Diffuse.W > 0.0001) and
+        (Materials[I].Diffuse.W <= 0.0001) then
+        Inc(HiddenMaterialCount);
+    BuildPreviewScene(Model, BonePoses, Weights, EmptyPreviewTarget,
+      EmptyPreviewTarget, MorphedScene);
+    if (HiddenMaterialCount = 0) or
+      (Length(MorphedScene.Triangles) >= Length(BaseScene.Triangles)) then
+      raise Exception.Create('real accessory material morph did not hide geometry');
+    Writeln(Format('Real accessory morph: hidden_materials=%d, vertices=%d->%d',
+      [HiddenMaterialCount, Length(BaseScene.Triangles),
+       Length(MorphedScene.Triangles)]));
+  end;
+  // 実際のD&Dデータに含まれる表示切替を同時適用し、透明化と袖の出現を検証する。
+  InitializeMorphWeights(Model, Weights);
+  SetLength(ActiveMaterialMorphs, 0);
+  for MorphName in TArray<string>.Create(
+    #$304D#$308A#$305F#$3093#$7832#$6D88,
+    #$FF97#$FF9D#$FF84#$FF9E#$FF7E#$FF99#$6D88,
+    #$8349#$5C65#$6D88,
+    #$8155#$307E#$304F#$308A) do
+  begin
+    AccessoryMorphIndex := FindMorphIndex(Model, MorphName);
+    if AccessoryMorphIndex >= 0 then
+    begin
+      Weights[AccessoryMorphIndex] := 1.0;
+      SetLength(ActiveMaterialMorphs, Length(ActiveMaterialMorphs) + 1);
+      ActiveMaterialMorphs[High(ActiveMaterialMorphs)] := AccessoryMorphIndex;
+    end;
+  end;
+  ResolveMorphMaterials(Model, Weights, Materials);
+  HiddenMaterialCount := 0;
+  ShownMaterialCount := 0;
+  for I := 0 to High(Materials) do
+  begin
+    if (Model.Materials[I].Diffuse.W > 0.0001) and
+      (Materials[I].Diffuse.W <= 0.0001) then
+      Inc(HiddenMaterialCount);
+    if (Model.Materials[I].Diffuse.W <= 0.0001) and
+      (Materials[I].Diffuse.W > 0.0001) then
+      Inc(ShownMaterialCount);
+  end;
+  if (HiddenMaterialCount < 4) or (ShownMaterialCount = 0) then
+    raise Exception.Create('real D&D material morph combination was not resolved');
+  DrawOrder := SelectResolvedPmxMaterialDrawOrder(Model, Materials);
+  SetLength(FoundMaterial, Length(Model.Materials));
+  for I in DrawOrder do
+    FoundMaterial[I] := True;
+  for AccessoryMorphIndex in ActiveMaterialMorphs do
+    for var MaterialOffset in Model.Morphs[AccessoryMorphIndex].MaterialOffsets do
+      if (MaterialOffset.MaterialIndex >= 0) and
+        (Materials[MaterialOffset.MaterialIndex].Diffuse.W > 0.0001) and
+        not FoundMaterial[MaterialOffset.MaterialIndex] then
+        raise Exception.CreateFmt('real visible material morph target %d was omitted',
+          [MaterialOffset.MaterialIndex]);
+  Writeln('Real D&D material morph combination: PASS');
   MovedCount := 0;
   for I := 0 to High(Model.Morphs) do
     if IsPreviewMorphSupported(Model.Morphs[I].MorphType) then
     begin
       InitializeMorphWeights(Model, Weights);
       Weights[I] := 1.0;
+      ResolveMorphMaterials(Model, Weights, Materials);
       DeformPreviewModel(Model, BonePoses, Weights, MorphedTransforms,
         MorphedSkinned);
       MaxDelta := 0;
@@ -676,6 +806,16 @@ begin
         Inc(MovedCount);
       Writeln(Format('%d'#9'%s'#9'type=%d'#9'max_delta=%.6f',
         [I, Model.Morphs[I].Name, Ord(Model.Morphs[I].MorphType), MaxDelta]));
+      if Model.Morphs[I].MorphType = pmtMaterial then
+        for var MaterialOffset in Model.Morphs[I].MaterialOffsets do
+          if (MaterialOffset.MaterialIndex >= 0) and
+            (MaterialOffset.MaterialIndex < Length(Model.Materials)) then
+            Writeln(Format('  material=%d %s op=%d base_alpha=%.3f morph_alpha=%.3f',
+              [MaterialOffset.MaterialIndex,
+               Model.Materials[MaterialOffset.MaterialIndex].Name,
+               Ord(MaterialOffset.Operation),
+               Model.Materials[MaterialOffset.MaterialIndex].Diffuse.W,
+               Materials[MaterialOffset.MaterialIndex].Diffuse.W]));
     end;
   if MovedCount = 0 then
     raise Exception.Create('real PMX preview morphs did not move any vertex');
@@ -689,6 +829,8 @@ begin
     Writeln('Morph preview panel creation: PASS');
     TestGroupedVertexAndBoneMorph;
     Writeln('Synthetic morph and preview deformation: PASS');
+    TestMaterialMorph;
+    Writeln('Material morph resolution: PASS');
     TestMorphPanelUsage;
     Writeln('Morph panel priority detection: PASS');
     TestMorphSettingCodec;

@@ -262,7 +262,7 @@ begin
         SkinVerticesLinear(Model, BoneTransforms, SkinnedVertices);
       end;
       RenderPmxModel(Video, Model, BoneTransforms, SkinnedVertices,
-        SerializedPoseActive or MorphActive, DisplayMode,
+        CombinedMorphWeights, SerializedPoseActive or MorphActive, DisplayMode,
         DiagnosticMode, DiagnosticActive,
         InternalScale,
         EnsureRange(ModelItems.BoneOffsetX.Value, -100.0, 100.0));
