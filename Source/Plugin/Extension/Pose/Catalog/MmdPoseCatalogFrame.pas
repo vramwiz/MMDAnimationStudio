@@ -63,6 +63,8 @@ type
       const VpdRoot: string = ''): Boolean;
     // AviUtl2のドッキング幅に合わせて一覧寸法を更新する。
     procedure Resize; override;
+    // 外部登録後、表示中PMXのポーズ一覧を再読込して指定候補を選択する。
+    procedure RefreshPoses(const PmxId, PoseId: string);
     // 表示時に選択中PMXのポーズを最新状態へ読み直す。
     procedure Show; reintroduce;
     property PmxSelector: TPmxCatalogSelector read FPmxSelector;
@@ -257,6 +259,15 @@ procedure TFrameMmdPoseCatalog.Resize;
 begin
   inherited;
   ApplyDpiLayout;
+end;
+
+procedure TFrameMmdPoseCatalog.RefreshPoses(const PmxId, PoseId: string);
+begin
+  if not SameText(FPmxSelector.SelectedPmxId, PmxId) then
+    Exit;
+  PmxSelectionChanged(FPmxSelector);
+  if PoseId <> '' then
+    FPoseListView.SelectPoseId(PoseId);
 end;
 
 procedure TFrameMmdPoseCatalog.SelectPmxId(const PmxId: string);

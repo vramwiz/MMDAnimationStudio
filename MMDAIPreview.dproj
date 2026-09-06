@@ -87,6 +87,10 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Source\AI\MmdAiPreviewHost.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPoseCatalogBridge.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPoseSession.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPreviewPipeClient.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPreviewMcpHost.pas"/>
         <DCCReference Include="Source\AI\MmdAiPreviewMainForm.pas">
             <Form>MainForm</Form>
         </DCCReference>

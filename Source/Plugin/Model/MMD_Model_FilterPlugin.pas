@@ -29,6 +29,7 @@ uses
   MMD_Model_LipSyncProtocol,
   MMD_Model_MotionInput,
   MMD_Model_PoseInput,
+  MMD_Model_PoseTransition,
   MMD_Model_FilterItems,
   MMD_Model_Renderer;
 
@@ -79,6 +80,9 @@ var
   MotionPoses: TPmxNamedBonePoses;
   PoseDataText: string;
   PoseLayer: Integer;
+  PoseReceived: Boolean;
+  PoseTransitionPoses: TPmxNamedBonePoses;
+  PoseTransitionWeight: Single;
   SerializedPoseActive: Boolean;
 begin
   Result := 1;
@@ -103,8 +107,12 @@ begin
       FaceLayer := Round(EnsureRange(ModelItems.ExpressionLayer.Value, 1.0, 99.0));
       PoseLayer := Round(EnsureRange(ModelItems.PoseLayer.Value, 1.0, 99.0));
       MotionLayer := Round(EnsureRange(ModelItems.MotionLayer.Value, 1.0, 99.0));
+      Fps := 0;
+      if (Video^.Scene <> nil) and (Video^.Scene^.Scale <> 0) then
+        Fps := Video^.Scene^.Rate / Video^.Scene^.Scale;
       TryGetReferencedFaceData(Video, FaceLayer, ModelFileName, FaceDataText);
-      TryGetReferencedPoseData(Video, PoseLayer, ModelFileName, PoseDataText);
+      PoseReceived := TryGetReferencedPoseData(Video, PoseLayer,
+        ModelFileName, PoseDataText);
       MotionReceived := TryGetReferencedMotion(Video, MotionLayer,
         ModelFileName, MotionPoses, MotionMorphs);
       Context.UpdateStandardPose(string(ModelItems.StandardPoseData.Value));
@@ -124,10 +132,15 @@ begin
         ResolveMotionForModel(Model, MotionPoses, MotionMorphs, BonePoses,
           MotionMorphWeights, MotionPoseActive, MotionMorphActive);
       SerializedPoseActive := MotionPoseActive or SerializedPoseActive;
-      if Context.ExternalPoseValid and (Length(Context.ExternalPoses) > 0) then
+      if Context.PoseTransition.Resolve(PoseReceived and
+        Context.ExternalPoseValid, Context.ExternalPoses, PoseLayer,
+        ModelFileName, Video^.Object_^.FrameS + Video^.Object_^.Frame, Fps,
+        EnsureRange(ModelItems.PoseReleaseTime.Value, 0.0, 10.0),
+        PoseTransitionPoses, PoseTransitionWeight) then
         // 外部Poseは標準姿勢とMotionを土台に、同名ボーンを上書きする。
-        SerializedPoseActive := ApplyNamedBonePoses(Model,
-          Context.ExternalPoses, BonePoses) or SerializedPoseActive;
+        SerializedPoseActive := ApplyWeightedNamedBonePoses(Model,
+          PoseTransitionPoses, PoseTransitionWeight, BonePoses) or
+          SerializedPoseActive;
       InitialExpressionActive := Context.ResolveInitialExpression(Model);
       ExternalExpressionActive := Context.ResolveExternalExpression(Model);
       if Context.ExternalExpressionValid then
@@ -148,9 +161,6 @@ begin
         CombinedMorphWeights, PMX_MORPH_PANEL_EYE);
       ExpressionUsesLip := MorphWeightsUsePanel(Model,
         CombinedMorphWeights, PMX_MORPH_PANEL_LIP);
-      Fps := 0;
-      if (Video^.Scene <> nil) and (Video^.Scene^.Scale <> 0) then
-        Fps := Video^.Scene^.Rate / Video^.Scene^.Scale;
       // 目パチは任意機能とし、旧形式や時刻計算の異常時も姿勢・表情の通常描画を継続する。
       EyeBlinkConfigured := False;
       try

@@ -20,7 +20,7 @@ implementation
 
 uses
   System.SysUtils,
-  MmdModelSettingDialogs;
+  MmdAiPoseEditorForm;
 
 function EditPmxPoseCatalogItem(Model: TPmxCatalogItem;
   Item: TPmxPoseCatalogItem): Boolean;
@@ -31,10 +31,10 @@ begin
   if not Assigned(Model) or not Assigned(Item) or
     not FileExists(Model.SourcePath) then
     Exit;
-  if not EditMmdInitialStateSettings(Model.SourcePath, Item.PoseData,
+  if not EditMmdAiInitialStateSettings(Model.SourcePath, Item.PoseData,
     Item.InitialExpressionData, Item.InitialEyeBlinkData,
     Item.InitialLipSyncData,
-    Format('MMD %s - %s', [#$8A2D#$5B9A, Item.Name]), NewPoseData,
+    Format('MMD %s - %s', [#$8A2D#$5B9A, Item.Name]), Item.Name, NewPoseData,
     NewExpressionData, NewEyeBlinkData, NewLipSyncData) then
     Exit;
   Item.PoseData := NewPoseData;
@@ -53,9 +53,9 @@ begin
   if not Assigned(Model) or not Assigned(Item) or
     not FileExists(Model.SourcePath) then
     Exit;
-  if not EditMmdPoseOnlySettings(Model.SourcePath, Item.PoseData,
+  if not EditMmdAiPoseOnlySettings(Model.SourcePath, Item.PoseData,
     Format('MMD %s - %s', [#$30DD#$30FC#$30BA, Item.Name]),
-    NewPoseData) then
+    Item.Name, NewPoseData) then
     Exit;
   Item.PoseData := NewPoseData;
   Result := True;

@@ -72,6 +72,8 @@ type
     procedure OpenCatalog(const FileName: string);
     // AviUtl2のドッキング幅変更に合わせて一覧寸法を再適用する。
     procedure Resize; override;
+    // 外部登録後、表示中PMXのポーズ一覧を再読込して指定候補を選択する。
+    procedure RefreshPoses(const PmxId, PoseId: string);
     // 親接続後にDPI寸法と保存済みカタログを画面へ反映する。
     procedure Show; reintroduce;
     property Catalog: TPmxCatalogStorage read FCatalog;
@@ -370,6 +372,16 @@ begin
   if Assigned(Parent) then
     CatalogSelectionChanged(FPmxSelector.ListView);
 end;
+
+procedure TFramePmxCatalog.RefreshPoses(const PmxId, PoseId: string);
+begin
+  if not SameText(SelectedPmxId, PmxId) then
+    Exit;
+  CatalogSelectionChanged(FPmxSelector.ListView);
+  if PoseId <> '' then
+    FPoseCatalogListView.SelectPoseId(PoseId);
+end;
+
 procedure TFramePmxCatalog.Resize;
 begin
   inherited;

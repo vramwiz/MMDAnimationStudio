@@ -1,0 +1,9 @@
+[mcp_servers.mmdAnimationStudio]
+command = "D:\\DelphiProg\\AviUtl2Plugin\\MMDAnimationStudio\\MMDAIPreview.exe"
+args = ["--mcp"]
+cwd = "D:\\DelphiProg\\AviUtl2Plugin\\MMDAnimationStudio"
+startup_timeout_sec = 10
+tool_timeout_sec = 60
+
+[mcp_servers.mmdAnimationStudio.tools.create_pose_file]
+approval_mode = "writes"

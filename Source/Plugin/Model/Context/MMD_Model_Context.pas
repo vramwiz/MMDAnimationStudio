@@ -10,6 +10,7 @@ uses
   MMD_Model_LipSyncContext,
   MMD_Model_LipSyncProtocol,
   MMD_Model_EyeBlink,
+  MMD_Model_PoseTransition,
   PmxModel,
   PmxMorph,
   PmxPose;
@@ -39,6 +40,7 @@ type
     FInitialExpressionValid: Boolean;
     FInitialExpressionWeights: TPmxMorphWeights;
     FLipSync: TMmdModelLipSyncContext;
+    FPoseTransition: TMmdModelPoseTransition;
     FStandardPoseText: string;
     FStandardPoses: TPmxNamedBonePoses;
     FStandardPoseValid: Boolean;
@@ -91,6 +93,7 @@ type
     property EyeBlinkClosedWeight: Single read GetEyeBlinkClosedWeight;
     property EyeBlinkMorphIndex: Integer read FEyeBlinkMorphIndex;
     property LipSyncWeights: TPmxMorphWeights read GetLipSyncWeights;
+    property PoseTransition: TMmdModelPoseTransition read FPoseTransition;
     property StandardPoses: TPmxNamedBonePoses read FStandardPoses;
     property StandardPoseValid: Boolean read FStandardPoseValid;
   end;
@@ -121,11 +124,13 @@ begin
   FEffectID := AEffectID;
   FEyeBlinkMorphIndex := -1;
   FLipSync := TMmdModelLipSyncContext.Create;
+  FPoseTransition := TMmdModelPoseTransition.Create;
   ResetMmdEyeBlinkState(FEyeBlinkRuntime);
 end;
 
 destructor TMmdModelContext.Destroy;
 begin
+  FPoseTransition.Free;
   FLipSync.Free;
   inherited;
 end;

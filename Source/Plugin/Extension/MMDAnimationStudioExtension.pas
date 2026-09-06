@@ -1,4 +1,4 @@
-unit MMDAnimationStudioExtension;
+﻿unit MMDAnimationStudioExtension;
 
 // AviUtl2拡張ウィンドウの登録、VCLホスト生成、ファイルドロップ境界を所有する。
 
@@ -26,10 +26,13 @@ implementation
 
 uses
   Winapi.Messages,
+  System.JSON,
   System.SysUtils,
   Vcl.Controls,
   DarkPanel,
   DropFile,
+  MmdAiPoseCatalogBridge,
+  MmdAiPreviewPipeServer,
   MMDAnimationStudioForm,
   MMDAnimationStudioFrame;
 
@@ -43,6 +46,70 @@ var
   WindowFrame: TFrameMMDAnimationStudio;
   WindowDropFile: TDropFile;
   WindowBrush: HBRUSH;
+  AiPipeServer: TMmdAiPreviewPipeServer;
+
+function ReadJsonString(const Root: TJSONObject; const Name: string): string;
+var
+  Value: TJSONValue;
+begin
+  Result := '';
+  Value := Root.GetValue(Name);
+  if Value is TJSONString then
+    Result := TJSONString(Value).Value;
+end;
+
+procedure HandleAiCreatePose;
+var
+  ErrorText, ModelFile, PmxId, PoseData, PoseFile, PoseId, PoseName,
+    RegisteredPmxId, RequestText, ResponseText: string;
+  Response: TJSONObject;
+  Root: TJSONObject;
+  Value: TJSONValue;
+begin
+  ErrorText := '';
+  ResponseText := '';
+  try
+    if not TakePendingMmdAiPoseFile(RequestText) then
+      ErrorText := 'AIポーズ登録要求がありません。'
+    else if not Assigned(WindowFrame) then
+      ErrorText := 'MMDAnimationStudioの画面が初期化されていません。'
+    else
+    begin
+      Value := TJSONObject.ParseJSONValue(RequestText);
+      try
+        if not (Value is TJSONObject) then
+          raise EArgumentException.Create('ポーズ登録要求がJSON objectではありません。');
+        Root := TJSONObject(Value);
+        PmxId := ReadJsonString(Root, 'pmx_id');
+        ModelFile := ReadJsonString(Root, 'model_file');
+        PoseName := ReadJsonString(Root, 'pose_name');
+        PoseData := ReadJsonString(Root, 'pose_data');
+        if WindowFrame.RegisterAiPose(PmxId, ModelFile, PoseName,
+          PoseData, RegisteredPmxId, PoseFile, PoseId, ErrorText) then
+        begin
+          Response := TJSONObject.Create;
+          try
+            Response.AddPair('status', 'ok');
+            Response.AddPair('operation', 'create_pose_file');
+            Response.AddPair('pmx_id', RegisteredPmxId);
+            Response.AddPair('pose_id', PoseId);
+            Response.AddPair('pose_file', PoseFile);
+            Response.AddPair('pose_name', PoseName);
+            ResponseText := Response.ToJSON;
+          finally
+            Response.Free;
+          end;
+        end;
+      finally
+        Value.Free;
+      end;
+    end;
+  except
+    on E: Exception do
+      ErrorText := E.Message;
+  end;
+  CompleteMmdAiPoseFile(ResponseText, ErrorText);
+end;
 
 function ExtensionWindowProc(WindowHandle: HWND; MessageId: UINT;
   WParam: WPARAM; LParam: LPARAM): LRESULT; stdcall;
@@ -55,6 +122,11 @@ begin
         if Assigned(WindowForm) then
           WindowForm.SetBounds(0, 0, LOWORD(LParam), HIWORD(LParam));
         Exit(0);
+      end;
+    WM_MMD_AI_CREATE_POSE_FILE:
+      begin
+        HandleAiCreatePose;
+        Exit(1);
       end;
   end;
 
@@ -122,10 +194,19 @@ begin
   else
     WindowForm.SetBounds(0, 0, 640, 480);
   WindowForm.Show;
+  RegisterMmdAiPoseCatalogWindow(ClientWindow);
+  AiPipeServer := TMmdAiPreviewPipeServer.Create;
+  AiPipeServer.Start;
 end;
 
 procedure UnregisterMMDAnimationStudioWindow;
 begin
+  if Assigned(AiPipeServer) then
+  begin
+    AiPipeServer.Stop;
+    FreeAndNil(AiPipeServer);
+  end;
+  UnregisterMmdAiPoseCatalogWindow(ClientWindow);
   FreeAndNil(WindowDropFile);
   FreeAndNil(WindowFrame);
   RootPanel := nil;

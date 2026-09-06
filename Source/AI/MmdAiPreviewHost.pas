@@ -16,6 +16,8 @@ uses
   System.SysUtils,
   Winapi.Windows,
   MmdAiPoseRepository,
+  MmdAiPreviewMcpHost,
+  MmdAiPreviewPipeClient,
   MmdAiPreviewPipeProtocol,
   MmdAiPreviewPipeServer,
   MmdAiPreviewProtocol;
@@ -135,6 +137,9 @@ begin
   Writeln('  --convert-legacy-poses   Convert legacy JSON poses to VPD.');
   Writeln('  --request <json>         Process one JSON request.');
   Writeln('  --request-file <path>    Process one UTF-8 JSON file.');
+  Writeln('  --pipe-request <json>    Send one request to MMDAnimationStudio.');
+  Writeln('  --pipe-request-file <path> Send one UTF-8 request file to MMDAnimationStudio.');
+  Writeln('  --mcp                    Run a Codex STDIO MCP server.');
   Writeln('  --stdio                  Process one JSON object per input line.');
   Writeln('  --pipe                   Listen on MMD.AI.Preview.v1.');
 end;
@@ -180,6 +185,30 @@ begin
     if ParamCount <> 2 then
       raise EArgumentException.Create('--request-file requires exactly one path.');
     RequestText := TFile.ReadAllText(ParamStr(2), TEncoding.UTF8);
+  end
+  else if SameText(ParamStr(1), '--pipe-request') then
+  begin
+    if ParamCount <> 2 then
+      raise EArgumentException.Create(
+        '--pipe-request requires exactly one JSON argument.');
+    WriteUtf8Line(InvokeMmdAiPreviewPipe(ParamStr(2)));
+    Exit;
+  end
+  else if SameText(ParamStr(1), '--pipe-request-file') then
+  begin
+    if ParamCount <> 2 then
+      raise EArgumentException.Create(
+        '--pipe-request-file requires exactly one path.');
+    RequestText := TFile.ReadAllText(ParamStr(2), TEncoding.UTF8);
+    WriteUtf8Line(InvokeMmdAiPreviewPipe(RequestText));
+    Exit;
+  end
+  else if SameText(ParamStr(1), '--mcp') then
+  begin
+    if ParamCount <> 1 then
+      raise EArgumentException.Create('--mcp does not accept arguments.');
+    RunMmdAiPreviewMcp;
+    Exit;
   end
   else if SameText(ParamStr(1), '--stdio') then
   begin

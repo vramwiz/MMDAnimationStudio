@@ -28,6 +28,7 @@ type
     ModelScale: TFILTER_ITEM_TRACK;
     MotionLayer: TFILTER_ITEM_TRACK;
     PoseLayer: TFILTER_ITEM_TRACK;
+    PoseReleaseTime: TFILTER_ITEM_TRACK;
     ReferenceLayerGroup: TFILTER_ITEM_GROUP;
     SerifLayer: TFILTER_ITEM_TRACK;
     SettingsButton: TFILTER_ITEM_BUTTON;
@@ -46,6 +47,7 @@ uses
   MmdEyeBlinkSettingCodec,
   MmdLipSyncSettingCodec,
   MMD_Model_Renderer,
+  MMD_Model_PoseTransition,
   MMD_Model_SettingsButton;
 
 procedure RegisterDisplayMode(var Items: TMmdModelFilterItems);
@@ -69,6 +71,8 @@ begin
     'すべてのファイル (*.*)'#0'*.*'#0#0);
   AddButton(Items.SettingsButton, '設定', ModelSettingsButtonCallback);
   AddTrack(Items.ModelScale, 'MMD倍率', 15.0, 0.1, 100.0, 0.1);
+  AddTrack(Items.PoseReleaseTime, 'ポーズ解除時間（秒）',
+    DefaultMmdPoseReleaseTimeSec, 0.0, 10.0, 0.01);
 
   AddGroup(Items.ReferenceLayerGroup, '参照レイヤー', 1);
   AddTrack(Items.ExpressionLayer, '表情参照レイヤー', 1.0, 1.0, 99.0, 1.0);

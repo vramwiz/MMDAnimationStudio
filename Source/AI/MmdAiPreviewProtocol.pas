@@ -15,6 +15,8 @@ uses
   MmdAiPreviewCapture,
   MmdAiPreviewBatch,
   MmdAiFingerIdValidation,
+  MmdAiPoseCatalogBridge,
+  MmdAiPoseSession,
   MmdAiPreviewPresentation,
   MmdAiProviderClient;
 
@@ -47,6 +49,10 @@ begin
     Operations.Add('capture_pose_set');
     Operations.Add('validate_finger_id');
     Operations.Add('present_pose');
+    Operations.Add('get_active_pose_context');
+    Operations.Add('preview_pose_in_session');
+    Operations.Add('get_pose_catalog_context');
+    Operations.Add('create_pose_file');
     Host.AddPair('operations', Operations);
     Views := TJSONArray.Create;
     Views.Add('front');
@@ -105,6 +111,14 @@ begin
         Exit(ValidateFingerIdImages(TJSONObject(RootValue)));
       if SameText(Operation, 'present_pose') then
         Exit(PresentMmdPose(TJSONObject(RootValue)));
+      if SameText(Operation, 'get_active_pose_context') then
+        Exit(GetMmdAiPoseSessionContext);
+      if SameText(Operation, 'preview_pose_in_session') then
+        Exit(PreviewMmdAiPoseInSession(TJSONObject(RootValue)));
+      if SameText(Operation, 'get_pose_catalog_context') then
+        Exit(GetMmdAiPoseCatalogContext);
+      if SameText(Operation, 'create_pose_file') then
+        Exit(CreateMmdAiPoseFile(TJSONObject(RootValue)));
       if SameText(Operation, 'get_capabilities') then
         Exit(AddHostCapabilities(InvokeMmdAiProvider(RequestText)));
     end;

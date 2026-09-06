@@ -125,6 +125,7 @@
         <DCCReference Include="Source\Plugin\Model\Registration\MMD_Model_FilterItems.pas"/>
         <DCCReference Include="Source\Plugin\Model\Diagnostics\MMD_Model_DebugLog.pas"/>
         <DCCReference Include="Source\Plugin\Model\Runtime\EyeBlink\MMD_Model_EyeBlink.pas"/>
+        <DCCReference Include="Source\Plugin\Model\Runtime\Pose\MMD_Model_PoseTransition.pas"/>
         <DCCReference Include="Source\Plugin\Model\Context\MMD_Model_Context.pas"/>
         <DCCReference Include="Source\Plugin\Model\Context\LipSync\MMD_Model_LipSyncContext.pas"/>
         <DCCReference Include="Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas"/>

@@ -4,6 +4,19 @@
 
 この文書は旧ノートを情報保全のためそのまま収録している。文中の「現在」「次の作業」「未対応」は記録当時の状態であり、現行の指示ではない。現在の状態は [CURRENT_STATE.md](CURRENT_STATE.md)、次の作業は [note.md](note.md) と [ROADMAP.md](ROADMAP.md)、恒久的な設計は [ARCHITECTURE.md](ARCHITECTURE.md) を参照する。
 
+## 2026-09-07 Codexポーズ連携の製品統合
+
+- `MMDAIPreview.exe --mcp`を追加し、Codexへ選択PMX、編集中姿勢、モデル構造、候補検証、ライブ反映、VPD登録の6ツールをSTDIO MCPで公開した。プロジェクト用`.codex/config.toml`も追加し、永続化する`create_pose_file`だけを書込み承認対象とした。
+- MCP初期化、通知、ツール一覧、ツール呼出し、EOF終了の自動回帰を追加した。AviUtl2 v2.1.6aを起動した実接続で、MCPの`get_pose_catalog_context`から選択PMX取得に成功し、`codex mcp list`でもサーバーが有効と表示された。
+- MMDAnimationStudio拡張へ`MMD.AI.Preview.v1`の待受けを統合し、選択中PMX取得と、完成姿勢からのVPD作成・共通VPD登録・PMX別PoseUID登録・一覧更新を一要求で行う`create_pose_file`を追加した。
+- PMX管理とポーズ一覧の既存設定画面へAI受信状態と表示切替を加えた。Codex候補はUndo可能な通常編集として適用し、セッションIDと姿勢版番号で、画面変更後に届いた古い候補を拒否する。
+- ブリッジ単体回帰でライブ適用、版競合、選択PMX引継ぎ、登録応答を確認した。AviUtl2 v2.1.6aの実プロセスへCLIから接続し、選択中の実きりたんPMX情報を取得した。さらに実モデルを開く設定画面回帰で、候補姿勢、状態表示、版更新、Undo、終了後のセッション解除を確認した。MMDAnimationStudio、MMDAIPreview、Model Filter、Pose FilterのWin64 Debug／Releaseをビルドし、新規警告・エラーがないことを確認した。Codexからの運用手順とJSON例を`AI_POSE_INTEGRATION.md`へ記録した。
+
+## 2026-09-07 ポーズ解除補間
+
+- モデル表示へ`ポーズ解除時間（秒）`を追加した。ポーズ参照オブジェクトの終了後、EffectID別に保持した最終外部ポーズを指定秒数かけて標準姿勢／現在モーションへ補間する。ボーン移動は線形、回転は最短経路Quaternion Slerpとし、参照レイヤーまたはモデルの変更と逆方向シークでは保持状態を破棄する。既定0.30秒、0秒で従来の即時解除となる。
+- 解除中間、完了、0秒、レイヤー変更、逆方向シークの回帰テストとModel FilterのWin64 Debug／Releaseビルドに合格した。AviUtl2終了中にRelease版を通常配置先へ反映し、実機で項目表示とポーズ終了後の補間動作を確認した。
+
 ## 2026-09-01 アクセサリ管理の完成整理
 
 - 400行へ近づいていたカタログ保存層から、原本コピー、内容ハッシュ重複判定、SourceUID／AccessoryUID作成と失敗時の巻戻しを`Catalog\Storage\Import`へ分離した。

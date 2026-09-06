@@ -14,6 +14,9 @@ AviUtl2でPMXモデルを表示し、独立したポーズ・モーション・�
 
 ## 現在位置
 
+- 2026-09-07にCodex用STDIO MCPを追加した。プロジェクトの`.codex/config.toml`から`MMDAIPreview.exe --mcp`を起動し、選択PMX、ライブ設定画面、モデル構造、候補生成、候補反映、VPD登録の6ツールを利用できる。AviUtl2 v2.1.6aへの実MCP呼出しと`codex mcp list`の有効表示を確認済み。現在開いているCodexタスクのツール一覧は途中で変わらないため、新規タスクまたはMCP再読込後から利用する。
+- 2026-09-07にCodexポーズ連携をMMDAnimationStudioへ統合した。Codexから`MMD.AI.Preview.v1`へ、選択PMXの取得、VPD／PoseUIDのバックグラウンド登録、開いているPMX／ポーズ設定画面へのUndo可能な候補反映を行える。ライブ編集はセッションIDと版番号で古い応答を拒否する。AviUtl2 v2.1.6aの実プロセスから選択中のきりたんPMX取得に成功し、実モデル設定画面の候補反映、Undo、セッション解除も専用回帰で確認した。CLIとJSONの詳細は`AI_POSE_INTEGRATION.md`を参照する。
+- 2026-09-07に、ポーズ参照レイヤーのオブジェクトが終了するとモデルが初期姿勢へ瞬時に戻る挙動を変更した。モデル表示へ`ポーズ解除時間（秒）`を追加し、既定0.30秒の間、EffectID別に保持した直前の外部ポーズから標準姿勢と現在モーションの合成結果へ戻す。項目は設定ボタン内ではなく、折りたたまれないよう通常のモデル表示設定で`MMD倍率`の直下へ置く。移動は線形、回転は最短経路Quaternionで補間し、0秒では従来どおり即時解除する。逆方向シーク、参照レイヤー変更、モデル変更時は古い保持状態を破棄する。専用回帰、Model FilterのWin64 Debug／Release警告0・エラー0に加え、AviUtl2実機で項目表示とポーズ終了後の補間動作を確認済み。
 - 2026-09-06に、モデル表示の設定から材質モーフをオン／オフすると`TModelSettingsSession.ExpressionChanged`経由でホスト内エラーになる問題を修正した。非モーダル画面が設定ボタンの編集コールバック終了後も`EDIT_SECTION.SetObjectItemValue`を保持・呼出していたため、既存の共通モーダル編集入口へ統一した。操作中はD3Dプレビューへ反映し、「閉じる」／×の確定後に同じ編集コールバック内でポーズと表情を保存する。実きりたんPMXの材質オン→オフ→オン、操作中のホスト書込み0件、両終了方法での保存を`Tests\MmdModelSettingsSessionTest.dpr`と専用実行スクリプトで回帰確認した。Model FilterのWin64 Debug／Releaseは警告0・エラー0。AviUtl2終了中にDebug DLL／RSM／auf2を通常配置先へ反映済み。実ホストでの再操作は次回起動後に確認する。
 
 - 2026-09-05に今回の追加修正範囲を責務別に再整理した。ポーズ編集の保存トランザクション、拡張画面のドロップ分類とPMX選択同期、D3D参照画像と入力状態、設定画面ツールバー生成を独立ユニットへ分離した。主要統括ユニットは`PmxCatalogFrame` 412→395行、`MMDAnimationStudioFrame` 455→410行、`MmdD3DViewport` 498→422行、`MmdModelSettingEditor` 423→377行へ縮小した。14ユニットあった`Editor\D3D`直下は`Resource`、`Render`、`Interaction`、`Reference`へ分け、直下をViewport 1件にした。`MmdMorphSettingList`は404行だが、行・描画・プレビューが既に別ユニットであり、残りが一覧状態管理として一体のため維持した。公開APIコメントを監査し、関連5プロジェクトのWin64 Debug／Releaseと主要回帰テストに合格した。

@@ -1,4 +1,4 @@
-unit MMDAnimationStudioFrame;
+﻿unit MMDAnimationStudioFrame;
 
 // MMDAnimationStudioの各機能ページを遅延生成し、選択PMXと外部通知をページ間で調停する。
 
@@ -73,6 +73,7 @@ type
     procedure PageChanging(Sender: TObject; Index: Integer);
     procedure PageChanged(Sender: TObject; Index: Integer);
     procedure PmxSelectionChanged(Sender: TObject);
+    procedure PublishAiPoseCatalogContext;
     procedure ProjectLoaded;
     procedure ProjectSaving(const OldProjectFilePath,
       NewProjectFilePath: string);
@@ -86,6 +87,10 @@ type
     destructor Destroy; override;
     // ドロップ内容を各Importerへ渡すが、現在の表示ページは変更しない。
     procedure DropFiles(Control: TWinControl; const Files: TArray<string>);
+    // Codex候補をVPDとPoseUIDへ登録し、表示中の同一PMX一覧を更新する。
+    function RegisterAiPose(const PmxId, ModelFile, PoseName,
+      PoseData: string; out RegisteredPmxId, PoseFile, PoseId,
+      ErrorText: string): Boolean;
     // 初回表示に必要なツールバー、PMX一覧、Launcherのホットキー受付を準備する。
     procedure Show; reintroduce;
     property PmxCatalogFrame: TFramePmxCatalog read FPmxCatalogFrame;
@@ -103,8 +108,10 @@ implementation
 
 uses
   Vcl.Graphics,
+  AppFolderUtils,
   AviUtl2PluginProject,
   AviUtl2PluginScene,
+  MmdAiPoseStudioIntegration,
   MmdStudioDropClassifier,
   MMDAnimationStudioPmxSelection;
 
@@ -390,6 +397,22 @@ begin
   SynchronizeMmdStudioPmxSelection(Sender, FPmxCatalogFrame,
     FPoseCatalogFrame, FMotionCatalogFrame, FFaceCatalogFrame,
     FSelectedPmxId, FSyncingPmxSelection);
+  PublishAiPoseCatalogContext;
+end;
+
+procedure TFrameMMDAnimationStudio.PublishAiPoseCatalogContext;
+begin
+  PublishMmdAiCatalogContext(FPmxCatalogFrame, FSelectedPmxId);
+end;
+
+function TFrameMMDAnimationStudio.RegisterAiPose(const PmxId, ModelFile,
+  PoseName, PoseData: string; out RegisteredPmxId, PoseFile, PoseId,
+  ErrorText: string): Boolean;
+begin
+  EnsurePmxCatalogFrame;
+  Result := RegisterMmdAiPoseCandidate(FPmxCatalogFrame, FPoseCatalogFrame,
+    FSelectedPmxId, PmxId, ModelFile, PoseName, PoseData, RegisteredPmxId,
+    PoseFile, PoseId, ErrorText);
 end;
 
 procedure TFrameMMDAnimationStudio.Resize;
@@ -402,6 +425,7 @@ procedure TFrameMMDAnimationStudio.Show;
 begin
   FToolbarController.Initialize(CurrentPPI);
   EnsurePmxCatalogFrame;
+  PublishAiPoseCatalogContext;
   // ランチャーページを開く前でもCtrl+Alt+数字を利用できるようにする。
   EnsureLauncherFrame;
   inherited Show;

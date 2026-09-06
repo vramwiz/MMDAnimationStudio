@@ -38,6 +38,7 @@ uses
   MMD_Model_FilterItems in 'Source\Plugin\Model\Registration\MMD_Model_FilterItems.pas',
   MMD_Model_DebugLog in 'Source\Plugin\Model\Diagnostics\MMD_Model_DebugLog.pas',
   MMD_Model_EyeBlink in 'Source\Plugin\Model\Runtime\EyeBlink\MMD_Model_EyeBlink.pas',
+  MMD_Model_PoseTransition in 'Source\Plugin\Model\Runtime\Pose\MMD_Model_PoseTransition.pas',
   MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas',
   MMD_Model_LipSyncContext in 'Source\Plugin\Model\Context\LipSync\MMD_Model_LipSyncContext.pas',
   MMD_Model_PoseInput in 'Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas',

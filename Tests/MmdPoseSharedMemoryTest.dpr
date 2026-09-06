@@ -13,6 +13,8 @@ uses
   PmxBoneSolver in '..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas',
   PmxPose in '..\AviUtl2PluginLib\MMD\Core\PmxPose.pas',
   PmxPoseCodec in '..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
+  MMD_Model_PoseTransition in
+    'Source\Plugin\Model\Runtime\Pose\MMD_Model_PoseTransition.pas',
   MMD_Model_Context in 'Source\Plugin\Model\Context\MMD_Model_Context.pas',
   MMD_Model_PoseInput in
     'Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas';
@@ -125,11 +127,63 @@ begin
   DestroyModelContext(1002, Context2);
 end;
 
+procedure TestPoseReleaseTransition;
+var
+  BasePoses: TPmxBonePoses;
+  Current, Resolved: TPmxNamedBonePoses;
+  Model: TPmxModel;
+  Transition: TMmdModelPoseTransition;
+  Weight: Single;
+begin
+  Model := TPmxModel.Create;
+  Transition := TMmdModelPoseTransition.Create;
+  try
+    SetLength(Model.Bones, 1);
+    Model.Bones[0].Name := 'center';
+    SetLength(Current, 1);
+    Current[0].BoneName := 'center';
+    Current[0].Pose.Translation.X := 10;
+    Current[0].Pose.Rotation.Z := 1;
+    Check(Transition.Resolve(True, Current, 3, 'C:\model\pose.pmx',
+      100, 30, 1.0, Resolved, Weight), 'active pose was not resolved');
+    Check(Abs(Weight - 1) < 0.0001, 'active pose weight mismatch');
+    Check(Transition.Resolve(False, nil, 3, 'C:\model\pose.pmx',
+      115, 30, 1.0, Resolved, Weight), 'release midpoint was not resolved');
+    Check(Abs(Weight - 0.5) < 0.0001, 'release midpoint weight mismatch');
+    InitializeBonePoses(Model, BasePoses);
+    Check(ApplyWeightedNamedBonePoses(Model, Resolved, Weight, BasePoses),
+      'weighted pose was not applied');
+    Check(Abs(BasePoses[0].Translation.X - 5) < 0.0001,
+      'translation was not blended toward base pose');
+    Check((Abs(BasePoses[0].Rotation.Z - Sqrt(0.5)) < 0.0001) and
+      (Abs(BasePoses[0].Rotation.W - Sqrt(0.5)) < 0.0001),
+      'rotation did not use quaternion interpolation');
+    Check(not Transition.Resolve(False, nil, 3, 'C:\model\pose.pmx',
+      130, 30, 1.0, Resolved, Weight), 'release did not finish on time');
+    Check(not Transition.Resolve(False, nil, 3, 'C:\model\pose.pmx',
+      131, 30, 0, Resolved, Weight), 'zero duration did not disable release');
+    Check(Transition.Resolve(True, Current, 3, 'C:\model\pose.pmx',
+      200, 30, 1.0, Resolved, Weight), 'second active pose was not resolved');
+    Check(not Transition.Resolve(False, nil, 4, 'C:\model\pose.pmx',
+      201, 30, 1.0, Resolved, Weight),
+      'pose survived a reference layer change');
+    Check(Transition.Resolve(True, Current, 3, 'C:\model\pose.pmx',
+      300, 30, 1.0, Resolved, Weight), 'third active pose was not resolved');
+    Check(not Transition.Resolve(False, nil, 3, 'C:\model\pose.pmx',
+      299, 30, 1.0, Resolved, Weight),
+      'pose survived a backwards seek without a source object');
+  finally
+    Transition.Free;
+    Model.Free;
+  end;
+end;
+
 begin
   try
     TestSharedMemory;
     TestModelPoseLayerInput;
     TestObjectContexts;
+    TestPoseReleaseTransition;
     Writeln('MmdPoseSharedMemoryTest: PASS');
   except
     on E: Exception do

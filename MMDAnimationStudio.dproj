@@ -12,6 +12,9 @@
         <Base>True</Base>
     </PropertyGroup>
     <PropertyGroup>
+        <DCC_UnitSearchPath>Source\AI;..\AviUtl2PluginLib\MMD\AI;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    </PropertyGroup>
+    <PropertyGroup>
         <DCC_UnitSearchPath>Source\Plugin\Extension\Input;Source\Plugin\Extension\UI\Navigation;..\AviUtl2PluginLib\MMD\Editor\D3D\Resource;..\AviUtl2PluginLib\MMD\Editor\D3D\Render;..\AviUtl2PluginLib\MMD\Editor\D3D\Reference;..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction;..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup>
@@ -187,6 +190,15 @@
         <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAliasProvider.pas"/>
         <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAdapter.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Host\MmdSerifHost.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPoseCatalogBridge.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPoseEditorForm.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPoseRepository.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPoseSession.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPreviewPipeProtocol.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPreviewPipeServer.pas"/>
+        <DCCReference Include="Source\AI\MmdAiPreviewProtocol.pas"/>
+        <DCCReference Include="Source\AI\MmdAiProviderClient.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\AI\MmdAiPoseStudioIntegration.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioExtension.pas"/>
         <DCCReference Include="Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas"/>
