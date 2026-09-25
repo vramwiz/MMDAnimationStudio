@@ -9,7 +9,8 @@ try {
     New-Item -ItemType Directory -Force $taskOutput | Out-Null
     $taskSources = [regex]::Matches(
         (Get-Content MMDAnimationStudio.dpr -Raw), "in '([^']+)'")
-    $taskDirs = @((Join-Path $taskRoot 'Source\Lib'))
+    $taskDirs = @((Join-Path $taskRoot 'Source\Lib'),
+        (Join-Path $taskRoot 'Source\AI\Controller'))
     $taskDirs += $taskSources | ForEach-Object {
         [IO.Path]::GetFullPath(
             (Join-Path $taskRoot (Split-Path $_.Groups[1].Value)))

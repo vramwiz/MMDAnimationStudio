@@ -10,6 +10,7 @@
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Library</AppType>
         <MainSource>MMD_Serif_Draw_Filter.dpr</MainSource>
+        <DCC_UnitSearchPath>..\AviUtl2PluginLib\Serif\Plugin\Draw;..\AviUtl2PluginLib\Lib\SharedMemory;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>

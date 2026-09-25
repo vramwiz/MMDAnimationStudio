@@ -12,7 +12,7 @@
         <Base>True</Base>
     </PropertyGroup>
     <PropertyGroup>
-        <DCC_UnitSearchPath>Source\AI;..\AviUtl2PluginLib\MMD\AI;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\AI;Source\AI\Controller;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Editor\Controller;..\AviUtl2PluginLib\MMD\Editor\Controller\Math;..\AviUtl2PluginLib\Lib\SharedMemory;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup>
         <DCC_UnitSearchPath>Source\Plugin\Extension\Input;Source\Plugin\Extension\UI\Navigation;..\AviUtl2PluginLib\MMD\Editor\D3D\Resource;..\AviUtl2PluginLib\MMD\Editor\D3D\Render;..\AviUtl2PluginLib\MMD\Editor\D3D\Reference;..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction;..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
