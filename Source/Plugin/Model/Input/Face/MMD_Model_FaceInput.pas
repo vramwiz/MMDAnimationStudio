@@ -14,6 +14,7 @@ function TryGetReferencedFaceData(Video: PFILTER_PROC_VIDEO;
 implementation
 
 uses
+  MMD_Model_ReferenceGuard,
   MmdFaceSharedMemory;
 
 function TryGetReferencedFaceData(Video: PFILTER_PROC_VIDEO;
@@ -26,7 +27,7 @@ begin
   Result := False;
   FaceData := '';
   if (Video = nil) or not Assigned(Video^.GetImageObject) or
-    (Video^.Object_ = nil) or (FaceLayer <= 0) then Exit;
+    not CanEvaluateMmdModelReference(Video, FaceLayer) then Exit;
   try
     FaceObject := Video^.GetImageObject(FaceLayer - 1, 0.0);
     if FaceObject = nil then Exit;

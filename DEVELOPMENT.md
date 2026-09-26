@@ -53,7 +53,7 @@ Debug Win64:
 ```powershell
 cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Model_Filter.dproj"" /t:Build /p:Config=Debug /p:Platform=Win64"
 cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Accessory_Filter.dproj"" /t:Build /p:Config=Debug /p:Platform=Win64"
-cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Pose_Filter.dproj"" /t:Build /p:Config=Debug /p:Platform=Win64"
+cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Serif_Module.dproj"" /t:Build /p:Config=Debug /p:Platform=Win64"
 ```
 
 Release Win64:
@@ -61,7 +61,7 @@ Release Win64:
 ```powershell
 cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Model_Filter.dproj"" /t:Build /p:Config=Release /p:Platform=Win64"
 cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Accessory_Filter.dproj"" /t:Build /p:Config=Release /p:Platform=Win64"
-cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Pose_Filter.dproj"" /t:Build /p:Config=Release /p:Platform=Win64"
+cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" && msbuild ""D:\DelphiProg\AviUtl2Plugin\MMDAnimationStudio\MMD_Serif_Module.dproj"" /t:Build /p:Config=Release /p:Platform=Win64"
 ```
 
 配備先:
@@ -69,7 +69,8 @@ cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\37.0\bin\rsvars.bat"" &
 ```text
 C:\ProgramData\aviutl2\Plugin\MMD\MMD_Model_Filter.auf2
 C:\ProgramData\aviutl2\Plugin\MMD\MMD_Accessory_Filter.auf2
-C:\ProgramData\aviutl2\Plugin\MMD\MMD_Pose_Filter.auf2
+C:\ProgramData\aviutl2\Script\MMD\@MMD_Script.obj2
+C:\ProgramData\aviutl2\Script\MMD\MMD_Module.mod2
 ```
 
 ## コメントルール

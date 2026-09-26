@@ -72,7 +72,7 @@
 
 - `MMD_Serif_Module.dproj`は1つの`MMD_Module.mod2`と`@MMD_Script.obj2`を生成し、`set_text`、`set_pose`、`set_motion`をまとめて公開する。
 - Pose／Motion Scriptは`obj.layer - 1`をModuleへ渡し、SDKの0始まりレイヤーを使う既存共有メモリとモデル参照規約を維持する。
-- 旧`MMD_Pose_Filter`／`MMD_Motion_Filter`は移行参照用ソースだけを残し、グループビルドと配布には含めない。
+- 旧`MMD_Pose_Filter`／`MMD_Motion_Filter`の単独プロジェクトと専用実装は削除済み。更新インストール時は残存する旧`.auf2`を削除する。
 
 ### セリフ入力
 
@@ -91,14 +91,22 @@
 - OKで姿勢全体を一括保存し、キャンセルで作業用コピーを破棄する。
 - GUIの作業用コピーは共有メモリへ発行しない。
 
-編集GUIは次の継承境界にする。
+編集部品と画面の境界は次の通り。
+
+- `TMmdPoseEditorTools`はツールバー、ボーン一覧、モーフ操作欄を任意の親Controlに生成する。D3Dビューは生成しない。プレビューのない拡張ページでは一覧を`alClient`で配置し、画像合わせコマンドを隠せる。
+- `TMmdPoseEditSession`は姿勢JSONの読込・書出し、ボーン初期化、Undo/Redo履歴を持つ。描画Controlへ依存せず、編集結果を姿勢配列として返す。
+- `TMmdSimpleControllerPanel`は簡易操作の部位一覧を表示し、編集フォームとは独立して生成できる。`TMmdSimplePoseEditSession`はカメラYaw／Pitchを引数として受け、部位操作の姿勢計算、確定、取消、履歴記録を行う。ゲームパッド入力とD3D画面更新は`TMmdAiPoseEditorForm`が担当する。
+
+既存のプレビュー付きGUIは次の継承境界にする。
 
 1. `TMmdPoseEditorFormBase`: 共通レイアウトとD3Dビュー
-2. `TStandardPoseEditorForm`: PMX読込、ボーン編集、対称編集、履歴、Undo/Redo
+2. `TStandardPoseEditorForm`: 共通編集部品と編集セッションをD3Dビューへ接続し、PMX読込と編集通知を調停
 3. `TMmdAiPreviewMainForm`: JSON候補一覧、最終PMX記録、Named Pipe受信、自動保存
 4. `TMmdAiPoseEditorForm`: 既存PMX／ポーズ設定画面、ライブ候補受信、版競合検査
 
-Model／Pose Filterは2段目だけを使用し、Named Pipeユニットへ依存しない。単体アプリは3段目、MMDAnimationStudio拡張のPMX／ポーズ設定は4段目を使用する。ボーン編集本体を2段目へ集約したまま、AI固有の候補一覧と製品設定を分離する。
+Model／Face Filterは2段目だけを使用し、Named Pipeユニットへ依存しない。単体アプリは3段目、MMDAnimationStudio拡張のPMX／ポーズ設定は4段目を使用する。
+
+拡張のポーズページは`TMmdTimelinePosePageController`が選択中の`MMDポーズ@MMD_Script`を監視し、対象がある間だけ`TFrameMmdTimelinePoseEditor`をカタログの代わりに表示する。`MmdTimelinePoseBinding`は編集セクション内でモデルパスと姿勢JSONを読書きし、書込み前にレイヤー、フレーム範囲、モデルパス、元のJSONが一致することを検証する。編集フレームはD3Dビューを生成せず、同じScript項目へ姿勢JSONを書き戻す。ScriptとModuleが次の評価時に現在フレーム値をモデル表示へ発行する。右スティックのYaw／PitchはポーズJSONの`relativeAngles`へ保存し、対応するモデル表示オブジェクトの項目には書き込まない。`relativeAngles`はモデル表示を基準とする相対回転で、部位操作方向にも使う。独立した`rootRotation`はモデル原点まわりの全身回転として保存する。
 
 ## 姿勢の処理順
 
@@ -111,7 +119,8 @@ Model／Pose Filterは2段目だけを使用し、Named Pipeユニットへ依�
 5. Motionモーフ、表情、口パク、まばたき等のモーフ
 6. 親子変換、付与変形、IKによる最終ボーン計算
 7. CPUスキニング
-8. AviUtl2描画
+8. ポーズの全身回転、ポーズ固有の相対Yaw／Pitchの順に頂点と骨へ適用
+9. AviUtl2描画
 
 同名ボーンは外部PoseがMotionを上書きする。モーフはMotionを土台に表情を上書きし、目パチ／口パクを加算する。それ以外の複数入力を追加する場合の優先順位は別途定義する。
 

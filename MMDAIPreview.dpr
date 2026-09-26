@@ -16,11 +16,11 @@ uses
   DarkLabel in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkLabel.pas',
   DarkListBox in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Selection\DarkListBox.pas',
   DarkPanel in '..\AviUtl2PluginLib\Lib\DarkTheme\VclControls\Basic\DarkPanel.pas',
-  MmdAiPreviewHost in 'Source\AI\MmdAiPreviewHost.pas',
-  MmdAiPoseCatalogBridge in 'Source\AI\MmdAiPoseCatalogBridge.pas',
-  MmdAiPoseSession in 'Source\AI\MmdAiPoseSession.pas',
-  MmdAiPreviewPipeClient in 'Source\AI\MmdAiPreviewPipeClient.pas',
-  MmdAiPreviewMcpHost in 'Source\AI\MmdAiPreviewMcpHost.pas',
+  MmdAiPreviewHost in 'Source\AI\Preview\Host\MmdAiPreviewHost.pas',
+  MmdAiPoseCatalogBridge in 'Source\AI\Pose\MmdAiPoseCatalogBridge.pas',
+  MmdAiPoseSession in 'Source\AI\Pose\MmdAiPoseSession.pas',
+  MmdAiPreviewPipeClient in 'Source\AI\Preview\Pipe\MmdAiPreviewPipeClient.pas',
+  MmdAiPreviewMcpHost in 'Source\AI\Preview\Host\MmdAiPreviewMcpHost.pas',
   MmdVpdDirectory in '..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas',
   HorizontalTrackBarRenderer in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas',
   HorizontalTrackBarControl in '..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarControl.pas',
@@ -34,7 +34,7 @@ uses
   MmdPoseEditorButtonTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorButtonTheme.pas',
   MmdPoseEditorListTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas',
   MmdPoseEditorComboTheme in '..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas',
-  MmdAiPreviewMainForm in 'Source\AI\MmdAiPreviewMainForm.pas' {MainForm};
+  MmdAiPreviewMainForm in 'Source\AI\Preview\UI\MmdAiPreviewMainForm.pas' {MainForm};
 
 procedure AttachHostConsole;
 var

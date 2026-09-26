@@ -91,6 +91,16 @@
         },
         {
           "action": "copy",
+          "from": "{tmp}/Learning/MMD_POSE_LEARNING.md",
+          "to": "{pluginsDir}/MMD/Learning"
+        },
+        {
+          "action": "copy",
+          "from": "{tmp}/Learning/confirmed-poses.json",
+          "to": "{pluginsDir}/MMD/Learning"
+        },
+        {
+          "action": "copy",
           "from": "{tmp}/Script/@MMD_Script.obj2",
           "to": "{scriptsDir}/MMD"
         },
@@ -136,6 +146,18 @@
         {
           "action": "delete",
           "path": "{pluginsDir}/MMD/README.md"
+        },
+        {
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/Learning/MMD_POSE_LEARNING.md"
+        },
+        {
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/Learning/confirmed-poses.json"
+        },
+        {
+          "action": "delete",
+          "path": "{pluginsDir}/MMD/Learning"
         },
         {
           "action": "delete",

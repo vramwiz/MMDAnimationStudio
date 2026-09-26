@@ -7,23 +7,32 @@ interface
 uses
   System.Classes,
   System.ImageList,
+  Winapi.Messages,
   Vcl.Controls,
   Vcl.ComCtrls,
   Vcl.ExtCtrls,
   Vcl.Forms,
   Vcl.ImgList,
+  Vcl.StdCtrls,
   Vcl.ToolWin,
   DarkPanel,
+  DarkLabel,
   ExplorerFrame,
   LauncherFrame,
   PmxCatalogFrame,
   MmdAccessoryCatalogFrame,
   MmdPoseCatalogFrame,
+  MmdTimelinePosePageController,
+  MmdTimelinePoseTabController,
   MmdMotionCatalogFrame,
   MmdFaceCatalogFrame,
   SerifFrame,
   MmdSerifHost,
+  MmdStudioPageComposition,
   MMDAnimationStudioToolbarController;
+
+const
+  WM_MMD_APPLY_SCENE_CHANGED = WM_APP + 242;
 
 type
   TFrameMMDAnimationStudio = class(TFrame)
@@ -32,6 +41,7 @@ type
     ButtonPmx: TToolButton;
     ButtonAccessory: TToolButton;
     ButtonPoseMotion: TToolButton;
+    ButtonPoseSync: TToolButton;
     ButtonMotion: TToolButton;
     ButtonExpression: TToolButton;
     ButtonSerif: TToolButton;
@@ -41,6 +51,7 @@ type
     PanelPmx: TDarkPanel;
     PanelAccessory: TDarkPanel;
     PanelPoseMotion: TDarkPanel;
+    PanelPoseSync: TDarkPanel;
     PanelMotion: TDarkPanel;
     PanelExpression: TDarkPanel;
     PanelSerif: TDarkPanel;
@@ -50,9 +61,12 @@ type
     ToolbarImages: TImageList;
   private
     FToolbarController: TMmdStudioToolbarController;
+    FPages: TMmdStudioPageComposition;
     FPmxCatalogFrame: TFramePmxCatalog;
     FAccessoryCatalogFrame: TFrameMmdAccessoryCatalog;
     FPoseCatalogFrame: TFrameMmdPoseCatalog;
+    FTimelinePosePage: TMmdTimelinePosePageController;
+    FTimelinePoseTab: TMmdTimelinePoseTabController;
     FMotionCatalogFrame: TFrameMmdMotionCatalog;
     FFaceCatalogFrame: TFrameMmdFaceCatalog;
     FSerifHost: TMmdSerifHost;
@@ -60,10 +74,12 @@ type
     FLauncherFrame: TFrameLauncher;
     FSelectedPmxId: string;
     FSyncingPmxSelection: Boolean;
-    procedure DropFilesCore(const Files: TArray<string>);
+    FPendingSceneID: Longint;
+    FSceneChangePosted: Longint;
     procedure EnsurePmxCatalogFrame;
     procedure EnsureAccessoryCatalogFrame;
     procedure EnsurePoseCatalogFrame;
+    procedure EnsurePoseSyncPage;
     procedure EnsureMotionCatalogFrame;
     procedure EnsureFaceCatalogFrame;
     procedure EnsureSerifFrame;
@@ -73,11 +89,14 @@ type
     procedure PageChanging(Sender: TObject; Index: Integer);
     procedure PageChanged(Sender: TObject; Index: Integer);
     procedure PmxSelectionChanged(Sender: TObject);
+    procedure SerifSelectionChanged(Sender: TObject);
     procedure PublishAiPoseCatalogContext;
     procedure ProjectLoaded;
     procedure ProjectSaving(const OldProjectFilePath,
       NewProjectFilePath: string);
     procedure SceneChanged(SceneID: Integer);
+    procedure WmApplySceneChanged(var Message: TMessage);
+      message WM_MMD_APPLY_SCENE_CHANGED;
   protected
     procedure Resize; override;
   public
@@ -107,12 +126,12 @@ type
 implementation
 
 uses
+  Winapi.Windows,
   Vcl.Graphics,
   AppFolderUtils,
   AviUtl2PluginProject,
   AviUtl2PluginScene,
   MmdAiPoseStudioIntegration,
-  MmdStudioDropClassifier,
   MMDAnimationStudioPmxSelection;
 
 {$R *.dfm}
@@ -121,13 +140,21 @@ constructor TFrameMMDAnimationStudio.Create(AOwner: TComponent);
 begin
   inherited;
 
+  FPendingSceneID := -1;
+
   Color := clBlack;
   FToolbarController := TMmdStudioToolbarController.Create(PanelToolbar,
     ToolbarPages, ToolbarImages, [PanelPmx, PanelAccessory, PanelPoseMotion,
-    PanelMotion, PanelExpression, PanelSerif, PanelExplorer, PanelMusic,
-    PanelLaunch], PageChanging, PageChanged);
+    PanelPoseSync, PanelMotion, PanelExpression, PanelSerif, PanelExplorer,
+    PanelMusic, PanelLaunch], PageChanging, PageChanged);
+  FPages := TMmdStudioPageComposition.Create(Self, PanelPmx, PanelAccessory,
+    PanelPoseMotion, PanelPoseSync, PanelMotion, PanelExpression,
+    PanelExplorer, PanelLaunch, PmxSelectionChanged);
+  FTimelinePoseTab := TMmdTimelinePoseTabController.CreateForToolbar(Self,
+    Self, ButtonPoseSync, FToolbarController, 2, 3);
 
   FSerifHost := TMmdSerifHost.Create(Self, PanelSerif);
+  FSerifHost.OnSelection := SerifSelectionChanged;
   AviUtl2ProjectSetOnLoad(ProjectLoaded);
   AviUtl2ProjectSetOnSave(ProjectSaving);
   AviUtl2SceneSetOnChange(SceneChanged);
@@ -138,6 +165,8 @@ begin
   AviUtl2SceneSetOnChange(nil);
   AviUtl2ProjectSetOnSave(nil);
   AviUtl2ProjectSetOnLoad(nil);
+  FTimelinePoseTab.Free;
+  FPages.Free;
   FSerifHost.Free;
   FToolbarController.Free;
   inherited;
@@ -147,155 +176,69 @@ procedure TFrameMMDAnimationStudio.DropFiles(Control: TWinControl;
   const Files: TArray<string>);
 begin
   try
-    DropFilesCore(Files);
+    FPages.DropFiles(Files);
+    FPmxCatalogFrame := FPages.Pmx;
+    FAccessoryCatalogFrame := FPages.Accessory;
+    FPoseCatalogFrame := FPages.Pose;
+    FMotionCatalogFrame := FPages.Motion;
+    FFaceCatalogFrame := FPages.Face;
+    FExplorerFrame := FPages.Explorer;
+    FLauncherFrame := FPages.Launcher;
   except
     { WM_DROPFILESのコールバック境界から例外を漏らさない。 }
   end;
 end;
 
-procedure TFrameMMDAnimationStudio.DropFilesCore(const Files: TArray<string>);
-var
-  DropKinds: TMmdStudioDropKinds;
-  PoseWasActive: Boolean;
-begin
-  { ホストがマウス進入時などに空のドロップ通知を送る場合がある。
-    空通知では表示ページを変更せず、そのまま無視する。 }
-  if Length(Files) = 0 then
-    Exit;
-
-  if PanelLaunch.Visible then
-  begin
-    EnsureLauncherFrame;
-    FLauncherFrame.DropFiles(Files);
-    Exit;
-  end;
-  if PanelExplorer.Visible then
-  begin
-    EnsureExplorerFrame;
-    FExplorerFrame.DropFile(Files);
-    Exit;
-  end;
-  if PanelAccessory.Visible then
-  begin
-    EnsureAccessoryCatalogFrame;
-    FAccessoryCatalogFrame.DropFiles(Files);
-    Exit;
-  end;
-  PoseWasActive := PanelPoseMotion.Visible;
-  DropKinds := ClassifyMmdStudioDropFiles(Files);
-  if mdkPmx in DropKinds then
-  begin
-    EnsurePmxCatalogFrame;
-    FPmxCatalogFrame.DropFiles(Files);
-  end;
-  if mdkVpd in DropKinds then
-  begin
-    EnsurePmxCatalogFrame;
-    if PoseWasActive then
-    begin
-      EnsurePoseCatalogFrame;
-      FPoseCatalogFrame.ImportVpdFiles(Files);
-    end
-    else
-      FPmxCatalogFrame.ImportVpdFiles(Files);
-  end;
-  if mdkVmd in DropKinds then
-  begin
-    EnsureMotionCatalogFrame;
-    FMotionCatalogFrame.ImportVmdFiles(Files);
-  end;
-  // Explorer以外のページでは未知のドロップを無視する。AviUtl2が選択なしの
-  // 内部ドラッグをファイル通知として送っても、表示ページを切り替えない。
-end;
-
 procedure TFrameMMDAnimationStudio.EnsureAccessoryCatalogFrame;
 begin
-  if Assigned(FAccessoryCatalogFrame) then Exit;
-  FAccessoryCatalogFrame := TFrameMmdAccessoryCatalog.Create(Self);
-  FAccessoryCatalogFrame.Parent := PanelAccessory;
-  FAccessoryCatalogFrame.Align := alClient;
+  FPages.EnsureAccessory;
+  FAccessoryCatalogFrame := FPages.Accessory;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureMotionCatalogFrame;
 begin
-  EnsurePmxCatalogFrame;
-  if Assigned(FMotionCatalogFrame) then
-  begin
-    FMotionCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
-    Exit;
-  end;
-  FMotionCatalogFrame := TFrameMmdMotionCatalog.Create(Self);
-  FMotionCatalogFrame.Parent := PanelMotion;
-  FMotionCatalogFrame.Align := alClient;
-  FMotionCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
-  FMotionCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+  FPages.EnsureMotion;
+  FPmxCatalogFrame := FPages.Pmx;
+  FMotionCatalogFrame := FPages.Motion;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureExplorerFrame;
 begin
-  if Assigned(FExplorerFrame) then
-    Exit;
-
-  FExplorerFrame := TFrameExplorer.Create(Self);
-  FExplorerFrame.Parent := PanelExplorer;
-  FExplorerFrame.Align := alClient;
+  FPages.EnsureExplorer;
+  FExplorerFrame := FPages.Explorer;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureLauncherFrame;
 begin
-  if Assigned(FLauncherFrame) then
-    Exit;
-
-  FLauncherFrame := TFrameLauncher.Create(Self);
-  FLauncherFrame.Parent := PanelLaunch;
-  FLauncherFrame.Align := alClient;
+  FPages.EnsureLauncher;
+  FLauncherFrame := FPages.Launcher;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsurePmxCatalogFrame;
 begin
-  if Assigned(FPmxCatalogFrame) then
-    Exit;
-
-  FPmxCatalogFrame := TFramePmxCatalog.Create(Self);
-  FPmxCatalogFrame.Parent := PanelPmx;
-  FPmxCatalogFrame.Align := alClient;
-  FPmxCatalogFrame.Visible := True;
-  FPmxCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
-  FPmxCatalogFrame.Show;
+  FPages.EnsurePmx;
+  FPmxCatalogFrame := FPages.Pmx;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsurePoseCatalogFrame;
 begin
-  EnsurePmxCatalogFrame;
-  if Assigned(FPoseCatalogFrame) then
-  begin
-    FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
-    Exit;
-  end;
+  FPages.EnsurePose;
+  FPmxCatalogFrame := FPages.Pmx;
+  FPoseCatalogFrame := FPages.Pose;
+end;
 
-  FPoseCatalogFrame := TFrameMmdPoseCatalog.Create(Self);
-  FPoseCatalogFrame.Parent := PanelPoseMotion;
-  FPoseCatalogFrame.Align := alClient;
-  FPoseCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
-  FPoseCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+procedure TFrameMMDAnimationStudio.EnsurePoseSyncPage;
+begin
+  FPages.EnsurePoseSync;
+  FTimelinePosePage := FPages.PoseSync;
 end;
 
 procedure TFrameMMDAnimationStudio.EnsureFaceCatalogFrame;
 begin
-  EnsurePmxCatalogFrame;
-  if Assigned(FFaceCatalogFrame) then
-  begin
-    FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
-    Exit;
-  end;
-
-  FFaceCatalogFrame := TFrameMmdFaceCatalog.Create(Self);
-  FFaceCatalogFrame.Parent := PanelExpression;
-  FFaceCatalogFrame.Align := alClient;
-  FFaceCatalogFrame.OnPmxSelectionChanged := PmxSelectionChanged;
-  FFaceCatalogFrame.SetCatalog(FPmxCatalogFrame.Catalog);
+  FPages.EnsureFace;
+  FPmxCatalogFrame := FPages.Pmx;
+  FFaceCatalogFrame := FPages.Face;
 end;
-
 procedure TFrameMMDAnimationStudio.EnsureSerifFrame;
 begin
   FSerifHost.EnsureFrame;
@@ -335,13 +278,18 @@ begin
       end;
     3:
       begin
+        EnsurePoseSyncPage;
+        FTimelinePosePage.Activate;
+      end;
+    4:
+      begin
         EnsureMotionCatalogFrame;
         FSelectedPmxId := TargetPmxId;
         FMotionCatalogFrame.SelectPmxId(TargetPmxId);
         FMotionCatalogFrame.Visible := True;
         FMotionCatalogFrame.Show;
       end;
-    4:
+    5:
       begin
         EnsureFaceCatalogFrame;
         FSelectedPmxId := TargetPmxId;
@@ -349,17 +297,17 @@ begin
         FFaceCatalogFrame.Visible := True;
         FFaceCatalogFrame.Show;
       end;
-    5:
+    6:
       begin
         EnsureSerifFrame;
         FSerifHost.Show;
       end;
-    6:
+    7:
       begin
         EnsureExplorerFrame;
         FExplorerFrame.Show;
       end;
-    8:
+    9:
       begin
         EnsureLauncherFrame;
         FLauncherFrame.Show;
@@ -370,6 +318,8 @@ end;
 procedure TFrameMMDAnimationStudio.PageChanging(Sender: TObject;
   Index: Integer);
 begin
+  if PanelPoseSync.Visible and Assigned(FTimelinePosePage) then
+    FTimelinePosePage.Deactivate;
   // ページを隠すと一覧が先頭へ戻ることがあるため、可視中の選択を切替前に保存する。
   if PanelPmx.Visible and Assigned(FPmxCatalogFrame) and
     (FPmxCatalogFrame.SelectedPmxId <> '') then
@@ -378,6 +328,11 @@ end;
 
 procedure TFrameMMDAnimationStudio.ProjectLoaded;
 begin
+  if Assigned(FTimelinePosePage) then
+  begin
+    FTimelinePosePage.Deactivate;
+    if PanelPoseSync.Visible then FTimelinePosePage.Activate(False);
+  end;
   FSerifHost.ProjectLoaded;
 end;
 
@@ -389,20 +344,46 @@ end;
 
 procedure TFrameMMDAnimationStudio.SceneChanged(SceneID: Integer);
 begin
-  FSerifHost.SceneChanged(SceneID);
+  // AviUtl2の編集セクション内では再度CallEditSectionを呼べない。
+  InterlockedExchange(FPendingSceneID, SceneID);
+  if not HandleAllocated then Exit;
+  if InterlockedCompareExchange(FSceneChangePosted, 1, 0) = 0 then
+    if not PostMessage(Handle, WM_MMD_APPLY_SCENE_CHANGED, 0, 0) then
+      InterlockedExchange(FSceneChangePosted, 0);
+end;
+
+procedure TFrameMMDAnimationStudio.WmApplySceneChanged(
+  var Message: TMessage);
+var
+  SceneID: Integer;
+begin
+  InterlockedExchange(FSceneChangePosted, 0);
+  SceneID := InterlockedExchange(FPendingSceneID, -1);
+  Message.Result := 0;
+  if SceneID < 0 then Exit;
+  try
+    if Assigned(FTimelinePosePage) then
+    begin
+      FTimelinePosePage.Deactivate;
+      if PanelPoseSync.Visible then FTimelinePosePage.Activate(False);
+    end;
+    FSerifHost.SceneChanged(SceneID);
+  except
+    // シーン変更のUI通知境界へ例外を漏らさない。
+  end;
 end;
 
 procedure TFrameMMDAnimationStudio.PmxSelectionChanged(Sender: TObject);
 begin
-  SynchronizeMmdStudioPmxSelection(Sender, FPmxCatalogFrame,
-    FPoseCatalogFrame, FMotionCatalogFrame, FFaceCatalogFrame,
+  SynchronizeMmdStudioPmxSelection(Sender, FPages.Pmx,
+    FPages.Pose, FPages.Motion, FPages.Face,
     FSelectedPmxId, FSyncingPmxSelection);
   PublishAiPoseCatalogContext;
 end;
 
 procedure TFrameMMDAnimationStudio.PublishAiPoseCatalogContext;
 begin
-  PublishMmdAiCatalogContext(FPmxCatalogFrame, FSelectedPmxId);
+  PublishMmdAiCatalogContext(FPages.Pmx, FSelectedPmxId);
 end;
 
 function TFrameMMDAnimationStudio.RegisterAiPose(const PmxId, ModelFile,
@@ -429,6 +410,14 @@ begin
   // ランチャーページを開く前でもCtrl+Alt+数字を利用できるようにする。
   EnsureLauncherFrame;
   inherited Show;
+  FTimelinePoseTab.Start;
+  if FPendingSceneID >= 0 then SceneChanged(FPendingSceneID);
+end;
+
+procedure TFrameMMDAnimationStudio.SerifSelectionChanged(Sender: TObject);
+begin
+  if FToolbarController.ActiveIndex <> 6 then
+    FToolbarController.Activate(6);
 end;
 
 end.

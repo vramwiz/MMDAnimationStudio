@@ -13,7 +13,7 @@ uses
   PmxBoneSolver in '..\..\AviUtl2PluginLib\MMD\Core\PmxBoneSolver.pas',
   PmxMorph in '..\..\AviUtl2PluginLib\MMD\Core\PmxMorph.pas',
   PmxPoseCodec in '..\..\AviUtl2PluginLib\MMD\IO\PmxPoseCodec.pas',
-  MmdAiPoseRepository in '..\Source\AI\MmdAiPoseRepository.pas',
+  MmdAiPoseRepository in '..\Source\AI\Pose\MmdAiPoseRepository.pas',
   MmdVpdDirectory in '..\..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas',
   VpdPoseCodec in '..\..\AviUtl2PluginLib\MMD\VPD\IO\VpdPoseCodec.pas';
 

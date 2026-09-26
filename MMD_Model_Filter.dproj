@@ -129,11 +129,13 @@
         <DCCReference Include="Source\Plugin\Model\Context\MMD_Model_Context.pas"/>
         <DCCReference Include="Source\Plugin\Model\Context\LipSync\MMD_Model_LipSyncContext.pas"/>
         <DCCReference Include="Source\Plugin\Model\Input\Pose\MMD_Model_PoseInput.pas"/>
+        <DCCReference Include="Source\Plugin\Model\Input\MMD_Model_ReferenceGuard.pas"/>
         <DCCReference Include="Source\Plugin\Model\Input\Face\MMD_Model_FaceInput.pas"/>
         <DCCReference Include="Source\Plugin\Model\Input\Motion\MMD_Model_MotionInput.pas"/>
         <DCCReference Include="Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncProtocol.pas"/>
         <DCCReference Include="Source\Plugin\Model\Input\LipSync\MMD_Model_LipSyncInput.pas"/>
         <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_Renderer.pas"/>
+        <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_GlobalRotation.pas"/>
         <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_MaterialSelection.pas"/>
         <DCCReference Include="Source\Plugin\Model\Render\MMD_Model_DiagnosticRenderer.pas"/>
         <DCCReference Include="Source\Plugin\Model\Editor\MMD_Model_SettingsButton.pas"/>
@@ -155,6 +157,7 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\D3D\MmdD3DViewport.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseHistory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditOperations.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditSession.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingListRenderer.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingRows.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Morph\List\MmdMorphSettingValue.pas"/>
@@ -179,6 +182,7 @@
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorListTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\Theme\MmdPoseEditorComboTheme.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorLayout.pas"/>
+        <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorTools.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditorToolbarIcons.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\Editor\MmdPoseEditor.pas"/>
         <BuildConfiguration Include="Base">

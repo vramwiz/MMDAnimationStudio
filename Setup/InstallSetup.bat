@@ -9,6 +9,7 @@ set "SRC_SCRIPT=C:\ProgramData\aviutl2\Script\MMD"
 set "PACKAGE_DIR=%SCRIPT_DIR%Package"
 set "DST_PLUGIN=%PACKAGE_DIR%\Plugin"
 set "DST_SCRIPT=%PACKAGE_DIR%\Script"
+set "DST_LEARNING=%PACKAGE_DIR%\Learning"
 set "OUTPUT_ZIP=%SCRIPT_DIR%MMDAnimationStudio.zip"
 
 for /f "tokens=3 delims=' " %%A in ('findstr MMD_ANIMATION_STUDIO_VERSION "%ROOT_DIR%\Version.inc"') do set "VERSION=%%A"
@@ -19,12 +20,15 @@ if "%VERSION%"=="" (
 )
 
 echo MMDAnimationStudio distribution version: %VERSION%
-choice /c YN /m "Create distribution ZIP"
-if errorlevel 2 goto :CANCEL
+if /I not "%~1"=="/Y" (
+    choice /c YN /m "Create distribution ZIP"
+    if errorlevel 2 goto :CANCEL
+)
 
 if exist "%PACKAGE_DIR%" rmdir /s /q "%PACKAGE_DIR%"
 mkdir "%DST_PLUGIN%"
 mkdir "%DST_SCRIPT%"
+mkdir "%DST_LEARNING%"
 
 for %%F in (
     MMDAnimationStudio.aux2
@@ -41,6 +45,8 @@ for %%F in (
 ) do call :COPY_REQUIRED "%SRC_SCRIPT%\%%F" "%DST_SCRIPT%\%%F"
 
 call :COPY_REQUIRED "%ROOT_DIR%\README.md" "%PACKAGE_DIR%\README.md"
+call :COPY_REQUIRED "%ROOT_DIR%\Learning\MMD_POSE_LEARNING.md" "%DST_LEARNING%\MMD_POSE_LEARNING.md"
+call :COPY_REQUIRED "%ROOT_DIR%\Learning\confirmed-poses.json" "%DST_LEARNING%\confirmed-poses.json"
 
 if not "%ERRORFLAG%"=="0" goto :END
 
@@ -72,7 +78,7 @@ exit /b
 :CANCEL
 echo Distribution ZIP creation cancelled.
 echo.
-pause
+if /I not "%~1"=="/Y" pause
 endlocal
 exit /b
 
@@ -83,5 +89,5 @@ if "%ERRORFLAG%"=="0" (
     echo Distribution ZIP creation failed.
 )
 echo.
-pause
+if /I not "%~1"=="/Y" pause
 endlocal

@@ -16,7 +16,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <DCC_DcuOutput>$(MSBuildProjectDirectory)\$(Platform)\$(Config)\DCU</DCC_DcuOutput>
-        <DCC_UnitSearchPath>Source\AI;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\VPD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\AI;Source\AI\Pose;Source\AI\Preview\UI;Source\AI\Preview\Host;Source\AI\Preview\Pipe;Source\AI\Preview\Protocol;Source\AI\Preview\Diagnostics;Source\AI\Controller\Protocol;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Core;..\AviUtl2PluginLib\MMD\IO;..\AviUtl2PluginLib\MMD\VPD\IO;..\AviUtl2PluginLib\MMD\Editor;..\AviUtl2PluginLib\MMD\Editor\Theme;..\AviUtl2PluginLib\MMD\Editor\D3D;..\AviUtl2PluginLib\MMD\Editor\D3D\Temporary;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>MMDAIPreview</SanitizedProjectName>
     </PropertyGroup>
@@ -86,27 +86,27 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Source\AI\MmdAiPreviewHost.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseCatalogBridge.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseSession.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewPipeClient.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewMcpHost.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewMainForm.pas">
+        <DCCReference Include="Source\AI\Preview\Host\MmdAiPreviewHost.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseCatalogBridge.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseSession.pas"/>
+        <DCCReference Include="Source\AI\Preview\Pipe\MmdAiPreviewPipeClient.pas"/>
+        <DCCReference Include="Source\AI\Preview\Host\MmdAiPreviewMcpHost.pas"/>
+        <DCCReference Include="Source\AI\Preview\UI\MmdAiPreviewMainForm.pas">
             <Form>MainForm</Form>
         </DCCReference>
-        <DCCReference Include="Source\AI\MmdAiDiagnosticModel.pas"/>
-        <DCCReference Include="Source\AI\MmdAiDiagnosticOverlay.pas"/>
-        <DCCReference Include="Source\AI\MmdAiFingerIdValidation.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPlaceholderModel.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseRepository.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewBatch.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewCapture.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewFocus.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewPipeProtocol.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewPipeServer.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewPresentation.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewProtocol.pas"/>
-        <DCCReference Include="Source\AI\MmdAiProviderClient.pas"/>
+        <DCCReference Include="Source\AI\Preview\Diagnostics\MmdAiDiagnosticModel.pas"/>
+        <DCCReference Include="Source\AI\Preview\Diagnostics\MmdAiDiagnosticOverlay.pas"/>
+        <DCCReference Include="Source\AI\Preview\Diagnostics\MmdAiFingerIdValidation.pas"/>
+        <DCCReference Include="Source\AI\Preview\Diagnostics\MmdAiPlaceholderModel.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseRepository.pas"/>
+        <DCCReference Include="Source\AI\Preview\Host\MmdAiPreviewBatch.pas"/>
+        <DCCReference Include="Source\AI\Preview\UI\MmdAiPreviewCapture.pas"/>
+        <DCCReference Include="Source\AI\Preview\UI\MmdAiPreviewFocus.pas"/>
+        <DCCReference Include="Source\AI\Preview\Pipe\MmdAiPreviewPipeProtocol.pas"/>
+        <DCCReference Include="Source\AI\Preview\Pipe\MmdAiPreviewPipeServer.pas"/>
+        <DCCReference Include="Source\AI\Preview\UI\MmdAiPreviewPresentation.pas"/>
+        <DCCReference Include="Source\AI\Preview\Protocol\MmdAiPreviewProtocol.pas"/>
+        <DCCReference Include="Source\AI\Preview\Protocol\MmdAiProviderClient.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\VPD\IO\VpdPoseCodec.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\MMD\VPD\IO\MmdVpdDirectory.pas"/>
         <DCCReference Include="..\AviUtl2PluginLib\Lib\HorizontalTrackBar\HorizontalTrackBarRenderer.pas"/>

@@ -27,6 +27,10 @@ type
     FExternalExpressionWeights: TPmxMorphWeights;
     FExternalPoseText: string;
     FExternalPoses: TPmxNamedBonePoses;
+    FExternalRootRotation: TPmxQuaternion;
+    FExternalRootPresent: Boolean;
+    FExternalYaw, FExternalPitch: Single;
+    FExternalAnglePresent: Boolean;
     FExternalPoseValid: Boolean;
     FEyeBlinkModel: TPmxModel;
     FEyeBlinkMorphIndex: Integer;
@@ -43,6 +47,10 @@ type
     FPoseTransition: TMmdModelPoseTransition;
     FStandardPoseText: string;
     FStandardPoses: TPmxNamedBonePoses;
+    FStandardRootRotation: TPmxQuaternion;
+    FStandardRootPresent: Boolean;
+    FStandardYaw, FStandardPitch: Single;
+    FStandardAnglePresent: Boolean;
     FStandardPoseValid: Boolean;
     function GetEyeBlinkClosedWeight: Single;
     function GetLipSyncWeights: TPmxMorphWeights;
@@ -83,6 +91,11 @@ type
     property EffectID: Int64 read FEffectID;
     property ObjectID: Int64 read FObjectID;
     property ExternalPoses: TPmxNamedBonePoses read FExternalPoses;
+    property ExternalRootRotation: TPmxQuaternion read FExternalRootRotation;
+    property ExternalRootPresent: Boolean read FExternalRootPresent;
+    property ExternalYaw: Single read FExternalYaw;
+    property ExternalPitch: Single read FExternalPitch;
+    property ExternalAnglePresent: Boolean read FExternalAnglePresent;
     property ExternalPoseValid: Boolean read FExternalPoseValid;
     property ExternalExpressionValid: Boolean read FExternalExpressionValid;
     property ExternalExpressionWeights: TPmxMorphWeights
@@ -95,6 +108,9 @@ type
     property LipSyncWeights: TPmxMorphWeights read GetLipSyncWeights;
     property PoseTransition: TMmdModelPoseTransition read FPoseTransition;
     property StandardPoses: TPmxNamedBonePoses read FStandardPoses;
+    property StandardRootRotation: TPmxQuaternion read FStandardRootRotation;
+    property StandardYaw: Single read FStandardYaw;
+    property StandardPitch: Single read FStandardPitch;
     property StandardPoseValid: Boolean read FStandardPoseValid;
   end;
 
@@ -125,6 +141,8 @@ begin
   FEyeBlinkMorphIndex := -1;
   FLipSync := TMmdModelLipSyncContext.Create;
   FPoseTransition := TMmdModelPoseTransition.Create;
+  FExternalRootRotation := IdentityQuaternion;
+  FStandardRootRotation := IdentityQuaternion;
   ResetMmdEyeBlinkState(FEyeBlinkRuntime);
 end;
 
@@ -141,15 +159,25 @@ begin
 end;
 
 procedure DecodePoseText(const Text: string; var CachedText: string;
-  var CachedPoses: TPmxNamedBonePoses; var CachedValid: Boolean);
+  var CachedPoses: TPmxNamedBonePoses;
+  var CachedRootRotation: TPmxQuaternion; var CachedRootPresent,
+  CachedValid: Boolean; var CachedYaw, CachedPitch: Single;
+  var CachedAnglePresent: Boolean);
 begin
   if CachedText = Text then
     Exit;
   CachedText := Text;
   CachedPoses := nil;
+  CachedRootRotation := IdentityQuaternion;
+  CachedRootPresent := False;
+  CachedYaw := 0;
+  CachedPitch := 0;
+  CachedAnglePresent := False;
   CachedValid := False;
   try
-    CachedValid := TryDecodePoseData(Text, CachedPoses);
+    CachedValid := TryDecodePoseDataWithRootAndAngle(Text, CachedPoses,
+      CachedRootRotation, CachedRootPresent, CachedYaw, CachedPitch,
+      CachedAnglePresent);
   except
     CachedPoses := nil;
   end;
@@ -157,7 +185,9 @@ end;
 
 procedure TMmdModelContext.UpdateExternalPose(const Text: string);
 begin
-  DecodePoseText(Text, FExternalPoseText, FExternalPoses, FExternalPoseValid);
+  DecodePoseText(Text, FExternalPoseText, FExternalPoses,
+    FExternalRootRotation, FExternalRootPresent, FExternalPoseValid,
+    FExternalYaw, FExternalPitch, FExternalAnglePresent);
 end;
 
 procedure TMmdModelContext.UpdateExternalExpression(const Text: string);
@@ -178,7 +208,9 @@ end;
 
 procedure TMmdModelContext.UpdateStandardPose(const Text: string);
 begin
-  DecodePoseText(Text, FStandardPoseText, FStandardPoses, FStandardPoseValid);
+  DecodePoseText(Text, FStandardPoseText, FStandardPoses,
+    FStandardRootRotation, FStandardRootPresent, FStandardPoseValid,
+    FStandardYaw, FStandardPitch, FStandardAnglePresent);
 end;
 
 function TMmdModelContext.GetEyeBlinkClosedWeight: Single;

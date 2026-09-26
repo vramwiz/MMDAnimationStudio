@@ -13,6 +13,7 @@ type
   PEDIT_SECTION = ^TEDIT_SECTION;
   TFilterItemButtonCallback = procedure(Edit: PEDIT_SECTION); cdecl;
   TCountObjectEffectFunc = function(Obj: OBJECT_HANDLE; Effect: LPCWSTR): Integer; cdecl;
+  TFindObjectFunc = function(Layer, Frame: Integer): OBJECT_HANDLE; cdecl;
   TOBJECT_LAYER_FRAME = record
     Layer: Integer;
     StartFrame: Integer;
@@ -29,7 +30,7 @@ type
   TEDIT_SECTION = record
     Info: Pointer;
     CreateObjectFromAlias: Pointer;
-    FindObject: Pointer;
+    FindObject: TFindObjectFunc;
     CountObjectEffect: TCountObjectEffectFunc;
     GetObjectLayerFrame: TGetObjectLayerFrameFunc;
     GetObjectAlias: Pointer;

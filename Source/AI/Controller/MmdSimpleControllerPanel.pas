@@ -27,8 +27,11 @@ type
     constructor Create(AOwner: TComponent); override;
     // 親フォームへの接続後に実DPIで一覧の行高を揃える。
     procedure ApplyLayout;
+    // モデルで操作できる部位だけを一覧で選択可能にする。
     procedure SetModel(const Model: TPmxModel);
+    // 指定部位へ選択を移し、変更通知を呼ぶ。
     procedure SelectController(Controller: TMmdSimpleController);
+    // 十字キーの上下入力に従って部位選択を進める。
     procedure Navigate(POV: Cardinal);
     property OnSelectionChanged: TMmdSimpleSelectionEvent
       read FOnSelectionChanged write FOnSelectionChanged;

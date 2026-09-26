@@ -27,7 +27,7 @@ const
   AccessoryColor = TColor($00E6B450);
   MusicColor = TColor($00B469FF);
   LaunchColor = TColor($0078DC64);
-  LastImageIndex = 11;
+  LastImageIndex = 12;
 
 procedure DrawAccessoryIcon(Canvas: TCanvas; Size: Integer;
   GlyphColor: TColor);
@@ -188,6 +188,7 @@ begin
     9: DrawSerifToolbarIcon(Canvas, stiSerif, Size, SyncColor);
     10: DrawLaunchIcon(Canvas, Size, LaunchColor);
     11: DrawAccessoryIcon(Canvas, Size, AccessoryColor);
+    12: DrawRunningPersonIcon(Canvas, Size, SyncColor);
   end;
 end;
 

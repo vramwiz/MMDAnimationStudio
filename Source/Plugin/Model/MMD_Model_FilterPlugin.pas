@@ -15,12 +15,14 @@ implementation
 uses
   System.Math,
   System.SysUtils,
+  {$IFDEF DEBUG}Winapi.Windows,{$ENDIF}
   PluginFilterTable,
   MmdAiDiagnosticState,
   MmdMorphSettingCodec,
   PmxModel,
   PmxMorph,
   PmxPose,
+  PmxPoseMath,
   PmxReader,
   MMD_Model_Context,
   MMD_Model_DebugLog,
@@ -30,6 +32,7 @@ uses
   MMD_Model_MotionInput,
   MMD_Model_PoseInput,
   MMD_Model_PoseTransition,
+  MMD_Model_GlobalRotation,
   MMD_Model_FilterItems,
   MMD_Model_Renderer;
 
@@ -38,6 +41,7 @@ var
   PluginTableInitialized: Boolean;
 {$IFDEF DEBUG}
   ModelLipSyncLogCount: Integer;
+  ModelFrameLogCount: Integer;
 {$ENDIF}
 
 threadvar
@@ -65,6 +69,8 @@ var
   Fps: Double;
   Frame, I: Integer;
   InternalScale: Single;
+  ExternalRootRotation, FinalRotation, PoseRootRotation: TPmxQuaternion;
+  ExternalYaw, ExternalPitch, PoseYaw, PosePitch: Single;
   InitialExpressionActive: Boolean;
   LipSyncActive, LipSyncConfigured, LipSyncHasSample: Boolean;
   LipSyncSample: TMmdLipSyncSample;
@@ -81,10 +87,20 @@ var
   PoseDataText: string;
   PoseLayer: Integer;
   PoseReceived: Boolean;
-  PoseTransitionPoses: TPmxNamedBonePoses;
-  PoseTransitionWeight: Single;
+  PoseStartFrame, PoseEndFrame: Integer;
   SerializedPoseActive: Boolean;
+  UseSkinning: Boolean;
+{$IFDEF DEBUG}
+  ProcStartTick: UInt64;
+  FrameCallNumber: Integer;
+  ProcElapsed: UInt64;
+  StageTick, SkinElapsed, RotationElapsed, RenderElapsed: UInt64;
+{$ENDIF}
 begin
+  {$IFDEF DEBUG}
+  ProcStartTick := GetTickCount64;
+  FrameCallNumber := InterlockedIncrement(ModelFrameLogCount);
+  {$ENDIF}
   Result := 1;
   Context := nil;
   try
@@ -112,7 +128,7 @@ begin
         Fps := Video^.Scene^.Rate / Video^.Scene^.Scale;
       TryGetReferencedFaceData(Video, FaceLayer, ModelFileName, FaceDataText);
       PoseReceived := TryGetReferencedPoseData(Video, PoseLayer,
-        ModelFileName, PoseDataText);
+        ModelFileName, PoseDataText, PoseStartFrame, PoseEndFrame);
       MotionReceived := TryGetReferencedMotion(Video, MotionLayer,
         ModelFileName, MotionPoses, MotionMorphs);
       Context.UpdateStandardPose(string(ModelItems.StandardPoseData.Value));
@@ -132,15 +148,28 @@ begin
         ResolveMotionForModel(Model, MotionPoses, MotionMorphs, BonePoses,
           MotionMorphWeights, MotionPoseActive, MotionMorphActive);
       SerializedPoseActive := MotionPoseActive or SerializedPoseActive;
-      if Context.PoseTransition.Resolve(PoseReceived and
-        Context.ExternalPoseValid, Context.ExternalPoses, PoseLayer,
-        ModelFileName, Video^.Object_^.FrameS + Video^.Object_^.Frame, Fps,
-        EnsureRange(ModelItems.PoseReleaseTime.Value, 0.0, 10.0),
-        PoseTransitionPoses, PoseTransitionWeight) then
-        // 外部Poseは標準姿勢とMotionを土台に、同名ボーンを上書きする。
-        SerializedPoseActive := ApplyWeightedNamedBonePoses(Model,
-          PoseTransitionPoses, PoseTransitionWeight, BonePoses) or
-          SerializedPoseActive;
+      PoseRootRotation := Context.StandardRootRotation;
+      PoseYaw := Context.StandardYaw;
+      PosePitch := Context.StandardPitch;
+      ExternalRootRotation := Context.StandardRootRotation;
+      if Context.ExternalRootPresent then
+        ExternalRootRotation := Context.ExternalRootRotation;
+      ExternalYaw := Context.StandardYaw;
+      ExternalPitch := Context.StandardPitch;
+      if Context.ExternalAnglePresent then
+      begin
+        ExternalYaw := Context.ExternalYaw;
+        ExternalPitch := Context.ExternalPitch;
+      end;
+      // Pose間の連続遷移では、前フレームに表示した姿勢を補間元に使う。
+      SerializedPoseActive := Context.PoseTransition.Resolve(Model,
+        PoseReceived and Context.ExternalPoseValid, Context.ExternalPoses,
+        ExternalRootRotation, ExternalYaw, ExternalPitch, PoseLayer,
+        ModelFileName, Video^.Object_^.FrameS + Video^.Object_^.Frame,
+        PoseStartFrame, PoseEndFrame, Fps,
+        EnsureRange(ModelItems.PoseTransitionTime.Value, 0.0, 10.0),
+        BonePoses, PoseRootRotation, PoseYaw, PosePitch) or
+        SerializedPoseActive;
       InitialExpressionActive := Context.ResolveInitialExpression(Model);
       ExternalExpressionActive := Context.ResolveExternalExpression(Model);
       if Context.ExternalExpressionValid then
@@ -259,6 +288,11 @@ begin
           MorphActive := True;
           Break;
         end;
+      FinalRotation := NormalizeQuaternion(MultiplyQuaternion(
+        PoseRelativeRotation(PoseYaw, PosePitch), PoseRootRotation));
+      UseSkinning := SerializedPoseActive or MorphActive or
+        HasModelRotation(FinalRotation);
+      {$IFDEF DEBUG}StageTick := GetTickCount64;{$ENDIF}
       if MorphActive then
       begin
         ApplyMorphs(Model, CombinedMorphWeights, BonePoses, MorphPositions);
@@ -266,21 +300,52 @@ begin
         SkinVerticesLinear(Model, MorphPositions, BoneTransforms,
           SkinnedVertices);
       end
-      else if SerializedPoseActive then
+      else if UseSkinning then
       begin
         CalculateBoneTransforms(Model, BonePoses, BoneTransforms);
         SkinVerticesLinear(Model, BoneTransforms, SkinnedVertices);
       end;
+      {$IFDEF DEBUG}
+      SkinElapsed := GetTickCount64 - StageTick;
+      StageTick := GetTickCount64;
+      {$ENDIF}
+      if UseSkinning then
+        RotateModelGeometry(FinalRotation, BoneTransforms, SkinnedVertices);
+      {$IFDEF DEBUG}
+      RotationElapsed := GetTickCount64 - StageTick;
+      StageTick := GetTickCount64;
+      {$ENDIF}
       RenderPmxModel(Video, Model, BoneTransforms, SkinnedVertices,
-        CombinedMorphWeights, SerializedPoseActive or MorphActive, DisplayMode,
+        CombinedMorphWeights, UseSkinning, DisplayMode,
         DiagnosticMode, DiagnosticActive,
         InternalScale,
         EnsureRange(ModelItems.BoneOffsetX.Value, -100.0, 100.0));
+      {$IFDEF DEBUG}
+      RenderElapsed := GetTickCount64 - StageTick;
+      ProcElapsed := GetTickCount64 - ProcStartTick;
+      if (FrameCallNumber <= 20) or (FrameCallNumber mod 60 = 0) or
+        (ProcElapsed >= 50) then
+        MmdModelDebugLog('pose_frame call=' + IntToStr(FrameCallNumber) +
+          ' frame=' + IntToStr(Frame) +
+          ' pose_received=' + BoolToStr(PoseReceived, True) +
+          ' yaw=' + FloatToStr(PoseYaw, TFormatSettings.Invariant) +
+          ' pitch=' + FloatToStr(PosePitch, TFormatSettings.Invariant) +
+          ' skinned=' + BoolToStr(UseSkinning, True) +
+          ' vertices=' + IntToStr(Length(SkinnedVertices)) +
+          ' skin_ms=' + UIntToStr(SkinElapsed) +
+          ' rotate_ms=' + UIntToStr(RotationElapsed) +
+          ' render_ms=' + UIntToStr(RenderElapsed) +
+          ' ms=' + UIntToStr(ProcElapsed));
+      {$ENDIF}
       if Assigned(Video^.SetDefaultAnchor) then
         Video^.SetDefaultAnchor(640, 640);
       Result := 0;
     except
       // Delphi例外をAviUtl2のコールバック境界より外へ漏らさない。
+      {$IFDEF DEBUG}
+      on E: Exception do MmdModelDebugLog('pose_frame_exception ' +
+        E.ClassName + ' frame_call=' + IntToStr(FrameCallNumber));
+      {$ENDIF}
     end;
   finally
     ReleaseModelContext(Context);

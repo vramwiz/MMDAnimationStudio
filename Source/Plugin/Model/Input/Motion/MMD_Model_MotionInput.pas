@@ -25,6 +25,7 @@ procedure ResolveMotionForModel(const Model: TPmxModel;
 implementation
 
 uses
+  MMD_Model_ReferenceGuard,
   MmdMotionSharedMemory;
 
 function TryGetReferencedMotion(Video: PFILTER_PROC_VIDEO;
@@ -40,7 +41,7 @@ begin
   MotionPoses := nil;
   MotionMorphs := nil;
   if (Video = nil) or not Assigned(Video^.GetImageObject) or
-    (Video^.Object_ = nil) or (MotionLayer <= 0) then Exit;
+    not CanEvaluateMmdModelReference(Video, MotionLayer) then Exit;
   try
     MotionObject := Video^.GetImageObject(MotionLayer - 1, 0.0);
     if MotionObject = nil then Exit;

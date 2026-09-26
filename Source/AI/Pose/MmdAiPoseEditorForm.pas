@@ -13,6 +13,7 @@ uses
   DarkPanel,
   MmdAiPoseSession,
   MmdSimpleControllerPanel,
+  MmdSimplePoseEditSession,
   MmdSimpleControllerSolver,
   MmdProControllerInput,
   MmdModelSettingEditor,
@@ -33,9 +34,7 @@ type
     FPoseName: string;
     FSessionId: string;
     FSessionRegistered: Boolean;
-    FSimpleBeforePoses: TPmxBonePoses;
-    FSimpleChanged: Boolean;
-    FSimpleEditing: Boolean;
+    FSimpleSession: TMmdSimplePoseEditSession;
     FTopToolbarPanel: TDarkPanel;
     FSimpleModeButton: TMmdDarkButton;
     FSimplePanel: TMmdSimpleControllerPanel;
@@ -146,6 +145,7 @@ var
   PPI: Integer;
 begin
   inherited CreateEditor(ModelFileName, PoseData, EditorCaption);
+  FSimpleSession := TMmdSimplePoseEditSession.Create;
   FModelFile := ModelFileName;
   FPoseName := PoseName;
   FSessionId := NewSessionId;
@@ -197,6 +197,7 @@ destructor TMmdAiPoseEditorForm.Destroy;
 begin
   if FGamepadTimer <> nil then FGamepadTimer.Enabled := False;
   FGamepadInput.Free;
+  FSimpleSession.Free;
   if FSessionRegistered and HandleAllocated then
     UnregisterMmdAiPoseSession(Handle);
   inherited Destroy;
@@ -446,7 +447,7 @@ begin
     FGamepadPending := False;
     FGamepadAwaitNeutral := True;
   end;
-  if not FSimpleEditing then FSimplePanel.Navigate(POV);
+  if not FSimpleSession.Editing then FSimplePanel.Navigate(POV);
 end;
 
 procedure TMmdAiPoseEditorForm.KeyDown(var Key: Word; Shift: TShiftState);
@@ -501,38 +502,22 @@ begin
   if FModel = nil then Exit;
   if Stage = sesBegin then
   begin
-    FSimpleBeforePoses := Copy(FPoses);
-    FSimpleChanged := False;
-    FSimpleEditing := CanUseSimpleController(FModel, Controller);
+    FSimpleSession.BeginEdit(FModel, Controller, FPoses);
     Exit;
   end;
-  if not FSimpleEditing then
+  if (Stage = sesEnd) and FSimpleSession.Commit(FHistory) then
   begin
-    if Stage = sesEnd then FSimpleBeforePoses := nil;
-    Exit;
-  end;
-  if Stage = sesEnd then
-  begin
-    if FSimpleChanged then
-    begin
-      FHistory.RecordBeforeEdit(FSimpleBeforePoses);
-      FUndoButton.Enabled := FHistory.CanUndo;
-      FRedoButton.Enabled := FHistory.CanRedo;
-      PoseStateChanged;
-    end;
-    FSimpleEditing := False;
-    FSimpleBeforePoses := nil;
+    FUndoButton.Enabled := FHistory.CanUndo;
+    FRedoButton.Enabled := FHistory.CanRedo;
+    PoseStateChanged;
   end;
 end;
 
 procedure TMmdAiPoseEditorForm.CancelGamepadEdit;
 begin
   if not FGamepadPending then Exit;
-  FPoses := Copy(FSimpleBeforePoses);
+  FSimpleSession.Cancel(FPoses);
   FViewport.SetScene(FModel, FPoses, SelectedViewportBone);
-  FSimpleEditing := False;
-  FSimpleChanged := False;
-  FSimpleBeforePoses := nil;
   FGamepadPending := False;
   FGamepadAwaitNeutral := True;
 end;
@@ -566,25 +551,12 @@ end;
 
 procedure TMmdAiPoseEditorForm.ApplyGamepadStep(X, Y, Z,
   Twist, Bend, TipPitch: Single);
-var
-  NewPoses: TPmxBonePoses;
-  WorldMove, WorldTurn: TPmxVector3;
 begin
-  if not FGamepadPending or not FSimpleEditing then Exit;
-  if (Abs(X) + Abs(Y) + Abs(Z) + Abs(Twist) +
-    Abs(Bend) + Abs(TipPitch)) < 0.000001 then Exit;
-  WorldMove := Default(TPmxVector3);
-  WorldTurn := Default(TPmxVector3);
-  AccumulateSimpleControllerViewInput(FGamepadController, X, Y, Z,
-    FViewport.Camera.Yaw, FViewport.Camera.Pitch, WorldMove, WorldTurn);
-  // 現在の姿勢を次の一歩の基準にし、可動限界で入力が溜まらないようにする。
-  if not ApplySimpleControllerWorldWithExtras(FModel, FPoses,
-    FGamepadController, WorldMove, WorldTurn, Twist, Bend,
-    TipPitch, FViewport.Camera.Yaw, FViewport.Camera.Pitch,
-    NewPoses) then Exit;
-  FPoses := NewPoses;
+  if not FGamepadPending or
+    not FSimpleSession.ApplyViewStep(FModel, FGamepadController, FPoses,
+      X, Y, Z, Twist, Bend, TipPitch, FViewport.Camera.Yaw,
+      FViewport.Camera.Pitch) then Exit;
   FViewport.SetScene(FModel, FPoses, SelectedViewportBone);
-  FSimpleChanged := True;
 end;
 
 procedure TMmdAiPoseEditorForm.SimpleInitialStateCloseQuery(Sender: TObject;
@@ -601,14 +573,9 @@ begin
 end;
 
 procedure TMmdAiPoseEditorForm.ResetSelectedController;
-var
-  BeforePoses, NewPoses: TPmxBonePoses;
 begin
-  BeforePoses := Copy(FPoses);
-  if not ResetSimpleController(FModel, BeforePoses,
-    FSimplePanel.SelectedController, NewPoses) then Exit;
-  FPoses := NewPoses;
-  FHistory.RecordBeforeEdit(BeforePoses);
+  if not FSimpleSession.ResetController(FModel,
+    FSimplePanel.SelectedController, FPoses, FHistory) then Exit;
   FUndoButton.Enabled := FHistory.CanUndo;
   FRedoButton.Enabled := FHistory.CanRedo;
   FViewport.SetScene(FModel, FPoses, SelectedViewportBone);
@@ -714,12 +681,12 @@ begin
     (State.POV <> FGamepadPreviousPOV) and
     (FSimplePanel.SelectedController in [scLeftHand, scRightHand,
       scLeftFoot, scRightFoot]) and
-    not FGamepadPending and not FSimpleEditing then
+    not FGamepadPending and not FSimpleSession.Editing then
   begin
     FGamepadController := FSimplePanel.SelectedController;
     FGamepadPending := True;
     ApplySimpleEditStage(FGamepadController, sesBegin);
-    if not FSimpleEditing then FGamepadPending := False;
+    if not FSimpleSession.Editing then FGamepadPending := False;
   end;
   if FGamepadPending then
   begin
@@ -767,7 +734,7 @@ begin
         DeltaBend, DeltaTipPitch);
     end;
   end
-  else if not FSimpleEditing then
+  else if not FSimpleSession.Editing then
   begin
     if (Abs(State.LeftX) <= 0.005) and
       (Abs(State.LeftY) <= 0.005) then FGamepadAwaitNeutral := False;
@@ -783,7 +750,7 @@ begin
       FGamepadController := FSimplePanel.SelectedController;
       FGamepadPending := True;
       ApplySimpleEditStage(FGamepadController, sesBegin);
-      if not FSimpleEditing then FGamepadPending := False;
+      if not FSimpleSession.Editing then FGamepadPending := False;
     end;
   end;
   FGamepadPreviousButtons := State.Buttons;

@@ -24,6 +24,7 @@ type
     FToolbarPanel: TPanel;
     FUpdatingHeight: Boolean;
     procedure ButtonClick(Sender: TObject);
+    function GetActiveIndex: Integer;
   public
     // ツールバーと表示対象パネルを関連付ける。渡されたControlは所有しない。
     constructor Create(AToolbarPanel: TPanel; AToolbar: TToolBar;
@@ -37,6 +38,7 @@ type
     procedure Initialize(CurrentPpi: Integer);
     // DPIや折返し後のボタン矩形からツールバー領域の必要高さを再計算する。
     procedure UpdateHeight(CurrentPpi: Integer);
+    property ActiveIndex: Integer read GetActiveIndex;
   end;
 
 implementation
@@ -91,6 +93,11 @@ procedure TMmdStudioToolbarController.ButtonClick(Sender: TObject);
 begin
   if Sender is TToolButton then
     Activate(TToolButton(Sender).Index);
+end;
+
+function TMmdStudioToolbarController.GetActiveIndex: Integer;
+begin
+  Result := FManager.ActiveIndex;
 end;
 
 destructor TMmdStudioToolbarController.Destroy;

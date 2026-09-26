@@ -27,7 +27,8 @@ type
     function RenderPmxNamedInternal(const FileName: string;
       const NamedPoses: TPmxNamedBonePoses;
       const NamedMorphs: TMmdNamedMorphWeights; Width, Height: Integer;
-      Bitmap: TBitmap; FocusHead: Boolean; CameraYaw: Single = 0): Boolean;
+      Bitmap: TBitmap; FocusHead: Boolean;
+      const RootRotation: TPmxQuaternion; CameraYaw: Single = 0): Boolean;
   protected
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
@@ -74,6 +75,7 @@ uses
   System.SysUtils,
   PmxMorph,
   PmxPoseCodec,
+  PmxPoseMath,
   PmxReader,
   ObjReader,
   MmdD3DScene;
@@ -214,7 +216,7 @@ function TPmxCatalogThumbnailRenderer.RenderPmxNamedState(
   Bitmap: Vcl.Graphics.TBitmap): Boolean;
 begin
   Result := RenderPmxNamedInternal(FileName, NamedPoses, NamedMorphs,
-    Width, Height, Bitmap, False);
+    Width, Height, Bitmap, False, IdentityQuaternion);
 end;
 
 function TPmxCatalogThumbnailRenderer.RenderPmxFace(const FileName,
@@ -271,21 +273,32 @@ function TPmxCatalogThumbnailRenderer.RenderPmxInternal(const FileName,
 var
   NamedMorphs: TMmdNamedMorphWeights;
   NamedPoses: TPmxNamedBonePoses;
+  RootRotation: TPmxQuaternion;
+  RelativeYaw, RelativePitch: Single;
+  HasRoot, HasAngle: Boolean;
 begin
   NamedPoses := nil;
   NamedMorphs := nil;
-  if PoseData <> '' then TryDecodePoseData(PoseData, NamedPoses);
+  RootRotation := IdentityQuaternion;
+  RelativeYaw := 0;
+  RelativePitch := 0;
+  if PoseData <> '' then
+    TryDecodePoseDataWithRootAndAngle(PoseData, NamedPoses, RootRotation,
+      HasRoot, RelativeYaw, RelativePitch, HasAngle);
+  RootRotation := NormalizeQuaternion(MultiplyQuaternion(
+    QuaternionFromYawPitchDegrees(RelativeYaw, RelativePitch),
+    RootRotation));
   if FaceData <> '' then
     TryDecodeMmdMorphSettingData(FaceData, NamedMorphs);
   Result := RenderPmxNamedInternal(FileName, NamedPoses, NamedMorphs,
-    Width, Height, Bitmap, FocusHead, CameraYaw);
+    Width, Height, Bitmap, FocusHead, RootRotation, CameraYaw);
 end;
 
 function TPmxCatalogThumbnailRenderer.RenderPmxNamedInternal(
   const FileName: string; const NamedPoses: TPmxNamedBonePoses;
   const NamedMorphs: TMmdNamedMorphWeights; Width, Height: Integer;
   Bitmap: Vcl.Graphics.TBitmap; FocusHead: Boolean;
-  CameraYaw: Single): Boolean;
+  const RootRotation: TPmxQuaternion; CameraYaw: Single): Boolean;
 var
   Camera: TMmdPreviewCamera;
   Model: TPmxModel;
@@ -316,6 +329,7 @@ begin
     Target := EmptyPreviewTarget;
     Camera := DefaultPreviewCamera;
     Camera.Yaw := CameraYaw;
+    FRenderer.SetRootRotation(RootRotation);
     FRenderer.SetScene(Model, Poses, MorphWeights, Target, Target);
     if FocusHead then
       TryHeadCamera(Model, Poses, MorphWeights, Width, Height, Camera);

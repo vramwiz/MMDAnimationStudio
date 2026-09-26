@@ -116,6 +116,7 @@ const
 var
   DrawOrder: TArray<Integer>;
   Found: array[0..42] of Boolean;
+  EyeBefore: array[17..24] of Boolean;
   I, SelectedVertexCount: Integer;
   Model: TPmxModel;
   Resolved: TArray<TPmxMaterial>;
@@ -125,9 +126,8 @@ begin
     SetMaterialCounts(Model, MATERIAL_COUNTS);
     for I := 0 to High(Model.Materials) do
       Model.Materials[I].Diffuse.W := 1.0;
-    Model.Materials[38].Diffuse.W := 0.0;
-    Model.Materials[40].Diffuse.W := 0.0;
-    Model.Materials[42].Diffuse.W := 0.0;
+    for I in [5, 25, 26, 33, 38, 39, 40, 41, 42] do
+      Model.Materials[I].Diffuse.W := 0.0;
     Resolved := Copy(Model.Materials);
     // 袖切替で通常トップ・靴・武器が消え、別袖材質が現れた状態を模擬する。
     Resolved[9].Diffuse.W := 0.0;
@@ -148,6 +148,34 @@ begin
       raise Exception.Create('visible material morph target was omitted');
     if SelectedVertexCount > 262144 then
       raise Exception.Create('resolved material order exceeded vertex limit');
+
+    // 実プロジェクトのランドセル非表示状態から武器だけを消しても、
+    // 空いた頂点枠へ別の目材質が突然加わって見た目を変えない。
+    Resolved := Copy(Model.Materials);
+    Resolved[7].Diffuse.W := 0.0;
+    Resolved[13].Diffuse.W := 0.0;
+    DrawOrder := SelectResolvedPmxMaterialDrawOrder(Model, Resolved);
+    FillChar(Found, SizeOf(Found), 0);
+    for I in DrawOrder do Found[I] := True;
+    for I := Low(EyeBefore) to High(EyeBefore) do
+      EyeBefore[I] := Found[I];
+
+    Resolved[10].Diffuse.W := 0.0;
+    DrawOrder := SelectResolvedPmxMaterialDrawOrder(Model, Resolved);
+    FillChar(Found, SizeOf(Found), 0);
+    SelectedVertexCount := 0;
+    for I in DrawOrder do
+    begin
+      Found[I] := True;
+      if Resolved[I].Diffuse.W > 0.0001 then
+        Inc(SelectedVertexCount, MATERIAL_COUNTS[I]);
+    end;
+    for I := Low(EyeBefore) to High(EyeBefore) do
+      if Found[I] <> EyeBefore[I] then
+        raise Exception.CreateFmt(
+          'hiding weapon changed eye material %d selection', [I]);
+    if SelectedVertexCount > 262144 then
+      raise Exception.Create('hidden weapon order exceeded vertex limit');
   finally
     Model.Free;
   end;

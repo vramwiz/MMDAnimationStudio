@@ -1,0 +1,637 @@
+materials=43 morphs=78
+bounds 0 x=-0.77..0.77 y=15.63..16.11 z=-0.77..-0.63
+bounds 10 x=-3.89..3.89 y=10.05..18.71 z=0.77..4.37
+bounds 13 x=-1.52..1.52 y=11.14..14.44 z=-0.20..1.97
+bounds 17 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 18 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 19 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 20 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 21 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 22 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 23 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+bounds 24 x=-0.77..0.77 y=15.63..16.11 z=-0.76..-0.62
+morph 0 �^�ʖ� panel=1 type=1
+morph 1 �{�� panel=1 type=1
+morph 2 ���� panel=1 type=1
+morph 3 �ɂ��� panel=1 type=1
+morph 4 �߂��� panel=1 type=1
+morph 5 ���\�� panel=1 type=1
+morph 6 �ʏ� panel=1 type=1
+morph 7 �{��2 panel=1 type=1
+morph 8 ����2 panel=1 type=1
+morph 9 �߂���2 panel=1 type=1
+morph 10 �ɂ���2 panel=1 type=1
+morph 11 �� panel=1 type=1
+morph 12 �� panel=1 type=1
+morph 13 �܂΂��� panel=2 type=1
+morph 14 �΂� panel=2 type=1
+morph 15 �E�B���N panel=2 type=1
+morph 16 �E�B���N�E panel=2 type=1
+morph 17 �E�B���N�Q panel=2 type=1
+morph 18 ��ݸ�E�Q panel=2 type=1
+morph 19 �Ȃ��� panel=2 type=1
+morph 20 ���Ɩ� panel=2 type=1
+morph 21 �͂� panel=2 type=1
+morph 22 �т����� panel=2 type=1
+morph 23 ���� panel=2 type=1
+morph 24 ��̫�Җ� panel=2 type=1
+morph 25 �� panel=3 type=1
+morph 26 �� panel=3 type=1
+morph 27 �� panel=3 type=1
+morph 28 �� panel=3 type=1
+morph 29 �� panel=3 type=1
+morph 30 �� panel=3 type=1
+morph 31 �ɂ�� panel=3 type=1
+morph 32 �ɂ��2 panel=3 type=1
+morph 33 �ɂ��� panel=3 type=1
+morph 34 �� panel=3 type=1
+morph 35 �Ղ��� panel=3 type=1
+morph 36 �Ђ��� panel=3 type=1
+morph 37 �� panel=3 type=1
+morph 38 �{��� panel=3 type=1
+morph 39 ���� panel=3 type=1
+morph 40 �̂� panel=3 type=1
+morph 41 �Ղ��[ panel=3 type=1
+morph 42 �ׁ[ panel=3 type=1
+morph 43 ���� panel=3 type=1
+morph 44 �ς� panel=3 type=1
+morph 45 ���� panel=3 type=1
+morph 46 �H�����΂� panel=3 type=1
+morph 47 �� panel=3 type=1
+morph 48 �؂� panel=3 type=1
+morph 49 �ԧ panel=4 type=1
+morph 50 (�O�ցO) panel=4 type=1
+morph 51 ^q^ panel=4 type=1
+morph 52 (�L��֥`) panel=4 type=1
+morph 53 (�M�E�ցE�L) panel=4 type=1
+morph 54 ���� panel=4 type=1
+morph 55 ʲײď� panel=4 type=1
+morph 56 ���� panel=4 type=1
+morph 57 ���邤�� panel=4 type=1
+morph 58 ���|�� panel=4 type=1
+morph 59 �������� panel=4 type=1
+morph 60 �n�[�g panel=4 type=1
+morph 61 ��̫�ғ� panel=4 type=1
+morph 62 �O���� panel=4 type=1
+morph 63 �P�F�� panel=4 type=1
+morph 64 �ۖ� panel=4 type=1
+morph 65 ���Ȃ� panel=4 type=1
+morph 66 ������ panel=4 type=1
+morph 67 �� panel=4 type=1
+morph 68 �Ƃ� panel=4 type=8
+ offset 32 operation=0 alpha=0.000
+ offset 33 operation=1 alpha=1.000
+morph 69 �`�[�N���� panel=4 type=8
+ offset 32 operation=0 alpha=0.000
+morph 70 ���� panel=4 type=8
+ offset 25 operation=1 alpha=1.000
+morph 71 �e panel=4 type=8
+ offset 26 operation=1 alpha=1.000
+morph 72 �O�����] panel=4 type=8
+ offset 5 operation=1 alpha=1.000
+ offset 6 operation=0 alpha=0.000
+morph 73 ���肽��C�� panel=4 type=8
+ offset 10 operation=0 alpha=0.000
+morph 74 ���޾ُ� panel=4 type=8
+ offset 7 operation=0 alpha=0.000
+ offset 13 operation=0 alpha=0.000
+morph 75 ������ panel=4 type=8
+ offset 9 operation=0 alpha=0.000
+morph 76 �������|�� panel=4 type=8
+ offset 14 operation=0 alpha=0.000
+ offset 38 operation=1 alpha=1.000
+ offset 40 operation=1 alpha=1.000
+ offset 42 operation=1 alpha=1.000
+morph 77 �r�܂��� panel=4 type=8
+ offset 14 operation=0 alpha=0.000
+ offset 39 operation=1 alpha=1.000
+ offset 38 operation=1 alpha=1.000
+ offset 41 operation=1 alpha=1.000
+STATE morph=-2 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=0.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=0.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=FALSE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=-1 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=FALSE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=68 drawcount=31
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=0.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=1.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=69 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=0.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=70 drawcount=25
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=1.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=FALSE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=71 drawcount=25
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=1.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=72 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=1.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=0.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=73 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=0.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=0.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=0.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=74 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=0.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=0.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=75 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=0.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=1.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=0.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=FALSE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=FALSE
+STATE morph=76 drawcount=27
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=0.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=1.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=0.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=1.000 selected=TRUE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=0.000 selected=FALSE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=1.000 selected=TRUE
+STATE morph=77 drawcount=30
+mat 0 eye faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 1 face faces=24720 base=1.000 resolved=1.000 selected=TRUE
+mat 2 face2 faces=4692 base=1.000 resolved=1.000 selected=TRUE
+mat 3 hair faces=32076 base=1.000 resolved=1.000 selected=TRUE
+mat 4 ahoge faces=720 base=1.000 resolved=1.000 selected=TRUE
+mat 5 hair_side_L faces=3456 base=0.000 resolved=0.000 selected=TRUE
+mat 6 hair_side_R faces=3456 base=1.000 resolved=1.000 selected=TRUE
+mat 7 bag faces=33564 base=1.000 resolved=1.000 selected=FALSE
+mat 8 acce faces=6048 base=1.000 resolved=1.000 selected=TRUE
+mat 9 shoes faces=16032 base=1.000 resolved=1.000 selected=TRUE
+mat 10 weapon faces=9216 base=1.000 resolved=1.000 selected=TRUE
+mat 11 ball faces=1152 base=1.000 resolved=1.000 selected=TRUE
+mat 12 body faces=2784 base=1.000 resolved=1.000 selected=TRUE
+mat 13 metal faces=13440 base=1.000 resolved=1.000 selected=FALSE
+mat 14 tops faces=20220 base=1.000 resolved=0.000 selected=TRUE
+mat 15 topsB faces=9072 base=1.000 resolved=1.000 selected=TRUE
+mat 16 topsC faces=7008 base=1.000 resolved=1.000 selected=TRUE
+mat 17 eye_HE faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 18 eye_KR faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 19 eye_KY faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 20 eye_NH faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 21 eye_NM faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 22 eye_SP faces=1512 base=1.000 resolved=1.000 selected=TRUE
+mat 23 eye_TS faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 24 eye_WH faces=1512 base=1.000 resolved=1.000 selected=FALSE
+mat 25 morph_AO faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 26 morph_KG faces=13368 base=0.000 resolved=0.000 selected=TRUE
+mat 27 namida faces=5760 base=1.000 resolved=1.000 selected=FALSE
+mat 28 hair_front faces=10992 base=1.000 resolved=1.000 selected=TRUE
+mat 29 bottoms faces=9102 base=1.000 resolved=1.000 selected=TRUE
+mat 30 bottomsB faces=40284 base=1.000 resolved=1.000 selected=TRUE
+mat 31 eye_DF faces=1152 base=1.000 resolved=1.000 selected=FALSE
+mat 32 cheek1 faces=480 base=1.000 resolved=1.000 selected=TRUE
+mat 33 cheek2 faces=576 base=0.000 resolved=0.000 selected=TRUE
+mat 34 leg faces=13788 base=1.000 resolved=1.000 selected=TRUE
+mat 35 socks faces=17544 base=1.000 resolved=1.000 selected=TRUE
+mat 36 hand faces=22032 base=1.000 resolved=1.000 selected=TRUE
+mat 37 ribbon faces=23352 base=1.000 resolved=1.000 selected=FALSE
+mat 38 arm faces=7056 base=0.000 resolved=1.000 selected=TRUE
+mat 39 waki faces=1848 base=0.000 resolved=1.000 selected=TRUE
+mat 40 tasuki faces=5748 base=0.000 resolved=0.000 selected=TRUE
+mat 41 tops_katadasi faces=12012 base=0.000 resolved=1.000 selected=TRUE
+mat 42 tops_tasuki faces=15060 base=0.000 resolved=0.000 selected=TRUE

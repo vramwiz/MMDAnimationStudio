@@ -43,6 +43,18 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
     ParentBackground = False
     TabOrder = 2
   end
+  object PanelPoseSync: TDarkPanel
+    Left = 0
+    Top = 30
+    Width = 640
+    Height = 450
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = ''
+    Color = clBlack
+    ParentBackground = False
+    TabOrder = 10
+  end
   object PanelExpression: TDarkPanel
     Left = 0
     Top = 30
@@ -165,6 +177,14 @@ object FrameMMDAnimationStudio: TFrameMMDAnimationStudio
         Hint = #12509#12540#12474#12434#30331#37682#12375#31649#29702#12377#12427
         Caption = #12509#12540#12474
         ImageIndex = 2
+      end
+      object ButtonPoseSync: TToolButton
+        Left = 84
+        Top = 0
+        Hint = #36984#25246#20013#12398#12509#12540#12474#12458#12502#12472#12455#12463#12488#12434#21516#26399#32232#38598
+        Caption = #12509#12540#12474#21516#26399
+        ImageIndex = 12
+        Visible = False
       end
       object ButtonMotion: TToolButton
         Left = 84

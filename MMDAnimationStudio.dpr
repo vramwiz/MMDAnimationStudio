@@ -60,18 +60,31 @@ uses
   MmdSerifAviUtlProfile in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlProfile.pas',
   MmdSerifAviUtlAliasProvider in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAliasProvider.pas',
   MmdSerifAviUtlAdapter in 'Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAdapter.pas',
+  MmdSerifAviUtlSelectionSync in 'Source\Plugin\Serif\AviUtl\Sync\MmdSerifAviUtlSelectionSync.pas',
   MmdSerifHost in 'Source\Plugin\Serif\Host\MmdSerifHost.pas',
-  MmdAiPoseCatalogBridge in 'Source\AI\MmdAiPoseCatalogBridge.pas',
-  MmdAiPoseEditorForm in 'Source\AI\MmdAiPoseEditorForm.pas',
-  MmdAiPoseRepository in 'Source\AI\MmdAiPoseRepository.pas',
-  MmdAiPoseSession in 'Source\AI\MmdAiPoseSession.pas',
-  MmdAiPreviewPipeProtocol in 'Source\AI\MmdAiPreviewPipeProtocol.pas',
-  MmdAiPreviewPipeServer in 'Source\AI\MmdAiPreviewPipeServer.pas',
-  MmdAiPreviewProtocol in 'Source\AI\MmdAiPreviewProtocol.pas',
-  MmdAiProviderClient in 'Source\AI\MmdAiProviderClient.pas',
+  MmdAiPoseCatalogBridge in 'Source\AI\Pose\MmdAiPoseCatalogBridge.pas',
+  MmdAiPoseEditorForm in 'Source\AI\Pose\MmdAiPoseEditorForm.pas',
+  MmdSimplePoseEditSession in 'Source\AI\Controller\MmdSimplePoseEditSession.pas',
+  MmdProControllerOutput in 'Source\AI\Controller\Protocol\MmdProControllerOutput.pas',
+  MmdProControllerReportDecoder in 'Source\AI\Controller\Protocol\MmdProControllerReportDecoder.pas',
+  MmdTimelinePoseBinding in 'Source\Plugin\Extension\Pose\Sync\MmdTimelinePoseBinding.pas',
+  MmdTimelinePoseDebugLog in 'Source\Plugin\Extension\Pose\Diagnostics\MmdTimelinePoseDebugLog.pas',
+  MmdTimelinePoseSyncTrace in 'Source\Plugin\Extension\Pose\Diagnostics\MmdTimelinePoseSyncTrace.pas',
+  MmdTimelinePoseControllerDriver in 'Source\Plugin\Extension\Pose\Input\MmdTimelinePoseControllerDriver.pas',
+  MmdTimelinePoseComposite in 'Source\Plugin\Extension\Pose\Sync\MmdTimelinePoseComposite.pas',
+  MmdTimelinePoseEditorFrame in 'Source\Plugin\Extension\Pose\Editor\MmdTimelinePoseEditorFrame.pas',
+  MmdTimelinePosePageController in 'Source\Plugin\Extension\Pose\Navigation\MmdTimelinePosePageController.pas',
+  MmdTimelinePoseTabController in 'Source\Plugin\Extension\Pose\Navigation\MmdTimelinePoseTabController.pas',
+  MmdAiPoseRepository in 'Source\AI\Pose\MmdAiPoseRepository.pas',
+  MmdAiPoseSession in 'Source\AI\Pose\MmdAiPoseSession.pas',
+  MmdAiPreviewPipeProtocol in 'Source\AI\Preview\Pipe\MmdAiPreviewPipeProtocol.pas',
+  MmdAiPreviewPipeServer in 'Source\AI\Preview\Pipe\MmdAiPreviewPipeServer.pas',
+  MmdAiPreviewProtocol in 'Source\AI\Preview\Protocol\MmdAiPreviewProtocol.pas',
+  MmdAiProviderClient in 'Source\AI\Preview\Protocol\MmdAiProviderClient.pas',
   MmdAiPoseStudioIntegration in 'Source\Plugin\Extension\AI\MmdAiPoseStudioIntegration.pas',
   MMDAnimationStudioExtension in 'Source\Plugin\Extension\MMDAnimationStudioExtension.pas',
   MMDAnimationStudioToolbarController in 'Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas',
+  MmdStudioPageComposition in 'Source\Plugin\Extension\UI\Composition\MmdStudioPageComposition.pas',
   MMDAnimationStudioToolbarIcons in 'Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas',
   MMDAnimationStudioFrame in 'Source\Plugin\Extension\MMDAnimationStudioFrame.pas' {FrameMMDAnimationStudio: TFrame},
   PmxCatalogFrame in 'Source\Plugin\Extension\PMX\Catalog\PmxCatalogFrame.pas' {FramePmxCatalog: TFrame},
@@ -155,6 +168,7 @@ uses
   MMDAnimationStudioForm in 'Source\Plugin\Extension\MMDAnimationStudioForm.pas' {FormMMDAnimationStudio};
 
 {$R *.res}
+{$R '..\AviUtl2PluginLib\Serif\Chara\SerifCharaVectorResource.RES'}
 {$I Version.inc}
 
 function InitializePlugin(Version: DWORD): BOOL; cdecl;

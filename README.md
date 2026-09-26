@@ -9,7 +9,7 @@
 - 共通MMDコードをこのリポジトリへ複製しません。
 - ユーザーのPMXモデルとビルド成果物はGitへ追加しません。
 
-`MMDAnimationStudioGroup.groupproj`から、本命の拡張プラグイン、Modelプラグイン、Poseプラグインをまとめて開けます。
+`MMDAnimationStudioGroup.groupproj`から、拡張プラグイン、モデル表示Filter、Script Moduleなどの現行プロジェクトをまとめて開けます。
 
 ## プロジェクト
 
@@ -30,6 +30,8 @@ Debug / Releaseとも、拡張プラグインは`C:\ProgramData\aviutl2\Plugin\M
 Releaseでビルドしてください。ZIP内はSyncroh2の配布ZIPと同じく、ファイルを直接格納した
 `Plugin`／`Script`構成です。カタログからのインストール時は、それぞれAviUtl2の
 `Plugin\MMD`／`Script\MMD`へコピーします。
+ポーズ学習資料`Learning\MMD_POSE_LEARNING.md`と確定ポーズ値`Learning\confirmed-poses.json`もZIPに含め、
+カタログ経由では`Plugin\MMD\Learning`へ配置します。
 AviUtl2カタログ用定義は`Setup\MMDAnimationStudio.catalog.json`にあり、GitHub Releaseへは
 資産名`MMDAnimationStudio.zip`で添付します。
 

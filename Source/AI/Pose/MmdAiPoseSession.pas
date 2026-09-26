@@ -173,6 +173,10 @@ function ResolvePose(const Request: TJSONObject; const ModelFile,
   CurrentPose: string; out PoseData, ErrorText: string): Boolean;
 var
   NamedPoses: TPmxNamedBonePoses;
+  RootRotation: TPmxQuaternion;
+  HasRootRotation: Boolean;
+  RelativeYaw, RelativePitch: Single;
+  HasRelativeAngle: Boolean;
   Preview, PreviewRoot: TJSONObject;
   PreviewText: string;
   PreviewValue, Value: TJSONValue;
@@ -182,11 +186,15 @@ begin
   PoseData := ReadString(Request, 'pose_data', '');
   if PoseData <> '' then
   begin
-    if not TryDecodePoseData(PoseData, NamedPoses) then
+    if not TryDecodePoseDataWithRootAndAngle(PoseData, NamedPoses,
+      RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+      HasRelativeAngle) then
       ErrorText := 'pose_data must be mmd.pose version 1.'
     else
     begin
-      PoseData := EncodePoseData(NamedPoses);
+      PoseData := EncodePoseDataWithRootAndAngle(NamedPoses,
+        RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+        HasRelativeAngle);
       Result := True;
     end;
     Exit;
@@ -221,12 +229,16 @@ begin
       Exit;
     end;
     PoseData := ReadString(PreviewRoot, 'pose_data', '');
-    if not TryDecodePoseData(PoseData, NamedPoses) then
+    if not TryDecodePoseDataWithRootAndAngle(PoseData, NamedPoses,
+      RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+      HasRelativeAngle) then
     begin
       ErrorText := 'MMD provider returned invalid pose_data.';
       Exit;
     end;
-    PoseData := EncodePoseData(NamedPoses);
+    PoseData := EncodePoseDataWithRootAndAngle(NamedPoses,
+      RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+      HasRelativeAngle);
     Result := True;
   finally
     PreviewValue.Free;

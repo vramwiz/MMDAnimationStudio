@@ -97,10 +97,16 @@ end;
 function BuildDirectPosePreview(const PoseData: string): string;
 var
   NamedPoses: TPmxNamedBonePoses;
+  RootRotation: TPmxQuaternion;
+  HasRootRotation: Boolean;
+  RelativeYaw, RelativePitch: Single;
+  HasRelativeAngle: Boolean;
   ResolvedBones: TJSONArray;
   Root: TJSONObject;
 begin
-  if not TryDecodePoseData(PoseData, NamedPoses) then
+  if not TryDecodePoseDataWithRootAndAngle(PoseData, NamedPoses,
+    RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+    HasRelativeAngle) then
     Exit(ErrorJson('invalid_pose_data',
       'pose_data must be mmd.pose version 1.'));
   Root := TJSONObject.Create;
@@ -108,7 +114,9 @@ begin
     Root.AddPair('status', 'ok');
     Root.AddPair('extension', 'mmd.pose');
     Root.AddPair('operation', 'preview_pose');
-    Root.AddPair('pose_data', EncodePoseData(NamedPoses));
+    Root.AddPair('pose_data', EncodePoseDataWithRootAndAngle(NamedPoses,
+      RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+      HasRelativeAngle));
     Root.AddPair('bone_count', TJSONNumber.Create(Length(NamedPoses)));
     ResolvedBones := TJSONArray.Create;
     Root.AddPair('resolved_bones', ResolvedBones);

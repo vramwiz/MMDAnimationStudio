@@ -10,9 +10,12 @@ uses
   Vcl.Controls,
   Vcl.ExtCtrls,
   SerifFrame,
-  SerifSpeechSynthesisProject;
+  SerifSpeechSynthesisProject,
+  MmdSerifAviUtlSelectionSync;
 
 type
+  TMmdSerifSelectionEvent = procedure(Sender: TObject) of object;
+
   TMmdSerifProjectSaveAction = (
     mssNone,
     mssPromoteTemporary,
@@ -33,8 +36,15 @@ type
     FSpeechSaveAction: TSerifSpeechSynthesisSaveAction;
     FSpeechSourceFolder: string;
     FSpeechTargetFolder: string;
+    FSelectionTimer: TTimer;
+    FWasHovered: Boolean;
+    FLastSelection: TMmdSerifSelection;
+    FHasSelection: Boolean;
+    FOnSelection: TMmdSerifSelectionEvent;
     procedure ProjectLoadTimer(Sender: TObject);
     procedure ProjectSaveTimer(Sender: TObject);
+    procedure SelectionTimer(Sender: TObject);
+    function Hovered: Boolean;
     procedure SerifMoveCursorFocus(Sender: TObject; Layer, Frame: Integer);
   public
     // 共有Serifを配置する親Controlを保持し、遅延同期用タイマーを生成する。引数は所有しない。
@@ -52,6 +62,9 @@ type
       NewProjectFilePath: string);
     // 生成済みSerifフレームだけへシーン変更を通知する。未生成時は何もしない。
     procedure SceneChanged(SceneID: Integer);
+    // タイムラインのフォーカス対象をSerif画面へ反映する。初回表示でも呼べる。
+    procedure SyncSelection;
+    property OnSelection: TMmdSerifSelectionEvent read FOnSelection write FOnSelection;
     property Frame: TFrameSerif read FFrame;
   end;
 
@@ -59,6 +72,7 @@ implementation
 
 uses
   System.SysUtils,
+  Winapi.Windows,
   AviUtl2PluginProject,
   SerifAviUtlProfile,
   SerifHostBootstrap,
@@ -84,10 +98,15 @@ begin
   FProjectSaveTimer.Enabled := False;
   FProjectSaveTimer.Interval := 1;
   FProjectSaveTimer.OnTimer := ProjectSaveTimer;
+
+  FSelectionTimer := TTimer.Create(AOwner);
+  FSelectionTimer.Interval := 250;
+  FSelectionTimer.OnTimer := SelectionTimer;
 end;
 
 destructor TMmdSerifHost.Destroy;
 begin
+  FSelectionTimer.Free;
   FProjectSaveTimer.Free;
   FProjectLoadTimer.Free;
   FFrame.Free;
@@ -117,11 +136,71 @@ end;
 
 procedure TMmdSerifHost.Show;
 begin
-  EnsureFrame.Show;
+  if not EnsureFrame.IsInputPageActive then
+    FFrame.Show;
+end;
+
+function TMmdSerifHost.Hovered: Boolean;
+var
+  Cursor: TPoint;
+  WindowAtCursor: HWND;
+  Surface: TWinControl;
+begin
+  Result := False;
+  if not (FOwner is TWinControl) then Exit;
+  Surface := TWinControl(FOwner);
+  if not Surface.Visible or not Surface.HandleAllocated or
+    not GetCursorPos(Cursor) then Exit;
+  WindowAtCursor := WindowFromPoint(Cursor);
+  Result := (WindowAtCursor = Surface.Handle) or
+    IsChild(Surface.Handle, WindowAtCursor);
+end;
+
+procedure TMmdSerifHost.SelectionTimer(Sender: TObject);
+begin
+  if not Hovered then
+  begin
+    FWasHovered := False;
+    FHasSelection := False;
+    Exit;
+  end;
+  if FWasHovered then Exit;
+  FWasHovered := True;
+  SyncSelection;
+end;
+
+procedure TMmdSerifHost.SyncSelection;
+var
+  Selection: TMmdSerifSelection;
+begin
+  try
+    if not TryReadSelectedMmdSerif(Selection) then
+    begin
+      FHasSelection := False;
+      Exit;
+    end;
+    if FHasSelection and
+      (FLastSelection.ObjectId = Selection.ObjectId) and
+      (FLastSelection.Layer = Selection.Layer) and
+      (FLastSelection.StartFrame = Selection.StartFrame) and
+      (FLastSelection.EndFrame = Selection.EndFrame) and
+      (FLastSelection.WaveLayer = Selection.WaveLayer) and
+      (FLastSelection.UID = Selection.UID) then Exit;
+    FHasSelection := True;
+    FLastSelection := Selection;
+    if Assigned(FOnSelection) then FOnSelection(Self);
+    Show;
+    FFrame.ActiveSerif(Selection.StartFrame, Selection.Layer,
+      Selection.WaveLayer, Selection.UID);
+  except
+    // AviUtl2との選択読取失敗をVCLタイマー境界から漏らさない。
+  end;
 end;
 
 procedure TMmdSerifHost.ProjectLoaded;
 begin
+  FHasSelection := False;
+  FWasHovered := False;
   SerifSpeechSynthesisBeginProjectLoad;
   FProjectLoadTimer.Enabled := False;
   FProjectLoadTimer.Enabled := True;
@@ -239,6 +318,8 @@ end;
 
 procedure TMmdSerifHost.SceneChanged(SceneID: Integer);
 begin
+  FHasSelection := False;
+  FWasHovered := False;
   if Assigned(FFrame) then
     FFrame.SceneChange(SceneID);
 end;

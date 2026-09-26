@@ -30,6 +30,7 @@ uses
   PmxMorph,
   PmxPose,
   PmxPoseCodec,
+  PmxPoseMath,
   PmxReader;
 
 const
@@ -192,12 +193,18 @@ begin
 end;
 
 procedure LoadCapturePoses(const Model: TPmxModel; const PoseData: string;
-  out Poses: TPmxBonePoses);
+  out Poses: TPmxBonePoses; out RootRotation: TPmxQuaternion);
 var
   NamedPoses: TPmxNamedBonePoses;
+  RelativeYaw, RelativePitch: Single;
+  HasRoot, HasAngle: Boolean;
 begin
-  if not TryDecodePoseData(PoseData, NamedPoses) then
+  if not TryDecodePoseDataWithRootAndAngle(PoseData, NamedPoses,
+    RootRotation, HasRoot, RelativeYaw, RelativePitch, HasAngle) then
     raise EArgumentException.Create('Normalized pose_data is invalid.');
+  RootRotation := NormalizeQuaternion(MultiplyQuaternion(
+    QuaternionFromYawPitchDegrees(RelativeYaw, RelativePitch),
+    RootRotation));
   InitializeBonePoses(Model, Poses);
   ApplyNamedBonePoses(Model, NamedPoses, Poses);
 end;
@@ -213,6 +220,7 @@ var
   Model: TPmxModel;
   OleResult: HRESULT;
   Poses: TPmxBonePoses;
+  RootRotation: TPmxQuaternion;
   Renderer: TMmdD3DRenderer;
   RenderModel: TPmxModel;
   Window: HWND;
@@ -231,7 +239,7 @@ begin
   DiagnosticModel := nil;
   try
     Model := GetCachedPmxModel(ModelFile);
-    LoadCapturePoses(Model, PoseData, Poses);
+    LoadCapturePoses(Model, PoseData, Poses, RootRotation);
     Camera := DefaultPreviewCamera;
     ApplyCaptureView(Camera, ViewName);
     ApplyPreviewFocus(Model, Poses, FocusName, Width, Height, Camera);
@@ -240,7 +248,7 @@ begin
     if Pass = appBones then
     begin
       ClearDiagnosticBitmap(Bitmap, Width, Height);
-      DrawDiagnosticBones(Bitmap, Model, Poses, Camera);
+      DrawDiagnosticBones(Bitmap, Model, Poses, Camera, RootRotation);
     end
     else
     begin
@@ -252,6 +260,7 @@ begin
       Renderer := TMmdD3DRenderer.Create(Window, Width, Height);
       if Renderer.ErrorText <> '' then
         raise Exception.Create(Renderer.ErrorText);
+      Renderer.SetRootRotation(RootRotation);
       Renderer.SetScene(RenderModel, Poses, nil, EmptyPreviewTarget,
         EmptyPreviewTarget);
       if Renderer.ErrorText <> '' then
@@ -261,7 +270,7 @@ begin
         raise Exception.Create(Renderer.ErrorText);
       LoadedTextureCount := Renderer.LoadedTextureCount;
       if Pass = appBoneOverlay then
-        DrawDiagnosticBones(Bitmap, Model, Poses, Camera);
+        DrawDiagnosticBones(Bitmap, Model, Poses, Camera, RootRotation);
     end;
     Bitmap.SaveToFile(FilePath);
   finally

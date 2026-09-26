@@ -138,14 +138,22 @@ var
   ErrorText, ModelFile, PmxId, PoseData, PoseName, ResponseText: string;
   MessageResult: DWORD_PTR;
   NamedPoses: TPmxNamedBonePoses;
+  RootRotation: TPmxQuaternion;
+  HasRootRotation: Boolean;
+  RelativeYaw, RelativePitch: Single;
+  HasRelativeAngle: Boolean;
   Normalized: TJSONObject;
   Window: HWND;
 begin
   PoseData := ReadString(Request, 'pose_data', '');
-  if not TryDecodePoseData(PoseData, NamedPoses) then
+  if not TryDecodePoseDataWithRootAndAngle(PoseData, NamedPoses,
+    RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+    HasRelativeAngle) then
     Exit(ErrorJson('invalid_pose_data',
       'pose_data must be a complete mmd.pose version 1 object.'));
-  PoseData := EncodePoseData(NamedPoses);
+  PoseData := EncodePoseDataWithRootAndAngle(NamedPoses,
+    RootRotation, HasRootRotation, RelativeYaw, RelativePitch,
+    HasRelativeAngle);
   PoseName := ReadString(Request, 'pose_name', '新しいポーズ');
   if Trim(PoseName) = '' then
     PoseName := '新しいポーズ';

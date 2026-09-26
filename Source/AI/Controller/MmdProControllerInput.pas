@@ -1,4 +1,4 @@
-unit MmdProControllerInput;
+﻿unit MmdProControllerInput;
 
 // Switch Pro Controller の HID 入力を非同期に読み取る。
 
@@ -30,9 +30,11 @@ type
     FState: TMmdProPadState;
     FPressedButtons, FPressedPOV: Cardinal;
     FLastSearch: UInt64;
+    FLastReportTick: UInt64;
     FDevicePath: string;
     FOutputReportLength: Word;
     FFullModeEnabled: Boolean;
+    FPacketNumber: Byte;
     procedure CloseDevice;
     function OpenDevice: Boolean;
     function StartRead: Boolean;
@@ -41,17 +43,22 @@ type
     procedure DecodeReport(Count: Cardinal);
     function GetConnected: Boolean;
   public
+    // HID入力状態を未接続で初期化する。実デバイス探索はPoll時に行う。
     constructor Create;
+    // 読取とデバイスを閉じ、変更した報告モードを元へ戻す。
     destructor Destroy; override;
+    // 最新報告と途中の短い押下を返す。未接続時は間隔を空けて再探索する。
     function Poll(out State: TMmdProPadState): Boolean;
+    // 画面表示時に再探索待ちを省いて接続を試み、接続状態を返す。
     function ProbeConnection: Boolean;
+    // HID接続を閉じ、次回Pollで再探索できるようにする。
     procedure Disconnect;
     property Connected: Boolean read GetConnected;
   end;
 
 implementation
 
-uses System.Math;
+uses MmdProControllerOutput, MmdProControllerReportDecoder;
 
 const
   HidInterfaceGuid: TGUID = '{4D1E55B2-F16F-11CF-88CB-001111000030}';
@@ -108,6 +115,7 @@ begin
   FHandle := INVALID_HANDLE_VALUE;
   FState.POV := $FFFF;
   FPressedPOV := $FFFF;
+  FLastReportTick := 0;
 end;
 
 destructor TMmdProControllerInput.Destroy;
@@ -139,39 +147,19 @@ begin
   FState.POV := $FFFF;
   FPressedButtons := 0;
   FPressedPOV := $FFFF;
+  FLastReportTick := 0;
   FBuffer := nil;
   FDevicePath := '';
   FOutputReportLength := 0;
   FFullModeEnabled := False;
+  FPacketNumber := 0;
 end;
 
 function TMmdProControllerInput.SetReportMode(const Path: string;
   OutputLength: Word; Mode: Byte): Boolean;
-var
-  WriteHandle: THandle;
-  Output: TBytes;
-  Written: Cardinal;
 begin
-  Result := False;
-  if (Path = '') or (OutputLength < 12) or (OutputLength > 4096) then Exit;
-  WriteHandle := CreateFileW(PWideChar(Path), GENERIC_WRITE,
-    FILE_SHARE_READ or FILE_SHARE_WRITE, nil, OPEN_EXISTING, 0, 0);
-  if WriteHandle = INVALID_HANDLE_VALUE then Exit;
-  try
-    SetLength(Output, OutputLength);
-    FillChar(Output[0], OutputLength, 0);
-    Output[0] := $01;
-    // 無振動のペイロードを付けて、入力レポート方式を変更する。
-    Output[3] := $01; Output[4] := $40; Output[5] := $40;
-    Output[7] := $01; Output[8] := $40; Output[9] := $40;
-    Output[10] := $03;
-    Output[11] := Mode;
-    Written := 0;
-    Result := WriteFile(WriteHandle, Output[0], OutputLength, Written, nil) and
-      (Written = OutputLength);
-  finally
-    CloseHandle(WriteHandle);
-  end;
+  Result := SendProSubcommand(Path, OutputLength,
+    FPacketNumber, $03, Mode);
 end;
 
 function TMmdProControllerInput.OpenDevice: Boolean;
@@ -251,7 +239,17 @@ begin
       FOutputReportLength := Caps.OutputReportByteLength;
       FFullModeEnabled := SetReportMode(FDevicePath,
         FOutputReportLength, $30);
-      if StartRead then Exit(True);
+      TraceProOutput('device_open',
+        'input_length=' + IntToStr(FReportLength) +
+        ' output_length=' + IntToStr(FOutputReportLength) +
+        ' full_mode=' + BoolToStr(FFullModeEnabled, True));
+      if StartRead then
+      begin
+        // HID接続後にプレイヤー1を点灯し、探索中の流れる表示を終える。
+        SendProSubcommand(FDevicePath, FOutputReportLength,
+          FPacketNumber, $30, $01);
+        Exit(True);
+      end;
       CloseDevice;
     end;
   finally
@@ -279,95 +277,11 @@ begin
   end;
 end;
 
-function NormalizeStick(Value: Integer): Single;
-begin
-  Result := EnsureRange((Value - 2048) / 2048.0, -1.0, 1.0);
-  if Abs(Result) < 0.18 then Exit(0);
-  Result := Sign(Result) * (Abs(Result) - 0.18) / 0.82;
-end;
-
-function NormalizeSimpleStick(Value: Integer): Single;
-begin
-  Result := EnsureRange((Value - 32768) / 32768.0, -1.0, 1.0);
-  if Abs(Result) < 0.18 then Exit(0);
-  Result := Sign(Result) * (Abs(Result) - 0.18) / 0.82;
-end;
-
-procedure SetButton(var Buttons: Cardinal; Number: Integer; IsDown: Boolean);
-begin
-  if IsDown then Buttons := Buttons or (Cardinal(1) shl (Number - 1));
-end;
-
 procedure TMmdProControllerInput.DecodeReport(Count: Cardinal);
-var Buttons, OldPOV: Cardinal; X, Y: Integer; Hat: Byte;
 begin
-  if Count < 12 then Exit;
-  Buttons := 0;
-  OldPOV := FState.POV;
-  if FBuffer[0] in [$21, $30, $31] then
-  begin
-    SetButton(Buttons, ProButtonA, (FBuffer[3] and $08) <> 0);
-    SetButton(Buttons, ProButtonB, (FBuffer[3] and $04) <> 0);
-    SetButton(Buttons, ProButtonX, (FBuffer[3] and $02) <> 0);
-    SetButton(Buttons, ProButtonY, (FBuffer[3] and $01) <> 0);
-    SetButton(Buttons, ProButtonR, (FBuffer[3] and $40) <> 0);
-    SetButton(Buttons, ProButtonZR, (FBuffer[3] and $80) <> 0);
-    SetButton(Buttons, ProButtonL, (FBuffer[5] and $40) <> 0);
-    SetButton(Buttons, ProButtonZL, (FBuffer[5] and $80) <> 0);
-    SetButton(Buttons, ProButtonMinus, (FBuffer[4] and $01) <> 0);
-    SetButton(Buttons, ProButtonPlus, (FBuffer[4] and $02) <> 0);
-    SetButton(Buttons, ProButtonRightStick, (FBuffer[4] and $04) <> 0);
-    SetButton(Buttons, ProButtonLeftStick, (FBuffer[4] and $08) <> 0);
-    FState.POV := $FFFF;
-    if (FBuffer[5] and $02) <> 0 then FState.POV := 0;
-    if (FBuffer[5] and $01) <> 0 then FState.POV := 18000;
-    if FState.POV = $FFFF then
-    begin
-      if (FBuffer[5] and $04) <> 0 then FState.POV := 9000;
-      if (FBuffer[5] and $08) <> 0 then FState.POV := 27000;
-    end;
-    X := FBuffer[6] or ((FBuffer[7] and $0F) shl 8);
-    Y := (FBuffer[7] shr 4) or (FBuffer[8] shl 4);
-    FState.LeftX := NormalizeStick(X);
-    FState.LeftY := NormalizeStick(Y);
-    X := FBuffer[9] or ((FBuffer[10] and $0F) shl 8);
-    Y := (FBuffer[10] shr 4) or (FBuffer[11] shl 4);
-    FState.RightX := NormalizeStick(X);
-    FState.RightY := NormalizeStick(Y);
-  end
-  else if FBuffer[0] = $3F then
-  begin
-    SetButton(Buttons, ProButtonB, (FBuffer[1] and $01) <> 0);
-    SetButton(Buttons, ProButtonA, (FBuffer[1] and $02) <> 0);
-    SetButton(Buttons, ProButtonY, (FBuffer[1] and $04) <> 0);
-    SetButton(Buttons, ProButtonX, (FBuffer[1] and $08) <> 0);
-    SetButton(Buttons, ProButtonMinus, (FBuffer[2] and $01) <> 0);
-    SetButton(Buttons, ProButtonPlus, (FBuffer[2] and $02) <> 0);
-    SetButton(Buttons, ProButtonLeftStick, (FBuffer[2] and $04) <> 0);
-    SetButton(Buttons, ProButtonRightStick, (FBuffer[2] and $08) <> 0);
-    Hat := FBuffer[3] and $0F;
-    FState.POV := $FFFF;
-    case Hat of
-      0, 1, 7: FState.POV := 0;
-      2: FState.POV := 9000;
-      3, 4, 5: FState.POV := 18000;
-      6: FState.POV := 27000;
-    end;
-    X := FBuffer[4] or (FBuffer[5] shl 8);
-    Y := FBuffer[6] or (FBuffer[7] shl 8);
-    FState.LeftX := NormalizeSimpleStick(X);
-    FState.LeftY := -NormalizeSimpleStick(Y);
-    X := FBuffer[8] or (FBuffer[9] shl 8);
-    Y := FBuffer[10] or (FBuffer[11] shl 8);
-    FState.RightX := NormalizeSimpleStick(X);
-    FState.RightY := -NormalizeSimpleStick(Y);
-  end
-  else Exit;
-  FPressedButtons := FPressedButtons or (Buttons and not FState.Buttons);
-  if (FState.POV <> $FFFF) and (FState.POV <> OldPOV) then
-    FPressedPOV := FState.POV;
-  FState.Buttons := Buttons;
-  FHaveReport := True;
+  DecodeProReport(FBuffer, Count, FState, FPressedButtons, FPressedPOV,
+    FHaveReport);
+  if FHaveReport then FLastReportTick := GetTickCount64;
 end;
 
 function TMmdProControllerInput.Poll(out State: TMmdProPadState): Boolean;
@@ -408,6 +322,16 @@ begin
     State := FState;
     State.Buttons := State.Buttons or FPressedButtons;
     if State.POV = $FFFF then State.POV := FPressedPOV;
+    // HIDの新しい報告が途絶えたとき、最後のスティック入力を保持しない。
+    if GetTickCount64 - FLastReportTick > 250 then
+    begin
+      State.LeftX := 0;
+      State.LeftY := 0;
+      State.RightX := 0;
+      State.RightY := 0;
+      State.Buttons := 0;
+      State.POV := $FFFF;
+    end;
   end;
   FPressedButtons := 0;
   FPressedPOV := $FFFF;

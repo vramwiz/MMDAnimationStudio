@@ -15,7 +15,11 @@ procedure ClearDiagnosticBitmap(Bitmap: Vcl.Graphics.TBitmap;
   Width, Height: Integer);
 // 最終姿勢の骨格を、モデル本人基準の左青・右赤・中央黄で描く。
 procedure DrawDiagnosticBones(Bitmap: Vcl.Graphics.TBitmap; Model: TPmxModel;
-  const Poses: TPmxBonePoses; const Camera: TMmdPreviewCamera);
+  const Poses: TPmxBonePoses; const Camera: TMmdPreviewCamera); overload;
+// ポーズ全体の回転を骨格診断画像にも適用する。
+procedure DrawDiagnosticBones(Bitmap: Vcl.Graphics.TBitmap; Model: TPmxModel;
+  const Poses: TPmxBonePoses; const Camera: TMmdPreviewCamera;
+  const RootRotation: TPmxQuaternion); overload;
 // 計算済みシーンの骨格を任意Canvasへ描き、対話Viewportでも同じ凡例を使う。
 procedure DrawDiagnosticBoneScene(Canvas: Vcl.Graphics.TCanvas;
   Width, Height: Integer; Model: TPmxModel; const Scene: TMmdPreviewScene;
@@ -63,11 +67,18 @@ end;
 
 procedure DrawDiagnosticBones(Bitmap: Vcl.Graphics.TBitmap; Model: TPmxModel;
   const Poses: TPmxBonePoses; const Camera: TMmdPreviewCamera);
+begin
+  DrawDiagnosticBones(Bitmap, Model, Poses, Camera, IdentityQuaternion);
+end;
+
+procedure DrawDiagnosticBones(Bitmap: Vcl.Graphics.TBitmap; Model: TPmxModel;
+  const Poses: TPmxBonePoses; const Camera: TMmdPreviewCamera;
+  const RootRotation: TPmxQuaternion);
 var
   Scene: TMmdPreviewScene;
 begin
   BuildPreviewScene(Model, Poses, nil, EmptyPreviewTarget,
-    EmptyPreviewTarget, Scene);
+    EmptyPreviewTarget, RootRotation, Scene);
   DrawDiagnosticBoneScene(Bitmap.Canvas, Bitmap.Width, Bitmap.Height, Model,
     Scene, Camera);
 end;

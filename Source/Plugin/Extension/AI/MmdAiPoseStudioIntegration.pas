@@ -129,6 +129,15 @@ begin
         Exit;
       end;
       PoseId := Summary.LastPoseId;
+      // VPDはボーン情報のみなので、独自の全身回転はPoseUID側へ原本を残す。
+      for var PoseIndex := 0 to Storage.Count - 1 do
+        if Storage[PoseIndex].Id = PoseId then
+        begin
+          Storage[PoseIndex].PoseData := PoseData;
+          if not Storage.SaveToFile then
+            raise Exception.Create('全身回転を含むポーズを保存できません。');
+          Break;
+        end;
       PmxFrame.RefreshPoses(Model.Id, PoseId);
       if Assigned(PoseFrame) then
         PoseFrame.RefreshPoses(Model.Id, PoseId);

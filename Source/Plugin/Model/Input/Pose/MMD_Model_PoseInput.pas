@@ -7,30 +7,36 @@ interface
 uses
   AviUtl2FilterTypes;
 
-// 1始まりの参照レイヤーを現在位置で評価し、存在する同一PMXの姿勢JSONだけを返す。
+// 1始まりの参照レイヤーを現在位置で評価し、同一PMXの姿勢JSONと配置範囲を返す。
 function TryGetReferencedPoseData(Video: PFILTER_PROC_VIDEO; PoseLayer: Integer;
-  const ModelFileName: string; out PoseData: string): Boolean;
+  const ModelFileName: string; out PoseData: string;
+  out PoseStartFrame, PoseEndFrame: Integer): Boolean;
 
 implementation
 
 uses
   System.SysUtils,
+  MMD_Model_ReferenceGuard,
   MmdPoseSharedMemory,
   MmdPoseSharedTrace;
 
 function TryGetReferencedPoseData(Video: PFILTER_PROC_VIDEO; PoseLayer: Integer;
-  const ModelFileName: string; out PoseData: string): Boolean;
+  const ModelFileName: string; out PoseData: string;
+  out PoseStartFrame, PoseEndFrame: Integer): Boolean;
 var
   DataLength: Integer;
   ModelHash: UInt64;
   PoseObject: OBJECT_HANDLE;
+  PosePosition: TOBJECT_LAYER_FRAME;
   Snapshot: TMmdPoseSharedSnapshot;
   TimelineFrame: Integer;
 begin
   Result := False;
   PoseData := '';
+  PoseStartFrame := -1;
+  PoseEndFrame := -1;
   if (Video = nil) or not Assigned(Video^.GetImageObject) or
-    (Video^.Object_ = nil) or (PoseLayer <= 0) then
+    not CanEvaluateMmdModelReference(Video, PoseLayer) then
     Exit;
   TimelineFrame := GetTimelineFrame(Video^.Object_);
   ModelHash := HashModelPath(ModelFileName);
@@ -51,6 +57,18 @@ begin
     if Result then
     begin
       PoseData := Snapshot.PoseData;
+      // GetImageObjectが返すのは不透明な編集オブジェクトハンドル。
+      // POBJECT_INFOへキャストせず、編集セクション経由で配置位置を取得する。
+      if (Video^.Edit <> nil) and
+        Assigned(Video^.Edit^.GetObjectLayerFrame) then
+      begin
+        PosePosition := Video^.Edit^.GetObjectLayerFrame(PoseObject);
+        if PosePosition.StartFrame >= 0 then
+        begin
+          PoseStartFrame := PosePosition.StartFrame;
+          PoseEndFrame := PosePosition.EndFrame;
+        end;
+      end;
       DataLength := TEncoding.UTF8.GetByteCount(PoseData);
       TraceMmdPoseShared('MODEL', 'receive_ok', PoseLayer - 1,
         TimelineFrame, Snapshot.WriterObjectID, Snapshot.WriterEffectID,
@@ -69,6 +87,8 @@ begin
         ModelHash, 0, E.ClassName + ': ' + E.Message);
       Result := False;
       PoseData := '';
+      PoseStartFrame := -1;
+      PoseEndFrame := -1;
     end;
   end;
 end;

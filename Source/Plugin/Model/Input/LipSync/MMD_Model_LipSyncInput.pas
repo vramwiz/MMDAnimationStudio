@@ -23,6 +23,7 @@ implementation
 
 uses
   System.SysUtils,
+  MMD_Model_ReferenceGuard,
   KeyValueText,
   SerifTalkSharedMemory,
   SharedMemoryBase
@@ -92,8 +93,8 @@ begin
   SharedCurrentFrame := -1;
   SharedSourceObject := '';
   if (Video <> nil) and Assigned(Video^.GetImageObject) and
-    (Video^.Object_ <> nil) and (SerifLayer > 0) and
-    (SerifLayer < SharedLineCount) then
+    (SerifLayer < SharedLineCount) and
+    CanEvaluateMmdModelReference(Video, SerifLayer) then
   begin
     TimelineFrame := Video^.Object_^.FrameS + Video^.Object_^.Frame;
     try

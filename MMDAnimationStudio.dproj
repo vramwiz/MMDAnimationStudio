@@ -12,7 +12,7 @@
         <Base>True</Base>
     </PropertyGroup>
     <PropertyGroup>
-        <DCC_UnitSearchPath>Source\AI;Source\AI\Controller;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Editor\Controller;..\AviUtl2PluginLib\MMD\Editor\Controller\Math;..\AviUtl2PluginLib\Lib\SharedMemory;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Source\AI;Source\AI\Pose;Source\AI\Preview\UI;Source\AI\Preview\Host;Source\AI\Preview\Pipe;Source\AI\Preview\Protocol;Source\AI\Preview\Diagnostics;Source\AI\Controller\Protocol;Source\Plugin\Extension\Pose\Editor;Source\Plugin\Extension\Pose\Sync;Source\Plugin\Extension\Pose\Diagnostics;Source\Plugin\Extension\Pose\Input;Source\Plugin\Extension\Pose\Navigation;Source\Plugin\Extension\UI\Composition;Source\AI\Controller;..\AviUtl2PluginLib\MMD\AI;..\AviUtl2PluginLib\MMD\Editor\Controller;..\AviUtl2PluginLib\MMD\Editor\Controller\Math;..\AviUtl2PluginLib\Lib\SharedMemory;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup>
         <DCC_UnitSearchPath>Source\Plugin\Extension\Input;Source\Plugin\Extension\UI\Navigation;..\AviUtl2PluginLib\MMD\Editor\D3D\Resource;..\AviUtl2PluginLib\MMD\Editor\D3D\Render;..\AviUtl2PluginLib\MMD\Editor\D3D\Reference;..\AviUtl2PluginLib\MMD\Editor\D3D\Interaction;..\AviUtl2PluginLib\MMD\Editor\Setting\Toolbar;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
@@ -189,18 +189,31 @@
         <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlProfile.pas"/>
         <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAliasProvider.pas"/>
         <DCCReference Include="Source\Plugin\Serif\AviUtl\MmdSerifAviUtlAdapter.pas"/>
+        <DCCReference Include="Source\Plugin\Serif\AviUtl\Sync\MmdSerifAviUtlSelectionSync.pas"/>
         <DCCReference Include="Source\Plugin\Serif\Host\MmdSerifHost.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseCatalogBridge.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseEditorForm.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseRepository.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPoseSession.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewPipeProtocol.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewPipeServer.pas"/>
-        <DCCReference Include="Source\AI\MmdAiPreviewProtocol.pas"/>
-        <DCCReference Include="Source\AI\MmdAiProviderClient.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseCatalogBridge.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseEditorForm.pas"/>
+        <DCCReference Include="Source\AI\Controller\MmdSimplePoseEditSession.pas"/>
+        <DCCReference Include="Source\AI\Controller\Protocol\MmdProControllerOutput.pas"/>
+        <DCCReference Include="Source\AI\Controller\Protocol\MmdProControllerReportDecoder.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Sync\MmdTimelinePoseBinding.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Diagnostics\MmdTimelinePoseDebugLog.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Diagnostics\MmdTimelinePoseSyncTrace.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Input\MmdTimelinePoseControllerDriver.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Sync\MmdTimelinePoseComposite.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Editor\MmdTimelinePoseEditorFrame.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Navigation\MmdTimelinePosePageController.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\Pose\Navigation\MmdTimelinePoseTabController.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseRepository.pas"/>
+        <DCCReference Include="Source\AI\Pose\MmdAiPoseSession.pas"/>
+        <DCCReference Include="Source\AI\Preview\Pipe\MmdAiPreviewPipeProtocol.pas"/>
+        <DCCReference Include="Source\AI\Preview\Pipe\MmdAiPreviewPipeServer.pas"/>
+        <DCCReference Include="Source\AI\Preview\Protocol\MmdAiPreviewProtocol.pas"/>
+        <DCCReference Include="Source\AI\Preview\Protocol\MmdAiProviderClient.pas"/>
         <DCCReference Include="Source\Plugin\Extension\AI\MmdAiPoseStudioIntegration.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioExtension.pas"/>
         <DCCReference Include="Source\Plugin\Extension\UI\Navigation\MMDAnimationStudioToolbarController.pas"/>
+        <DCCReference Include="Source\Plugin\Extension\UI\Composition\MmdStudioPageComposition.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioToolbarIcons.pas"/>
         <DCCReference Include="Source\Plugin\Extension\MMDAnimationStudioFrame.pas">
             <Form>FrameMMDAnimationStudio</Form>

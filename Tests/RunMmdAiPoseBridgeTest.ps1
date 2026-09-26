@@ -7,7 +7,8 @@ Push-Location $taskRoot
 try {
     New-Item -ItemType Directory -Force $taskOutput | Out-Null
     $taskDirs = @(
-        (Join-Path $taskRoot 'Source\AI'),
+        (Join-Path $taskRoot 'Source\AI\Pose'),
+        (Join-Path $taskRoot 'Source\AI\Preview\Protocol'),
         (Join-Path $taskRoot '..\AviUtl2PluginLib\MMD\AI'),
         (Join-Path $taskRoot '..\AviUtl2PluginLib\MMD\Core'),
         (Join-Path $taskRoot '..\AviUtl2PluginLib\MMD\IO'),
